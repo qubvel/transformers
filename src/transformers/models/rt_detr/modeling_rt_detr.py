@@ -604,7 +604,7 @@ class RTDetrEncoderLayer(nn.Module):
         self.normalize_before = config.normalize_before
 
         # self-attention
-        self.self_attn = RTDetrMultiheadAttention(
+        self.self_attn = RTDETR_ATTENTION_CLASSES[config._attn_implementation](
             embed_dim=config.encoder_hidden_dim,
             num_heads=config.num_attention_heads,
             dropout=config.dropout,
@@ -957,7 +957,7 @@ class RTDetrMultiheadAttention(nn.Module):
         attention_mask: Optional[torch.Tensor] = None,
         position_embeddings: Optional[torch.Tensor] = None,
         output_attentions: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """Input shape: Batch x Time x Channel"""
 
         batch_size, target_len, embed_dim = hidden_states.size()
@@ -1031,11 +1031,77 @@ class RTDetrMultiheadAttention(nn.Module):
         return attn_output, attn_weights_reshaped
 
 
+class RTDetrMultiheadSdpaAttention(RTDetrMultiheadAttention):
+    is_causal = False
+
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_embeddings: Optional[torch.Tensor] = None,
+        output_attentions: bool = False,
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        """Input shape: Batch x Time x Channel"""
+
+        batch_size, target_len, embed_dim = hidden_states.size()
+        # add position embeddings to the hidden states before projecting to queries and keys
+        if position_embeddings is not None:
+            hidden_states_original = hidden_states
+            hidden_states = self.with_pos_embed(hidden_states, position_embeddings)
+
+        # get queries, keys and values
+        query_states = self.q_proj(hidden_states)
+        key_states = self._reshape(self.k_proj(hidden_states), -1, batch_size)
+        value_states = self._reshape(self.v_proj(hidden_states_original), -1, batch_size)
+
+        proj_shape = (batch_size * self.num_heads, -1, self.head_dim)
+        query_states = self._reshape(query_states, target_len, batch_size).view(*proj_shape)
+        key_states = key_states.view(*proj_shape)
+        value_states = value_states.view(*proj_shape)
+
+        # SDPA with memory-efficient backend is currently (torch==2.1.2) bugged with non-contiguous inputs with custom attn_mask,
+        # Reference: https://github.com/pytorch/pytorch/issues/112577.
+        if query_states.device.type == "cuda" and attention_mask is not None:
+            query_states = query_states.contiguous()
+            key_states = key_states.contiguous()
+            value_states = value_states.contiguous()
+
+        # We dispatch to SDPA's Flash Attention or Efficient kernels via this `is_causal` if statement instead of an inline conditional assignment
+        # in SDPA to support both torch.compile's dynamic shapes and full graph options. An inline conditional prevents dynamic shapes from compiling.
+        is_causal = True if self.is_causal and target_len > 1 else False
+
+        attn_output = torch.nn.functional.scaled_dot_product_attention(
+            query_states,
+            key_states,
+            value_states,
+            attn_mask=attention_mask,
+            dropout_p=self.dropout if self.training else 0.0,
+            is_causal=is_causal,
+        )
+
+        if attn_output.size() != (batch_size * self.num_heads, target_len, self.head_dim):
+            raise ValueError(
+                f"`attn_output` should be of size {(batch_size, self.num_heads, target_len, self.head_dim)}, but is"
+                f" {attn_output.size()}"
+            )
+
+        attn_output = attn_output.view(batch_size, self.num_heads, target_len, self.head_dim)
+        attn_output = attn_output.transpose(1, 2)
+        attn_output = attn_output.reshape(batch_size, target_len, embed_dim)
+
+        attn_output = self.out_proj(attn_output)
+
+        return attn_output, None
+
+
+RTDETR_ATTENTION_CLASSES = {"eager": RTDetrMultiheadAttention, "sdpa": RTDetrMultiheadSdpaAttention}
+
+
 class RTDetrDecoderLayer(nn.Module):
     def __init__(self, config: RTDetrConfig):
         super().__init__()
         # self-attention
-        self.self_attn = RTDetrMultiheadAttention(
+        self.self_attn = RTDETR_ATTENTION_CLASSES[config._attn_implementation](
             embed_dim=config.d_model,
             num_heads=config.decoder_attention_heads,
             dropout=config.attention_dropout,
@@ -1144,6 +1210,7 @@ class RTDetrPreTrainedModel(PreTrainedModel):
     base_model_prefix = "rt_detr"
     main_input_name = "pixel_values"
     _no_split_modules = [r"RTDetrConvEncoder", r"RTDetrEncoderLayer", r"RTDetrDecoderLayer"]
+    _supports_sdpa = True
 
     def _init_weights(self, module):
         """Initalize the weights"""
