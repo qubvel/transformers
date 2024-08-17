@@ -441,6 +441,10 @@ class FeaturesManager:
             "default",
             onnx_config_cls="models.owlvit.OwlViTOnnxConfig",
         ),
+        "owlv2": supported_features_mapping(
+            "default",
+            onnx_config_cls="models.owlv2.Owlv2OnnxConfig",
+        ),
         "perceiver": supported_features_mapping(
             "image-classification",
             "masked-lm",

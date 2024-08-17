@@ -26,6 +26,7 @@ _import_structure = {
         "Owlv2Config",
         "Owlv2TextConfig",
         "Owlv2VisionConfig",
+        "Owlv2OnnxConfig",
     ],
     "processing_owlv2": ["Owlv2Processor"],
 }
@@ -56,6 +57,7 @@ else:
 if TYPE_CHECKING:
     from .configuration_owlv2 import (
         Owlv2Config,
+        Owlv2OnnxConfig,
         Owlv2TextConfig,
         Owlv2VisionConfig,
     )
