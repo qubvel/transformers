@@ -37,28 +37,27 @@ if TYPE_CHECKING:
 AnnotationType = Dict[str, Union[int, str, List[Dict]]]
 
 
-def get_phrases_from_posmap(posmaps, input_ids):
-    """Get token ids of phrases from posmaps and input_ids.
+def get_phrases_from_posmap(token_positions_mask, input_ids):
+    """Get token ids of phrases from token_positions_mask and input_ids.
 
     Args:
-        posmaps (`torch.BoolTensor` of shape `(num_boxes, hidden_size)`):
+        token_positions_mask (`torch.BoolTensor` of shape `(num_boxes, hidden_size)`):
             A boolean tensor of text-thresholded logits related to the detected bounding boxes.
         input_ids (`torch.LongTensor`) of shape `(sequence_length, )`):
             A tensor of token ids.
     """
-    left_idx = 0
-    right_idx = posmaps.shape[-1] - 1
-
     # Avoiding altering the input tensor
-    posmaps = posmaps.clone()
+    token_positions_mask = token_positions_mask.clone()
 
-    posmaps[:, 0 : left_idx + 1] = False
-    posmaps[:, right_idx:] = False
+    # SLice, because we can't get token index larger than len(input_ids)
+    token_positions_mask = token_positions_mask[:, : len(input_ids)]
 
-    token_ids = []
-    for posmap in posmaps:
-        non_zero_idx = posmap.nonzero(as_tuple=True)[0].tolist()
-        token_ids.append([input_ids[i] for i in non_zero_idx])
+    # Mask first and last tokens (bos, eos)
+    token_positions_mask[:, :1] = False
+    token_positions_mask[:, -1:] = False
+
+    # For each box select relevant token ids
+    token_ids = [input_ids[mask] for mask in token_positions_mask]
 
     return token_ids
 
@@ -257,23 +256,26 @@ class GroundingDinoProcessor(ProcessorMixin):
                 Tensor of shape `(batch_size, 2)` or list of tuples (`Tuple[int, int]`) containing the target size
                 `(height, width)` of each image in the batch. If unset, predictions will not be resized.
         Returns:
-            `List[Dict]`: A list of dictionaries, each dictionary containing the scores, labels and boxes for an image
-            in the batch as predicted by the model.
+            `List[Dict]`: A list of dictionaries, each dictionary containing the following keys:
+                - "scores": The confidence scores of the detected objects on the image.
+                - "labels": The text names of the detected objects on the image.
+                - "boxes": The bounding boxes of the detected objects on the image of shape (num_boxes, 4).
+                - "classes": The text names of the detected objects on the image (same as labels for this model).
         """
-        logits, boxes = outputs.logits, outputs.pred_boxes
-        input_ids = input_ids if input_ids is not None else outputs.input_ids
+        batch_logits, batch_boxes = outputs.logits, outputs.pred_boxes
+        batch_input_ids = input_ids if input_ids is not None else outputs.input_ids
 
         if target_sizes is not None:
-            if len(logits) != len(target_sizes):
+            if len(batch_logits) != len(target_sizes):
                 raise ValueError(
                     "Make sure that you pass in as many target sizes as the batch dimension of the logits"
                 )
 
-        probs = torch.sigmoid(logits)  # (batch_size, num_queries, 256)
-        scores = torch.max(probs, dim=-1)[0]  # (batch_size, num_queries)
+        batch_probs = torch.sigmoid(batch_logits)  # (batch_size, num_queries, 256)
+        batch_boxes_scores = torch.max(batch_probs, dim=-1)[0]  # (batch_size, num_queries)
 
         # Convert to [x0, y0, x1, y1] format
-        boxes = center_to_corners_format(boxes)
+        batch_boxes = center_to_corners_format(batch_boxes)
 
         # Convert from relative [0, 1] to absolute [0, height] coordinates
         if target_sizes is not None:
@@ -283,16 +285,22 @@ class GroundingDinoProcessor(ProcessorMixin):
             else:
                 img_h, img_w = target_sizes.unbind(1)
 
-            scale_fct = torch.stack([img_w, img_h, img_w, img_h], dim=1).to(boxes.device)
-            boxes = boxes * scale_fct[:, None, :]
+            scale_factor = torch.stack([img_w, img_h, img_w, img_h], dim=1).to(batch_boxes.device)
+            batch_boxes = batch_boxes * scale_factor[:, None, :]
 
         results = []
-        for idx, (s, b, p) in enumerate(zip(scores, boxes, probs)):
-            score = s[s > box_threshold]
-            box = b[s > box_threshold]
-            prob = p[s > box_threshold]
-            label_ids = get_phrases_from_posmap(prob > text_threshold, input_ids[idx])
-            label = self.batch_decode(label_ids)
-            results.append({"scores": score, "labels": label, "boxes": box})
+        for scores, boxes, probs, input_ids in zip(batch_boxes_scores, batch_boxes, batch_probs, batch_input_ids):
+            # post-process detection results
+            keep = scores > box_threshold
+            scores = scores[keep]
+            boxes = boxes[keep]
+            probs = probs[keep]
+
+            # extract labels
+            token_positions_mask = probs > text_threshold
+            label_ids = get_phrases_from_posmap(token_positions_mask, input_ids)
+            label_text = self.batch_decode(label_ids)
+
+            results.append({"scores": scores, "labels": label_text, "boxes": boxes, "classes": label_text})
 
         return results
