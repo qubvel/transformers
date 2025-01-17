@@ -1166,7 +1166,7 @@ class Pipeline(_ScikitCompat, PushToHubMixin):
 
     def _ensure_tensor_on_device(self, inputs, device):
         if isinstance(inputs, ModelOutput):
-            return ModelOutput(
+            return type(inputs)(
                 {name: self._ensure_tensor_on_device(tensor, device) for name, tensor in inputs.items()}
             )
         elif isinstance(inputs, dict):
