@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Union
+import warnings
+from typing import Any, Dict, List, Optional, Union
 
 from ..utils import add_end_docstrings, is_torch_available, is_vision_available, logging, requires_backends
-from .base import ChunkPipeline, build_pipeline_init_args
+from ..utils.deprecation import deprecate_kwarg
+from .base import Pipeline, build_pipeline_init_args
 
 
 if is_vision_available():
@@ -12,15 +14,13 @@ if is_vision_available():
 if is_torch_available():
     import torch
 
-    from transformers.modeling_outputs import BaseModelOutput
-
     from ..models.auto.modeling_auto import MODEL_FOR_ZERO_SHOT_OBJECT_DETECTION_MAPPING_NAMES
 
 logger = logging.get_logger(__name__)
 
 
-@add_end_docstrings(build_pipeline_init_args(has_image_processor=True))
-class ZeroShotObjectDetectionPipeline(ChunkPipeline):
+@add_end_docstrings(build_pipeline_init_args(has_processor=True))
+class ZeroShotObjectDetectionPipeline(Pipeline):
     """
     Zero shot object detection pipeline using `OwlViTForObjectDetection`. This pipeline predicts bounding boxes of
     objects when you provide an image and a set of `candidate_labels`.
@@ -53,6 +53,11 @@ class ZeroShotObjectDetectionPipeline(ChunkPipeline):
     [huggingface.co/models](https://huggingface.co/models?filter=zero-shot-object-detection).
     """
 
+    _load_processor = True
+    _load_image_processor = False
+    _load_feature_extractor = False
+    _load_tokenizer = False
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -62,44 +67,32 @@ class ZeroShotObjectDetectionPipeline(ChunkPipeline):
         requires_backends(self, "vision")
         self.check_model_type(MODEL_FOR_ZERO_SHOT_OBJECT_DETECTION_MAPPING_NAMES)
 
+    @deprecate_kwarg("images", version="4.51.0", new_name="inputs")
+    @deprecate_kwarg("text_queries", version="4.51.0", new_name="candidate_labels")
     def __call__(
         self,
-        image: Union[str, "Image.Image", List[Dict[str, Any]]],
-        candidate_labels: Union[str, List[str]] = None,
+        inputs: Union[str, "Image.Image", List[Dict[str, Any]]],
+        candidate_labels: Optional[Union[List[str], List[List[str]]]] = None,
+        threshold: float = 0.1,
+        top_k: Optional[int] = None,
+        timeout: Optional[float] = None,
         **kwargs,
     ):
         """
         Detect objects (bounding boxes & classes) in the image(s) passed as inputs.
 
         Args:
-            image (`str`, `PIL.Image` or `List[Dict[str, Any]]`):
-                The pipeline handles three types of images:
+            inputs (`str`, `PIL.Image` or `List[Dict[str, Any]]`):
+                The pipeline handles three types of inputs:
 
+                - A PIL image
                 - A string containing an http url pointing to an image
                 - A string containing a local path to an image
-                - An image loaded in PIL directly
 
-                You can use this parameter to send directly a list of images, or a dataset or a generator like so:
+                You can also use this parameter to send directly a dataset, a generator or a list of images like so:
 
-                ```python
-                >>> from transformers import pipeline
-
-                >>> detector = pipeline(model="google/owlvit-base-patch32", task="zero-shot-object-detection")
-                >>> detector(
-                ...     [
-                ...         {
-                ...             "image": "http://images.cocodataset.org/val2017/000000039769.jpg",
-                ...             "candidate_labels": ["cat", "couch"],
-                ...         },
-                ...         {
-                ...             "image": "http://images.cocodataset.org/val2017/000000039769.jpg",
-                ...             "candidate_labels": ["cat", "couch"],
-                ...         },
-                ...     ]
-                ... )
-                [[{'score': 0.287, 'label': 'cat', 'box': {'xmin': 324, 'ymin': 20, 'xmax': 640, 'ymax': 373}}, {'score': 0.25, 'label': 'cat', 'box': {'xmin': 1, 'ymin': 55, 'xmax': 315, 'ymax': 472}}, {'score': 0.121, 'label': 'couch', 'box': {'xmin': 4, 'ymin': 0, 'xmax': 642, 'ymax': 476}}], [{'score': 0.287, 'label': 'cat', 'box': {'xmin': 324, 'ymin': 20, 'xmax': 640, 'ymax': 373}}, {'score': 0.254, 'label': 'cat', 'box': {'xmin': 1, 'ymin': 55, 'xmax': 315, 'ymax': 472}}, {'score': 0.121, 'label': 'couch', 'box': {'xmin': 4, 'ymin': 0, 'xmax': 642, 'ymax': 476}}]]
-                ```
-
+                - A dictionary in format {"image": image, "candidate_labels": candidate_labels}
+                - A list of dictionaries in format [{"image": image, "candidate_labels": candidate_labels}, ...]
 
             candidate_labels (`str` or `List[str]` or `List[List[str]]`):
                 What the model should recognize in the image.
@@ -115,6 +108,27 @@ class ZeroShotObjectDetectionPipeline(ChunkPipeline):
                 The maximum time in seconds to wait for fetching images from the web. If None, no timeout is set and
                 the call may block forever.
 
+        Example:
+
+            ```python
+            >>> from transformers import pipeline
+
+            >>> detector = pipeline(model="google/owlvit-base-patch32", task="zero-shot-object-detection")
+            >>> detector(
+            ...     [
+            ...         {
+            ...             "image": "http://images.cocodataset.org/val2017/000000039769.jpg",
+            ...             "candidate_labels": ["cat", "couch"],
+            ...         },
+            ...         {
+            ...             "image": "http://images.cocodataset.org/val2017/000000039769.jpg",
+            ...             "candidate_labels": ["cat", "couch"],
+            ...         },
+            ...     ]
+            ... )
+            [[{'score': 0.287, 'label': 'cat', 'box': {'xmin': 324, 'ymin': 20, 'xmax': 640, 'ymax': 373}}, {'score': 0.25, 'label': 'cat', 'box': {'xmin': 1, 'ymin': 55, 'xmax': 315, 'ymax': 472}}, {'score': 0.121, 'label': 'couch', 'box': {'xmin': 4, 'ymin': 0, 'xmax': 642, 'ymax': 476}}], [{'score': 0.287, 'label': 'cat', 'box': {'xmin': 324, 'ymin': 20, 'xmax': 640, 'ymax': 373}}, {'score': 0.254, 'label': 'cat', 'box': {'xmin': 1, 'ymin': 55, 'xmax': 315, 'ymax': 472}}, {'score': 0.121, 'label': 'couch', 'box': {'xmin': 4, 'ymin': 0, 'xmax': 642, 'ymax': 476}}]]
+            ```
+
 
         Return:
             A list of lists containing prediction results, one list per input image. Each list contains dictionaries
@@ -122,91 +136,188 @@ class ZeroShotObjectDetectionPipeline(ChunkPipeline):
 
             - **label** (`str`) -- Text query corresponding to the found object.
             - **score** (`float`) -- Score corresponding to the object (between 0 and 1).
-            - **box** (`Dict[str,int]`) -- Bounding box of the detected object in image's original size. It is a
+            - **box** (`Dict[str, int]`) -- Bounding box of the detected object in image's original size. It is a
               dictionary with `x_min`, `x_max`, `y_min`, `y_max` keys.
         """
-        if "text_queries" in kwargs:
-            candidate_labels = kwargs.pop("text_queries")
 
-        if isinstance(image, (str, Image.Image)):
-            inputs = {"image": image, "candidate_labels": candidate_labels}
-        elif isinstance(image, (list, tuple)) and valid_images(image):
-            return list(
-                super().__call__(
-                    ({"image": img, "candidate_labels": labels} for img, labels in zip(image, candidate_labels)),
-                    **kwargs,
+        # Case 1. Single image + list of candidate labels (list of strings)
+        if isinstance(inputs, (str, Image.Image)):
+            if not isinstance(candidate_labels, (list, tuple)):
+                raise ValueError(f"`candidate_labels` should be a list of strings, got `{type(candidate_labels)}`")
+
+            standardized_inputs = [{"image": inputs, "candidate_labels": candidate_labels}]
+
+        # Case 2. List of images + list of candidate labels (list of lists of strings)
+        elif isinstance(inputs, (list, tuple)) and valid_images(inputs):
+            if (
+                not isinstance(candidate_labels, (list, tuple))
+                or not all(isinstance(image_labels, (list, tuple)) for image_labels in candidate_labels)
+                or not len(inputs) == len(candidate_labels)
+            ):
+                raise ValueError(
+                    "`candidate_labels` should be a list of lists of strings with the same length as `inputs`"
                 )
-            )
-        else:
-            """
-            Supports the following format
-            - {"image": image, "candidate_labels": candidate_labels}
-            - [{"image": image, "candidate_labels": candidate_labels}]
-            - Generator and datasets
-            This is a common pattern in other multimodal pipelines, so we support it here as well.
-            """
-            inputs = image
 
-        results = super().__call__(inputs, **kwargs)
+            standardized_inputs = [
+                {"image": image, "candidate_labels": labels} for image, labels in zip(inputs, candidate_labels)
+            ]
+
+        # Case 3. Supports the following format
+        #  - {"image": image, "candidate_labels": candidate_labels}
+        #  - [{"image": image, "candidate_labels": candidate_labels}]
+        #  - Generator and datasets
+        # This is a common pattern in other multimodal pipelines, so we support it here as well.
+        else:
+            if candidate_labels is not None:
+                raise ValueError(
+                    "Expecting `candidate_labels` to be a part of `inputs` and not passed as a separate argument. "
+                    "For example, `result = pipe(inputs=[{'image': image, 'candidate_labels': candidate_labels}, ...])`"
+                )
+            standardized_inputs = inputs
+
+        results = super().__call__(standardized_inputs, timeout=timeout, threshold=threshold, top_k=top_k, **kwargs)
+
         return results
 
     def _sanitize_parameters(self, **kwargs):
-        preprocess_params = {}
-        if "timeout" in kwargs:
-            preprocess_params["timeout"] = kwargs["timeout"]
-        postprocess_params = {}
-        if "threshold" in kwargs:
-            postprocess_params["threshold"] = kwargs["threshold"]
-        if "top_k" in kwargs:
-            postprocess_params["top_k"] = kwargs["top_k"]
-        return preprocess_params, {}, postprocess_params
+        """Split input __call__ kwargs subsets for preprocessing, forward and postprocessing."""
 
-    def preprocess(self, inputs, timeout=None):
+        preprocessing_keys = ["timeout"]
+        postprocessing_keys = [
+            "threshold",
+            "top_k",
+            "nms_threshold",  # Omdet Turbo
+            "text_threshold",  # Grounding DINO
+        ]
+
+        preprocessing_kwargs = {k: kwargs.pop(k) for k in preprocessing_keys if k in kwargs}
+        postprocessing_kwargs = {k: kwargs.pop(k) for k in postprocessing_keys if k in kwargs}
+
+        if kwargs:
+            warnings.warn(f"The following kwargs were ignored by the pipeline: {kwargs.keys()}")
+        return preprocessing_kwargs, {}, postprocessing_kwargs
+
+    def preprocess(self, inputs: Dict[str, Any], timeout: Optional[float] = None) -> Dict[str, Any]:
+        """
+        Preprocess the inputs with Processor class.
+
+        Args:
+            inputs (Dict[str, Any]):
+                The inputs to preprocess. Always a single sample, iteration is handled by the pipeline.
+            timeout (Optional[float]):
+                The timeout for the image to be loaded in case URL is provided.
+
+        Returns:
+            Dict[str, Any]: The preprocessed inputs.
+        """
+
         image = load_image(inputs["image"], timeout=timeout)
         candidate_labels = inputs["candidate_labels"]
-        if isinstance(candidate_labels, str):
-            candidate_labels = candidate_labels.split(",")
 
-        target_size = torch.tensor([[image.height, image.width]], dtype=torch.int32)
-        for i, candidate_label in enumerate(candidate_labels):
-            text_inputs = self.tokenizer(candidate_label, return_tensors=self.framework)
-            image_features = self.image_processor(image, return_tensors=self.framework)
-            if self.framework == "pt":
-                image_features = image_features.to(self.torch_dtype)
-            yield {
-                "is_last": i == len(candidate_labels) - 1,
-                "target_size": target_size,
-                "candidate_label": candidate_label,
-                **text_inputs,
-                **image_features,
-            }
+        model_inputs = self.processor(
+            images=image,
+            text=candidate_labels,
+            return_tensors=self.framework,
+        )
+        model_inputs["pixel_values"] = model_inputs["pixel_values"].to(self.torch_dtype)
 
-    def _forward(self, model_inputs):
-        target_size = model_inputs.pop("target_size")
-        candidate_label = model_inputs.pop("candidate_label")
-        is_last = model_inputs.pop("is_last")
+        target_sizes = [[image.height, image.width]]
+        target_sizes = torch.tensor(target_sizes, dtype=torch.int32)
 
-        outputs = self.model(**model_inputs)
+        return {
+            # For postprocessing
+            "target_sizes": target_sizes,
+            "candidate_labels": candidate_labels,
+            # The preprocessed inputs will be collated using self.collate_fn, which requires
+            # tensors to be at the root level of the dictionary.
+            **model_inputs,
+        }
 
-        model_outputs = {"target_size": target_size, "candidate_label": candidate_label, "is_last": is_last, **outputs}
-        return model_outputs
+    def _forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Forward the preprocessed (by self.preprocess) and collated (by self.collate)
+        batch of inputs to the model.
 
-    def postprocess(self, model_outputs, threshold=0.1, top_k=None):
+        Args:
+            inputs (Dict[str, Any]):
+                The inputs to forward.
+
+        Returns:
+            Dict[str, Any]: The outputs of the model.
+        """
+
+        # To avoid passing unnecessary arguments into the model forward
+        target_sizes = inputs.pop("target_sizes")
+        candidate_labels = inputs.pop("candidate_labels")
+        batch_size = len(target_sizes)
+
+        model_outputs = self.model(**inputs)
+
+        # We convert ModelOutput to List[ModelOutput, ...] wrapping each sample
+        # to avoid it's conversion in PipelineIterator. PipelineIterator call .as_tuple(),
+        # but we need to keep the original class to be able to pass output to postprocessing method
+        # of the processor.
+        ModelOutputClass = type(model_outputs)
+        model_outputs_list = []
+        for i in range(batch_size):
+            # slice instead of indexing to preserve batch dimension
+            data = {k: v[i : i + 1] for k, v in model_outputs.items()}
+            model_outputs_list.append(ModelOutputClass(**data))
+
+        return {
+            "target_sizes": target_sizes,
+            "candidate_labels": candidate_labels,
+            "model_outputs": model_outputs_list,
+        }
+
+    def postprocess(
+        self, output, threshold: float = 0.1, top_k: Optional[int] = None, **kwargs
+    ) -> List[Dict[str, Any]]:
+        """
+        Apply postprocessing to the model outputs to get the final predictions.
+        Always called for a single sample.
+
+        Args:
+            output (`ModelOutput`):
+                Model specific output object containing the model outputs like logits, hidden states, etc.
+            threshold (`float`, *optional*, defaults to 0.1):
+                The probability necessary to keep a prediction based on confidence score.
+            tok_k (`int`, *optional*, defaults to None):
+                The number of top predictions that will be returned by the pipeline. If the provided number is `None`
+                or higher than the number of predictions available, it will default to the number of predictions.
+
+
+        Returns:
+
+
+        """
+        # it's a list like ["cat", "dog"], wrap for batch of one sample
+        candidate_labels = [output["candidate_labels"]]
+
+        postprocessed_outputs = self.processor.post_process_grounded_object_detection(
+            outputs=output["model_outputs"],
+            target_sizes=output["target_sizes"],
+            text_labels=candidate_labels,
+            threshold=threshold,
+            **kwargs,
+        )
+
+        # `postprocess` always get a batch of exactly one sample
+        postprocessed_output = postprocessed_outputs[0]
+
+        # Convert to pipeline format
         results = []
-        for model_output in model_outputs:
-            label = model_output["candidate_label"]
-            model_output = BaseModelOutput(model_output)
-            outputs = self.image_processor.post_process_object_detection(
-                outputs=model_output, threshold=threshold, target_sizes=model_output["target_size"]
-            )[0]
+        for score, text_label, box in zip(
+            postprocessed_output["scores"],
+            postprocessed_output["text_labels"],
+            postprocessed_output["boxes"],
+        ):
+            score = score.item()
+            box = self._get_bounding_box(box)
+            result = {"score": score, "label": text_label, "box": box}
+            results.append(result)
 
-            for index in outputs["scores"].nonzero():
-                score = outputs["scores"][index].item()
-                box = self._get_bounding_box(outputs["boxes"][index][0])
-
-                result = {"score": score, "label": label, "box": box}
-                results.append(result)
-
+        # Sort by score and keep top_k
         results = sorted(results, key=lambda x: x["score"], reverse=True)
         if top_k:
             results = results[:top_k]
