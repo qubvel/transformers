@@ -1,4 +1,3 @@
-import warnings
 from typing import Any, Dict, List, Optional, Union
 
 from ..utils import add_end_docstrings, is_torch_available, is_vision_available, logging, requires_backends
@@ -162,10 +161,14 @@ class ZeroShotObjectDetectionPipeline(Pipeline):
                 {"image": image, "candidate_labels": labels} for image, labels in zip(inputs, candidate_labels)
             ]
 
-        # Case 3. Supports the following format
+        # Case 3. Dict in the following format
         #  - {"image": image, "candidate_labels": candidate_labels}
-        #  - [{"image": image, "candidate_labels": candidate_labels}]
-        #  - Generator and datasets
+        elif isinstance(inputs, dict) and "image" in inputs and "candidate_labels" in inputs:
+            standardized_inputs = [inputs]
+
+        # Case 4. Supports the following format
+        #  - Any iterable with `len` (generator is not supported), e.g. list, tuple, Dataset:
+        #  - [{"image": image, "candidate_labels": candidate_labels}, ...]
         # This is a common pattern in other multimodal pipelines, so we support it here as well.
         else:
             if candidate_labels is not None:
@@ -182,7 +185,6 @@ class ZeroShotObjectDetectionPipeline(Pipeline):
     def _sanitize_parameters(self, **kwargs):
         """Split input __call__ kwargs subsets for preprocessing, forward and postprocessing."""
 
-        preprocessing_keys = ["timeout"]
         postprocessing_keys = [
             "threshold",
             "top_k",
@@ -190,38 +192,71 @@ class ZeroShotObjectDetectionPipeline(Pipeline):
             "text_threshold",  # Grounding DINO
         ]
 
-        preprocessing_kwargs = {k: kwargs.pop(k) for k in preprocessing_keys if k in kwargs}
         postprocessing_kwargs = {k: kwargs.pop(k) for k in postprocessing_keys if k in kwargs}
+        preprocessing_kwargs = kwargs
 
-        if kwargs:
-            warnings.warn(f"The following kwargs were ignored by the pipeline: {kwargs.keys()}")
         return preprocessing_kwargs, {}, postprocessing_kwargs
 
-    def preprocess(self, inputs: Dict[str, Any], timeout: Optional[float] = None) -> Dict[str, Any]:
+    def get_iterator(
+        self,
+        inputs: List[Dict[str, Any]],
+        num_workers: int,
+        batch_size: int,
+        preprocess_params: Dict[str, Any],
+        forward_params: Dict[str, Any],
+        postprocess_params: Dict[str, Any],
+    ):
+        """
+        Override the iterator to handle batching. Original iterator used preprocessing with a single sample always,
+        but we need to handle batching here as well, cause we need to pad input sequences to the same number of
+        candidate labels (for OwlVit/V2).
+        """
+        batch = []
+        for i, sample in enumerate(inputs):
+            batch.append(sample)
+            if len(batch) == batch_size or i == len(inputs) - 1:
+                preprocessed_inputs = self.preprocess(batch, **preprocess_params)
+                model_outputs = self.forward(preprocessed_inputs, **forward_params)
+                postprocessed_outputs = self.postprocess(model_outputs, **postprocess_params)
+                for postprocessed_output in postprocessed_outputs:
+                    yield postprocessed_output
+                batch = []
+
+    def preprocess(
+        self,
+        inputs: List[Dict[str, Any]],
+        timeout: Optional[float] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
         """
         Preprocess the inputs with Processor class.
 
         Args:
             inputs (Dict[str, Any]):
-                The inputs to preprocess. Always a single sample, iteration is handled by the pipeline.
+                The inputs to preprocess. A list of dictionaries with `image` and `candidate_labels` keys.
+                The length of the list is the less or equal to the batch size.
             timeout (Optional[float]):
                 The timeout for the image to be loaded in case URL is provided.
+            **kwargs:
+                The keyword arguments to pass to the processor.
 
         Returns:
             Dict[str, Any]: The preprocessed inputs.
         """
 
-        image = load_image(inputs["image"], timeout=timeout)
-        candidate_labels = inputs["candidate_labels"]
+        images = [load_image(sample["image"], timeout=timeout) for sample in inputs]
+        candidate_labels = [sample["candidate_labels"] for sample in inputs]
 
         model_inputs = self.processor(
-            images=image,
+            images=images,
             text=candidate_labels,
             return_tensors=self.framework,
+            **kwargs,
         )
+
         model_inputs["pixel_values"] = model_inputs["pixel_values"].to(self.torch_dtype)
 
-        target_sizes = [[image.height, image.width]]
+        target_sizes = [[image.height, image.width] for image in images]
         target_sizes = torch.tensor(target_sizes, dtype=torch.int32)
 
         return {
@@ -235,8 +270,7 @@ class ZeroShotObjectDetectionPipeline(Pipeline):
 
     def _forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Forward the preprocessed (by self.preprocess) and collated (by self.collate)
-        batch of inputs to the model.
+        Forward the preprocessed (by `self.preprocess()`) batch of inputs to the model.
 
         Args:
             inputs (Dict[str, Any]):
@@ -249,78 +283,65 @@ class ZeroShotObjectDetectionPipeline(Pipeline):
         # To avoid passing unnecessary arguments into the model forward
         target_sizes = inputs.pop("target_sizes")
         candidate_labels = inputs.pop("candidate_labels")
-        batch_size = len(target_sizes)
 
         model_outputs = self.model(**inputs)
-
-        # We convert ModelOutput to List[ModelOutput, ...] wrapping each sample
-        # to avoid it's conversion in PipelineIterator. PipelineIterator call .as_tuple(),
-        # but we need to keep the original class to be able to pass output to postprocessing method
-        # of the processor.
-        ModelOutputClass = type(model_outputs)
-        model_outputs_list = []
-        for i in range(batch_size):
-            # slice instead of indexing to preserve batch dimension
-            data = {k: v[i : i + 1] for k, v in model_outputs.items()}
-            model_outputs_list.append(ModelOutputClass(**data))
 
         return {
             "target_sizes": target_sizes,
             "candidate_labels": candidate_labels,
-            "model_outputs": model_outputs_list,
+            "model_outputs": model_outputs,
         }
 
     def postprocess(
-        self, output, threshold: float = 0.1, top_k: Optional[int] = None, **kwargs
-    ) -> List[Dict[str, Any]]:
+        self, output: Dict[str, Any], threshold: float = 0.1, top_k: Optional[int] = None, **kwargs
+    ) -> List[List[Dict[str, Any]]]:
         """
-        Apply postprocessing to the model outputs to get the final predictions.
-        Always called for a single sample.
+        Apply postprocessing to the batched model output to get the final predictions.
 
         Args:
-            output (`ModelOutput`):
-                Model specific output object containing the model outputs like logits, hidden states, etc.
+            output (Dict[str, Any]):
+                The output of the model.
             threshold (`float`, *optional*, defaults to 0.1):
                 The probability necessary to keep a prediction based on confidence score.
             tok_k (`int`, *optional*, defaults to None):
                 The number of top predictions that will be returned by the pipeline. If the provided number is `None`
                 or higher than the number of predictions available, it will default to the number of predictions.
 
-
         Returns:
-
+            List[List[Dict[str, Any]]]: The postprocessed outputs.
 
         """
         # it's a list like ["cat", "dog"], wrap for batch of one sample
-        candidate_labels = [output["candidate_labels"]]
+        candidate_labels = output["candidate_labels"]
+        model_outputs = output["model_outputs"]
 
         postprocessed_outputs = self.processor.post_process_grounded_object_detection(
-            outputs=output["model_outputs"],
+            outputs=model_outputs,
             target_sizes=output["target_sizes"],
             text_labels=candidate_labels,
             threshold=threshold,
             **kwargs,
         )
 
-        # `postprocess` always get a batch of exactly one sample
-        postprocessed_output = postprocessed_outputs[0]
-
         # Convert to pipeline format
         results = []
-        for score, text_label, box in zip(
-            postprocessed_output["scores"],
-            postprocessed_output["text_labels"],
-            postprocessed_output["boxes"],
-        ):
-            score = score.item()
-            box = self._get_bounding_box(box)
-            result = {"score": score, "label": text_label, "box": box}
-            results.append(result)
+        for postprocessed_output in postprocessed_outputs:
+            image_detections = []
+            for score, text_label, box in zip(
+                postprocessed_output["scores"],
+                postprocessed_output["text_labels"],
+                postprocessed_output["boxes"],
+            ):
+                score = score.item()
+                box = self._get_bounding_box(box)
+                image_detections.append({"score": score, "label": text_label, "box": box})
 
-        # Sort by score and keep top_k
-        results = sorted(results, key=lambda x: x["score"], reverse=True)
-        if top_k:
-            results = results[:top_k]
+            # Sort by score and keep top_k
+            image_detections = sorted(image_detections, key=lambda x: x["score"], reverse=True)
+            if top_k:
+                image_detections = image_detections[:top_k]
+
+            results.append(image_detections)
 
         return results
 
