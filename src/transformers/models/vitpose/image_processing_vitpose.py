@@ -33,7 +33,14 @@ from ...image_utils import (
     to_numpy_array,
     valid_images,
 )
-from ...utils import TensorType, is_scipy_available, is_torch_available, is_vision_available, logging
+from ...utils import (
+    TensorType,
+    is_scipy_available,
+    is_torch_available,
+    is_vision_available,
+    logging,
+    requires_backends,
+)
 
 
 if is_torch_available():
@@ -171,6 +178,8 @@ def post_dark_unbiased_data_processing(coords: np.ndarray, batch_heatmaps: np.nd
         `np.ndarray` of shape `(num_persons, num_keypoints, 2)` ):
             Refined coordinates.
     """
+    requires_backends(post_dark_unbiased_data_processing, "scipy")
+
     batch_size, num_keypoints, height, width = batch_heatmaps.shape
     num_coords = coords.shape[0]
     if not (batch_size == 1 or batch_size == num_coords):
@@ -305,6 +314,8 @@ def scipy_warp_affine(src, M, size):
 
     Note: the original implementation of cv2.warpAffine uses cv2.INTER_LINEAR.
     """
+    requires_backends(scipy_warp_affine, "scipy")
+
     channels = [src[..., i] for i in range(src.shape[-1])]
 
     # Convert to a 3x3 matrix used by SciPy
@@ -373,14 +384,14 @@ class VitPoseImageProcessor(BaseImageProcessor):
 
     def affine_transform(
         self,
-        image: np.array,
+        image: np.ndarray,
         center: Tuple[float],
         scale: Tuple[float],
         rotation: float,
         size: Dict[str, int],
         data_format: Optional[ChannelDimension] = None,
         input_data_format: Optional[Union[str, ChannelDimension]] = None,
-    ) -> np.array:
+    ) -> np.ndarray:
         """
         Apply an affine transformation to an image.
 
@@ -434,7 +445,7 @@ class VitPoseImageProcessor(BaseImageProcessor):
         return_tensors: Optional[Union[str, TensorType]] = None,
         data_format: Union[str, ChannelDimension] = ChannelDimension.FIRST,
         input_data_format: Optional[Union[str, ChannelDimension]] = None,
-    ) -> PIL.Image.Image:
+    ) -> "PIL.Image.Image":
         """
         Preprocess an image or batch of images.
 
