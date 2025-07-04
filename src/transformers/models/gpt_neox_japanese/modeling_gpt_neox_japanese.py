@@ -71,7 +71,7 @@ class GPTNeoXJapanesePreTrainedModel(PreTrainedModel):
 
 
 class GPTNeoXJapaneseAttention(nn.Module):
-    def __init__(self, config, use_bias=False, layer_idx=None):
+    def __init__(self, config: GPTNeoXJapaneseConfig, use_bias=False, layer_idx=None):
         super().__init__()
         self.num_attention_heads = config.num_attention_heads
         self.hidden_size = config.hidden_size
@@ -316,7 +316,7 @@ def bias_dropout_add(x: Tensor, bias: Tensor, residual: Optional[Tensor], prob: 
 
 
 class GPTNeoXJapaneseMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXJapaneseConfig):
         super().__init__()
         intermediate_size = int(config.hidden_size * config.intermediate_multiple_size)
         self.dense_h_to_4h = nn.Linear(config.hidden_size, intermediate_size, bias=False)
@@ -332,7 +332,7 @@ class GPTNeoXJapaneseMLP(nn.Module):
 
 
 class GPTNeoXJapaneseLayer(nn.Module):
-    def __init__(self, config, layer_number):
+    def __init__(self, config: GPTNeoXJapaneseConfig, layer_number):
         super().__init__()
         self.layer_number = layer_number
         self.input_layernorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -397,7 +397,7 @@ class GPTNeoXJapaneseLayer(nn.Module):
 
 @auto_docstring
 class GPTNeoXJapaneseModel(GPTNeoXJapanesePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXJapaneseConfig):
         super().__init__(config)
         self.config = config
 
@@ -675,7 +675,7 @@ class GPTNeoXJapaneseModel(GPTNeoXJapanesePreTrainedModel):
 class GPTNeoXJapaneseForCausalLM(GPTNeoXJapanesePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["embed_out.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXJapaneseConfig):
         super().__init__(config)
         self.config = config
 

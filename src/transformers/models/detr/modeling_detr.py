@@ -252,7 +252,7 @@ class DetrConvEncoder(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DetrConfig):
         super().__init__()
 
         self.config = config

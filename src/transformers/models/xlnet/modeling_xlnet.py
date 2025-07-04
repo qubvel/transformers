@@ -187,7 +187,7 @@ def load_tf_weights_in_xlnet(model, config, tf_path):
 
 
 class XLNetRelativeAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__()
 
         if config.d_model % config.n_head != 0:
@@ -447,7 +447,7 @@ class XLNetRelativeAttention(nn.Module):
 
 
 class XLNetFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.d_model, eps=config.layer_norm_eps)
         self.layer_1 = nn.Linear(config.d_model, config.d_inner)
@@ -470,7 +470,7 @@ class XLNetFeedForward(nn.Module):
 
 
 class XLNetLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__()
         self.rel_attn = XLNetRelativeAttention(config)
         self.ff = XLNetFeedForward(config)
@@ -1032,7 +1032,7 @@ class XLNetForQuestionAnsweringOutput(ModelOutput):
 
 @auto_docstring
 class XLNetModel(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
 
         self.mem_len = config.mem_len
@@ -1425,7 +1425,7 @@ class XLNetModel(XLNetPreTrainedModel):
 class XLNetLMHeadModel(XLNetPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_loss.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
         self.attn_type = config.attn_type
         self.same_length = config.same_length
@@ -1659,7 +1659,7 @@ class XLNetLMHeadModel(XLNetPreTrainedModel, GenerationMixin):
     """
 )
 class XLNetForSequenceClassification(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1789,7 +1789,7 @@ class XLNetForSequenceClassification(XLNetPreTrainedModel):
 
 @auto_docstring
 class XLNetForTokenClassification(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1899,7 +1899,7 @@ class XLNetForTokenClassification(XLNetPreTrainedModel):
 
 @auto_docstring
 class XLNetForMultipleChoice(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
 
         self.transformer = XLNetModel(config)
@@ -2045,7 +2045,7 @@ class XLNetForMultipleChoice(XLNetPreTrainedModel):
     """
 )
 class XLNetForQuestionAnsweringSimple(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -2168,7 +2168,7 @@ class XLNetForQuestionAnsweringSimple(XLNetPreTrainedModel):
 
 @auto_docstring
 class XLNetForQuestionAnswering(XLNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLNetConfig):
         super().__init__(config)
         self.start_n_top = config.start_n_top
         self.end_n_top = config.end_n_top

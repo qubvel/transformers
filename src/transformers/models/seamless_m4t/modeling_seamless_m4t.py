@@ -216,7 +216,7 @@ def format_speech_generation_kwargs(kwargs):
 
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2PositionalConvEmbedding with Wav2Vec2->SeamlessM4TConformer, feat_extract_activation->speech_encoder_hidden_act
 class SeamlessM4TConformerPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -266,7 +266,7 @@ class SeamlessM4TConformerRotaryPositionalEmbedding(nn.Module):
     Reference : https://blog.eleuther.ai/rotary-embeddings/ Paper: https://huggingface.co/papers/2104.09864
     """
 
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         dim = config.hidden_size // config.speech_encoder_attention_heads
         base = config.rotary_embedding_base
@@ -299,7 +299,7 @@ class SeamlessM4TConformerRotaryPositionalEmbedding(nn.Module):
 class SeamlessM4TConformerRelPositionalEmbedding(nn.Module):
     """Relative positional encoding module."""
 
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         self.max_len = config.max_source_positions
         self.d_model = config.hidden_size
@@ -359,7 +359,7 @@ class SeamlessM4TConformerSamePadLayer(nn.Module):
 
 
 class SeamlessM4TConformerFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.feature_projection_input_dim, eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.feature_projection_input_dim, config.hidden_size)
@@ -374,7 +374,7 @@ class SeamlessM4TConformerFeatureProjection(nn.Module):
 
 
 class SeamlessM4TConformerFeedForward(nn.Module):
-    def __init__(self, config, act_fn=None, dropout=None):
+    def __init__(self, config: SeamlessM4TConfig, act_fn=None, dropout=None):
         super().__init__()
         dropout = dropout if dropout is not None else config.speech_encoder_dropout
         act_fn = act_fn if act_fn is not None else config.speech_encoder_hidden_act
@@ -399,7 +399,7 @@ class SeamlessM4TConformerFeedForward(nn.Module):
 class SeamlessM4TConformerConvolutionModule(nn.Module):
     """Convolution block used in the conformer block"""
 
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         if (config.conv_depthwise_kernel_size - 1) % 2 == 1:
             raise ValueError("`config.conv_depthwise_kernel_size` should be a odd number for 'SAME' padding")
@@ -467,7 +467,7 @@ class SeamlessM4TConformerSelfAttention(nn.Module):
     Can be enhanced with rotary or relative position embeddings.
     """
 
-    def __init__(self, config, use_position_embeddings=True):
+    def __init__(self, config: SeamlessM4TConfig, use_position_embeddings=True):
         super().__init__()
 
         self.head_size = config.hidden_size // config.speech_encoder_attention_heads
@@ -617,7 +617,7 @@ class SeamlessM4TConformerEncoderLayer(GradientCheckpointingLayer):
     """Conformer block based on https://huggingface.co/papers/2005.08100."""
 
     # Copied from transformers.models.wav2vec2_conformer.modeling_wav2vec2_conformer.Wav2Vec2ConformerEncoderLayer.__init__ with Wav2Vec2->SeamlessM4T, attention_dropout->speech_encoder_dropout, torch.nn->nn
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         embed_dim = config.hidden_size
         dropout = config.speech_encoder_dropout
@@ -683,7 +683,7 @@ class SeamlessM4TConformerEncoderLayer(GradientCheckpointingLayer):
 
 
 class SeamlessM4TConformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         self.config = config
 
@@ -775,7 +775,7 @@ class SeamlessM4TConformerEncoder(nn.Module):
 
 
 class SeamlessM4TConformerAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
         embed_dim = config.hidden_size
         dropout = config.adaptor_dropout
@@ -873,7 +873,7 @@ class SeamlessM4TConformerAdapterLayer(nn.Module):
 
 
 class SeamlessM4TConformerAdapter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
 
         self.layers = nn.ModuleList(SeamlessM4TConformerAdapterLayer(config) for _ in range(config.num_adapter_layers))
@@ -2199,7 +2199,7 @@ class HifiGanResidualBlock(nn.Module):
 
 
 class SeamlessM4TVariancePredictor(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__()
 
         embed_dim = config.unit_embed_dim
@@ -2318,7 +2318,7 @@ class SeamlessM4TCodeHifiGan(PreTrainedModel):
     main_input_name = "input_embeds"
     _no_split_modules = []
 
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__(config)
 
         self.pad_token_id = config.t2u_pad_token_id
@@ -3374,7 +3374,7 @@ class SeamlessM4TForSpeechToSpeech(SeamlessM4TPreTrainedModel, GenerationMixin):
         "text_decoder.embed_tokens.weight",
     ]
 
-    def __init__(self, config):
+    def __init__(self, config: SeamlessM4TConfig):
         super().__init__(config)
 
         self.shared = nn.Embedding(config.vocab_size, config.hidden_size, config.pad_token_id)
@@ -3719,7 +3719,7 @@ class SeamlessM4TModel(SeamlessM4TPreTrainedModel, GenerationMixin):
         "text_decoder.embed_tokens.weight",
     ]
 
-    def __init__(self, config, current_modality="text"):
+    def __init__(self, config: SeamlessM4TConfig, current_modality="text"):
         r"""
         current_modality (`str`, *optional*, defaults to `"text"`):
             Default modality. Used to initialize the model.

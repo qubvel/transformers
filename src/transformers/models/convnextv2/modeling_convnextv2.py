@@ -127,7 +127,7 @@ class ConvNextV2Embeddings(nn.Module):
     found in src/transformers/models/swin/modeling_swin.py.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ConvNextV2Config):
         super().__init__()
         self.patch_embeddings = nn.Conv2d(
             config.num_channels, config.hidden_sizes[0], kernel_size=config.patch_size, stride=config.patch_size
@@ -160,7 +160,7 @@ class ConvNextV2Layer(nn.Module):
         drop_path (`float`): Stochastic depth rate. Default: 0.0.
     """
 
-    def __init__(self, config, dim, drop_path=0):
+    def __init__(self, config: ConvNextV2Config, dim, drop_path=0):
         super().__init__()
         # depthwise conv
         self.dwconv = nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim)
@@ -201,7 +201,7 @@ class ConvNextV2Stage(nn.Module):
         drop_path_rates(`list[float]`): Stochastic depth rates for each layer.
     """
 
-    def __init__(self, config, in_channels, out_channels, kernel_size=2, stride=2, depth=2, drop_path_rates=None):
+    def __init__(self, config: ConvNextV2Config, in_channels, out_channels, kernel_size=2, stride=2, depth=2, drop_path_rates=None):
         super().__init__()
 
         if in_channels != out_channels or stride > 1:
@@ -224,7 +224,7 @@ class ConvNextV2Stage(nn.Module):
 
 # Copied from transformers.models.convnext.modeling_convnext.ConvNextEncoder with ConvNext->ConvNextV2
 class ConvNextV2Encoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextV2Config):
         super().__init__()
         self.stages = nn.ModuleList()
         drop_path_rates = [
@@ -298,7 +298,7 @@ class ConvNextV2PreTrainedModel(PreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.convnext.modeling_convnext.ConvNextModel with CONVNEXT->CONVNEXTV2, ConvNext->ConvNextV2
 class ConvNextV2Model(ConvNextV2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextV2Config):
         super().__init__(config)
         self.config = config
 
@@ -357,7 +357,7 @@ class ConvNextV2Model(ConvNextV2PreTrainedModel):
 )
 # Copied from transformers.models.convnext.modeling_convnext.ConvNextForImageClassification with CONVNEXT->CONVNEXTV2,ConvNext->ConvNextV2,convnext->convnextv2
 class ConvNextV2ForImageClassification(ConvNextV2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextV2Config):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -433,7 +433,7 @@ class ConvNextV2ForImageClassification(ConvNextV2PreTrainedModel):
 )
 # Copied from transformers.models.convnext.modeling_convnext.ConvNextBackbone with CONVNEXT->CONVNEXTV2,ConvNext->ConvNextV2,facebook/convnext-tiny-224->facebook/convnextv2-tiny-1k-224
 class ConvNextV2Backbone(ConvNextV2PreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextV2Config):
         super().__init__(config)
         super()._init_backbone(config)
 

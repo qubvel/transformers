@@ -112,7 +112,7 @@ class LlavaOnevisionCausalLMOutputWithPast(ModelOutput):
 
 
 class LlavaOnevisionPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LlavaOnevisionConfig):
         super().__init__()
 
         mode = config.spatial_pool_mode
@@ -310,7 +310,7 @@ class LlavaOnevisionPreTrainedModel(PreTrainedModel):
 class LlavaOnevisionModel(LlavaOnevisionPreTrainedModel):
     _checkpoint_conversion_mapping = {"language_model.model": "language_model"}
 
-    def __init__(self, config):
+    def __init__(self, config: LlavaOnevisionConfig):
         super().__init__(config)
         self.vision_tower = AutoModel.from_config(config.vision_config)
 

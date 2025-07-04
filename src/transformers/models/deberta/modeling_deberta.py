@@ -59,7 +59,7 @@ class DebertaLayerNorm(nn.Module):
 
 
 class DebertaSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = DebertaLayerNorm(config.hidden_size, config.layer_norm_eps)
@@ -160,7 +160,7 @@ class DisentangledSelfAttention(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -350,7 +350,7 @@ class DisentangledSelfAttention(nn.Module):
 class DebertaEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         pad_token_id = getattr(config, "pad_token_id", 0)
         self.embedding_size = getattr(config, "embedding_size", config.hidden_size)
@@ -429,7 +429,7 @@ class DebertaEmbeddings(nn.Module):
 
 
 class DebertaAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.self = DisentangledSelfAttention(config)
         self.output = DebertaSelfOutput(config)
@@ -464,7 +464,7 @@ class DebertaAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Deberta
 class DebertaIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -479,7 +479,7 @@ class DebertaIntermediate(nn.Module):
 
 
 class DebertaOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = DebertaLayerNorm(config.hidden_size, config.layer_norm_eps)
@@ -494,7 +494,7 @@ class DebertaOutput(nn.Module):
 
 
 class DebertaLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.attention = DebertaAttention(config)
         self.intermediate = DebertaIntermediate(config)
@@ -529,7 +529,7 @@ class DebertaLayer(GradientCheckpointingLayer):
 class DebertaEncoder(nn.Module):
     """Modified BertEncoder with relative position bias support"""
 
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.layer = nn.ModuleList([DebertaLayer(config) for _ in range(config.num_hidden_layers)])
         self.relative_attention = getattr(config, "relative_attention", False)
@@ -640,7 +640,7 @@ class DebertaPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class DebertaModel(DebertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__(config)
 
         self.embeddings = DebertaEmbeddings(config)
@@ -746,7 +746,7 @@ class DebertaModel(DebertaPreTrainedModel):
 
 
 class LegacyDebertaPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.embedding_size = getattr(config, "embedding_size", config.hidden_size)
 
@@ -765,7 +765,7 @@ class LegacyDebertaPredictionHeadTransform(nn.Module):
 
 
 class LegacyDebertaLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.transform = LegacyDebertaPredictionHeadTransform(config)
 
@@ -790,7 +790,7 @@ class LegacyDebertaLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->LegacyDeberta
 class LegacyDebertaOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.predictions = LegacyDebertaLMPredictionHead(config)
 
@@ -802,7 +802,7 @@ class LegacyDebertaOnlyMLMHead(nn.Module):
 class DebertaLMPredictionHead(nn.Module):
     """https://github.com/microsoft/DeBERTa/blob/master/DeBERTa/deberta/bert.py#L270"""
 
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
 
@@ -827,7 +827,7 @@ class DebertaLMPredictionHead(nn.Module):
 
 
 class DebertaOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.lm_head = DebertaLMPredictionHead(config)
 
@@ -841,7 +841,7 @@ class DebertaOnlyMLMHead(nn.Module):
 class DebertaForMaskedLM(DebertaPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__(config)
         self.legacy = config.legacy
         self.deberta = DebertaModel(config)
@@ -925,7 +925,7 @@ class DebertaForMaskedLM(DebertaPreTrainedModel):
 
 
 class ContextPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.pooler_hidden_size, config.pooler_hidden_size)
         self.dropout = nn.Dropout(config.pooler_dropout)
@@ -953,7 +953,7 @@ class ContextPooler(nn.Module):
     """
 )
 class DebertaForSequenceClassification(DebertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__(config)
 
         num_labels = getattr(config, "num_labels", 2)
@@ -1060,7 +1060,7 @@ class DebertaForSequenceClassification(DebertaPreTrainedModel):
 
 @auto_docstring
 class DebertaForTokenClassification(DebertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1122,7 +1122,7 @@ class DebertaForTokenClassification(DebertaPreTrainedModel):
 
 @auto_docstring
 class DebertaForQuestionAnswering(DebertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DebertaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

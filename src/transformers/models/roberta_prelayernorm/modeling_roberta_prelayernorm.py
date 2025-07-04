@@ -52,7 +52,7 @@ class RobertaPreLayerNormEmbeddings(nn.Module):
     """
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -137,7 +137,7 @@ class RobertaPreLayerNormEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->RobertaPreLayerNorm
 class RobertaPreLayerNormSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: RobertaPreLayerNormConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -271,7 +271,7 @@ class RobertaPreLayerNormSelfAttention(nn.Module):
 
 
 class RobertaPreLayerNormSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -284,7 +284,7 @@ class RobertaPreLayerNormSelfOutput(nn.Module):
 
 
 class RobertaPreLayerNormAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: RobertaPreLayerNormConfig, position_embedding_type=None):
         super().__init__()
         self.self = RobertaPreLayerNormSelfAttention(config, position_embedding_type=position_embedding_type)
         self.output = RobertaPreLayerNormSelfOutput(config)
@@ -336,7 +336,7 @@ class RobertaPreLayerNormAttention(nn.Module):
 
 
 class RobertaPreLayerNormIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
@@ -353,7 +353,7 @@ class RobertaPreLayerNormIntermediate(nn.Module):
 
 
 class RobertaPreLayerNormOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -367,7 +367,7 @@ class RobertaPreLayerNormOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLayer with Bert->RobertaPreLayerNorm
 class RobertaPreLayerNormLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -454,7 +454,7 @@ class RobertaPreLayerNormLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.bert.modeling_bert.BertEncoder with Bert->RobertaPreLayerNorm
 class RobertaPreLayerNormEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([RobertaPreLayerNormLayer(config) for _ in range(config.num_hidden_layers)])
@@ -536,7 +536,7 @@ class RobertaPreLayerNormEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class RobertaPreLayerNormPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -594,7 +594,7 @@ class RobertaPreLayerNormPreTrainedModel(PreTrainedModel):
     """
 )
 class RobertaPreLayerNormModel(RobertaPreLayerNormPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: RobertaPreLayerNormConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -758,7 +758,7 @@ class RobertaPreLayerNormModel(RobertaPreLayerNormPreTrainedModel):
 class RobertaPreLayerNormForCausalLM(RobertaPreLayerNormPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -893,7 +893,7 @@ class RobertaPreLayerNormForMaskedLM(RobertaPreLayerNormPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
     # Copied from transformers.models.roberta.modeling_roberta.RobertaForMaskedLM.__init__ with ROBERTA->ROBERTA_PRELAYERNORM,Roberta->RobertaPreLayerNorm,roberta->roberta_prelayernorm
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -987,7 +987,7 @@ class RobertaPreLayerNormForMaskedLM(RobertaPreLayerNormPreTrainedModel):
 class RobertaPreLayerNormLMHead(nn.Module):
     """RobertaPreLayerNorm Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1022,7 +1022,7 @@ class RobertaPreLayerNormLMHead(nn.Module):
     """
 )
 class RobertaPreLayerNormForSequenceClassification(RobertaPreLayerNormPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1119,7 +1119,7 @@ class RobertaPreLayerNormForSequenceClassification(RobertaPreLayerNormPreTrained
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForMultipleChoice with ROBERTA->ROBERTA_PRELAYERNORM,Roberta->RobertaPreLayerNorm,roberta->roberta_prelayernorm
 class RobertaPreLayerNormForMultipleChoice(RobertaPreLayerNormPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
 
         self.roberta_prelayernorm = RobertaPreLayerNormModel(config)
@@ -1225,7 +1225,7 @@ class RobertaPreLayerNormForMultipleChoice(RobertaPreLayerNormPreTrainedModel):
 
 @auto_docstring
 class RobertaPreLayerNormForTokenClassification(RobertaPreLayerNormPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1309,7 +1309,7 @@ class RobertaPreLayerNormForTokenClassification(RobertaPreLayerNormPreTrainedMod
 class RobertaPreLayerNormClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -1330,7 +1330,7 @@ class RobertaPreLayerNormClassificationHead(nn.Module):
 
 @auto_docstring
 class RobertaPreLayerNormForQuestionAnswering(RobertaPreLayerNormPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RobertaPreLayerNormConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

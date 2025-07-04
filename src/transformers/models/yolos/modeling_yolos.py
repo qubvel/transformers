@@ -117,7 +117,7 @@ class YolosEmbeddings(nn.Module):
 
 
 class InterpolateInitialPositionEmbeddings(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: YolosConfig) -> None:
         super().__init__()
         self.config = config
 
@@ -146,7 +146,7 @@ class InterpolateInitialPositionEmbeddings(nn.Module):
 
 
 class InterpolateMidPositionEmbeddings(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: YolosConfig) -> None:
         super().__init__()
         self.config = config
 
@@ -185,7 +185,7 @@ class YolosPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: YolosConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size

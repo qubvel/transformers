@@ -42,7 +42,7 @@ logger = logging.get_logger(__name__)
 class VitPoseBackbonePatchEmbeddings(nn.Module):
     """Image to Patch Embedding."""
 
-    def __init__(self, config):
+    def __init__(self, config: VitPoseBackboneConfig):
         super().__init__()
 
         image_size = config.image_size

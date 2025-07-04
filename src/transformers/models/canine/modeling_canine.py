@@ -185,7 +185,7 @@ def load_tf_weights_in_canine(model, config, tf_checkpoint_path):
 class CanineEmbeddings(nn.Module):
     """Construct the character, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
 
         self.config = config
@@ -286,7 +286,7 @@ class CanineEmbeddings(nn.Module):
 class CharactersToMolecules(nn.Module):
     """Convert character sequence to initial molecule sequence (i.e. downsample) using strided convolutions."""
 
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
 
         self.conv = nn.Conv1d(
@@ -335,7 +335,7 @@ class ConvProjection(nn.Module):
     characters.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.config = config
         self.conv = nn.Conv1d(
@@ -388,7 +388,7 @@ class ConvProjection(nn.Module):
 
 
 class CanineSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -488,7 +488,7 @@ class CanineSelfAttention(nn.Module):
 
 
 class CanineSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -522,7 +522,7 @@ class CanineAttention(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: CanineConfig,
         local=False,
         always_attend_to_first_position: bool = False,
         first_position_attends_to_all: bool = False,
@@ -647,7 +647,7 @@ class CanineAttention(nn.Module):
 
 
 class CanineIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -662,7 +662,7 @@ class CanineIntermediate(nn.Module):
 
 
 class CanineOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -678,7 +678,7 @@ class CanineOutput(nn.Module):
 class CanineLayer(GradientCheckpointingLayer):
     def __init__(
         self,
-        config,
+        config: CanineConfig,
         local,
         always_attend_to_first_position,
         first_position_attends_to_all,
@@ -736,7 +736,7 @@ class CanineLayer(GradientCheckpointingLayer):
 class CanineEncoder(nn.Module):
     def __init__(
         self,
-        config,
+        config: CanineConfig,
         local=False,
         always_attend_to_first_position=False,
         first_position_attends_to_all=False,
@@ -801,7 +801,7 @@ class CanineEncoder(nn.Module):
 
 
 class CaninePooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -816,7 +816,7 @@ class CaninePooler(nn.Module):
 
 
 class CaninePredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -833,7 +833,7 @@ class CaninePredictionHeadTransform(nn.Module):
 
 
 class CanineLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.transform = CaninePredictionHeadTransform(config)
 
@@ -853,7 +853,7 @@ class CanineLMPredictionHead(nn.Module):
 
 
 class CanineOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__()
         self.predictions = CanineLMPredictionHead(config)
 
@@ -892,7 +892,7 @@ class CaninePreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class CanineModel(CaninePreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: CanineConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -1170,7 +1170,7 @@ class CanineModel(CaninePreTrainedModel):
     """
 )
 class CanineForSequenceClassification(CaninePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1256,7 +1256,7 @@ class CanineForSequenceClassification(CaninePreTrainedModel):
 
 @auto_docstring
 class CanineForMultipleChoice(CaninePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__(config)
 
         self.canine = CanineModel(config)
@@ -1360,7 +1360,7 @@ class CanineForMultipleChoice(CaninePreTrainedModel):
 
 @auto_docstring
 class CanineForTokenClassification(CaninePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1457,7 +1457,7 @@ class CanineForTokenClassification(CaninePreTrainedModel):
 
 @auto_docstring
 class CanineForQuestionAnswering(CaninePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CanineConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

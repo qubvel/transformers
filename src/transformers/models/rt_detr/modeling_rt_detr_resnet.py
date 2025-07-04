@@ -324,7 +324,7 @@ class RTDetrResNetPreTrainedModel(PreTrainedModel):
     """
 )
 class RTDetrResNetBackbone(RTDetrResNetPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: RTDetrResNetConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

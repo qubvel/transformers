@@ -92,7 +92,7 @@ class DPTViTHybridEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config, feature_size=None):
+    def __init__(self, config: DPTConfig, feature_size=None):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -190,7 +190,7 @@ class DPTViTEmbeddings(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
@@ -248,7 +248,7 @@ class DPTViTPatchEmbeddings(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -563,7 +563,7 @@ class DPTReassembleStage(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         self.config = config
@@ -659,7 +659,7 @@ def _get_backbone_hidden_size(config):
 
 
 class DPTReassembleLayer(nn.Module):
-    def __init__(self, config, channels, factor):
+    def __init__(self, config: DPTConfig, channels, factor):
         super().__init__()
         # projection
         hidden_size = _get_backbone_hidden_size(config)
@@ -681,7 +681,7 @@ class DPTReassembleLayer(nn.Module):
 
 
 class DPTFeatureFusionStage(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
         self.layers = nn.ModuleList()
         for _ in range(len(config.neck_hidden_sizes)):
@@ -713,7 +713,7 @@ class DPTPreActResidualLayer(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         self.use_batch_norm = config.use_batch_norm_in_fusion_residual
@@ -775,7 +775,7 @@ class DPTFeatureFusionLayer(nn.Module):
             The align_corner setting for bilinear upsample.
     """
 
-    def __init__(self, config, align_corners=True):
+    def __init__(self, config: DPTConfig, align_corners=True):
         super().__init__()
 
         self.align_corners = align_corners
@@ -832,7 +832,7 @@ class DPTPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class DPTModel(DPTPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: DPTConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -946,7 +946,7 @@ class DPTNeck(nn.Module):
         config (dict): config dict.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
         self.config = config
 
@@ -994,7 +994,7 @@ class DPTDepthEstimationHead(nn.Module):
     supplementary material).
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         self.config = config
@@ -1034,7 +1034,7 @@ class DPTDepthEstimationHead(nn.Module):
     """
 )
 class DPTForDepthEstimation(DPTPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__(config)
 
         self.backbone = None
@@ -1165,7 +1165,7 @@ class DPTForDepthEstimation(DPTPreTrainedModel):
 
 
 class DPTSemanticSegmentationHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         self.config = config
@@ -1190,7 +1190,7 @@ class DPTSemanticSegmentationHead(nn.Module):
 
 
 class DPTAuxiliaryHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__()
 
         features = config.fusion_hidden_size
@@ -1210,7 +1210,7 @@ class DPTAuxiliaryHead(nn.Module):
 
 @auto_docstring
 class DPTForSemanticSegmentation(DPTPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DPTConfig):
         super().__init__(config)
 
         self.dpt = DPTModel(config, add_pooling_layer=False)

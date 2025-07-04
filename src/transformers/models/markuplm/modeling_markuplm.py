@@ -53,7 +53,7 @@ class XPathEmbeddings(nn.Module):
     We drop tree-id in this version, as its info can be covered by xpath.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.max_depth = config.max_depth
 
@@ -117,7 +117,7 @@ def create_position_ids_from_input_ids(input_ids, padding_idx, past_key_values_l
 class MarkupLMEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.config = config
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
@@ -214,7 +214,7 @@ class MarkupLMEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->MarkupLM
 class MarkupLMSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -229,7 +229,7 @@ class MarkupLMSelfOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class MarkupLMIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -245,7 +245,7 @@ class MarkupLMIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->MarkupLM
 class MarkupLMOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -260,7 +260,7 @@ class MarkupLMOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class MarkupLMPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -276,7 +276,7 @@ class MarkupLMPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->MarkupLM
 class MarkupLMPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -294,7 +294,7 @@ class MarkupLMPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->MarkupLM
 class MarkupLMLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.transform = MarkupLMPredictionHeadTransform(config)
 
@@ -318,7 +318,7 @@ class MarkupLMLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->MarkupLM
 class MarkupLMOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.predictions = MarkupLMLMPredictionHead(config)
 
@@ -357,7 +357,7 @@ def eager_attention_forward(
 
 # Copied from transformers.models.align.modeling_align.AlignTextSelfAttention with AlignText->MarkupLM
 class MarkupLMSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -422,7 +422,7 @@ class MarkupLMSelfAttention(nn.Module):
 
 # Copied from transformers.models.align.modeling_align.AlignTextAttention with AlignText->MarkupLM
 class MarkupLMAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.self = MarkupLMSelfAttention(config)
         self.output = MarkupLMSelfOutput(config)
@@ -474,7 +474,7 @@ class MarkupLMAttention(nn.Module):
 
 # Copied from transformers.models.align.modeling_align.AlignTextLayer with AlignText->MarkupLM
 class MarkupLMLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -521,7 +521,7 @@ class MarkupLMLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.align.modeling_align.AlignTextEncoder with AlignText->MarkupLM
 class MarkupLMEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([MarkupLMLayer(config) for i in range(config.num_hidden_layers)])
@@ -610,7 +610,7 @@ class MarkupLMPreTrainedModel(PreTrainedModel):
 @auto_docstring
 class MarkupLMModel(MarkupLMPreTrainedModel):
     # Copied from transformers.models.clap.modeling_clap.ClapTextModel.__init__ with ClapText->MarkupLM
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: MarkupLMConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -756,7 +756,7 @@ class MarkupLMModel(MarkupLMPreTrainedModel):
 @auto_docstring
 class MarkupLMForQuestionAnswering(MarkupLMPreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForQuestionAnswering.__init__ with bert->markuplm, Bert->MarkupLM
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -870,7 +870,7 @@ class MarkupLMForQuestionAnswering(MarkupLMPreTrainedModel):
 )
 class MarkupLMForTokenClassification(MarkupLMPreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForTokenClassification.__init__ with bert->markuplm, Bert->MarkupLM
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -973,7 +973,7 @@ class MarkupLMForTokenClassification(MarkupLMPreTrainedModel):
 )
 class MarkupLMForSequenceClassification(MarkupLMPreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForSequenceClassification.__init__ with bert->markuplm, Bert->MarkupLM
-    def __init__(self, config):
+    def __init__(self, config: MarkupLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config

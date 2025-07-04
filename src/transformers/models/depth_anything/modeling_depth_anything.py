@@ -33,7 +33,7 @@ logger = logging.get_logger(__name__)
 
 
 class DepthAnythingReassembleLayer(nn.Module):
-    def __init__(self, config, channels, factor):
+    def __init__(self, config: DepthAnythingConfig, channels, factor):
         super().__init__()
         self.projection = nn.Conv2d(in_channels=config.reassemble_hidden_size, out_channels=channels, kernel_size=1)
 
@@ -69,7 +69,7 @@ class DepthAnythingReassembleStage(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
 
         self.config = config
@@ -106,7 +106,7 @@ class DepthAnythingPreActResidualLayer(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
 
         self.activation1 = nn.ReLU()
@@ -147,7 +147,7 @@ class DepthAnythingFeatureFusionLayer(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
 
         self.projection = nn.Conv2d(config.fusion_hidden_size, config.fusion_hidden_size, kernel_size=1, bias=True)
@@ -180,7 +180,7 @@ class DepthAnythingFeatureFusionLayer(nn.Module):
 
 class DepthAnythingFeatureFusionStage(nn.Module):
     # Copied from transformers.models.dpt.modeling_dpt.DPTFeatureFusionStage.__init__ with DPT->DepthAnything
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
         self.layers = nn.ModuleList()
         for _ in range(len(config.neck_hidden_sizes)):
@@ -242,7 +242,7 @@ class DepthAnythingNeck(nn.Module):
         config (dict): config dict.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
         self.config = config
 
@@ -286,7 +286,7 @@ class DepthAnythingDepthEstimationHead(nn.Module):
     type (relative or metric). For metric depth estimation, the output is scaled by the maximum depth used during pretraining.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__()
 
         self.head_in_index = config.head_in_index
@@ -332,7 +332,7 @@ class DepthAnythingDepthEstimationHead(nn.Module):
 class DepthAnythingForDepthEstimation(DepthAnythingPreTrainedModel):
     _no_split_modules = ["DPTViTEmbeddings"]
 
-    def __init__(self, config):
+    def __init__(self, config: DepthAnythingConfig):
         super().__init__(config)
 
         self.backbone = load_backbone(config)

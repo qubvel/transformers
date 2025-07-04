@@ -783,7 +783,7 @@ class KwargsForCausalLM(FlashAttentionKwargs, LossKwargs): ...
 class OPTForCausalLM(OPTPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: OPTConfig):
         super().__init__(config)
         self.model = OPTModel(config)
 

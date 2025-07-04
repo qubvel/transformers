@@ -131,7 +131,7 @@ def load_tf_weights_in_rembert(model, config, tf_checkpoint_path):
 class RemBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(
             config.vocab_size, config.input_embedding_size, padding_idx=config.pad_token_id
@@ -184,7 +184,7 @@ class RemBertEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->RemBert
 class RemBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -199,7 +199,7 @@ class RemBertPooler(nn.Module):
 
 
 class RemBertSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -305,7 +305,7 @@ class RemBertSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->RemBert
 class RemBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -319,7 +319,7 @@ class RemBertSelfOutput(nn.Module):
 
 
 class RemBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.self = RemBertSelfAttention(config)
         self.output = RemBertSelfOutput(config)
@@ -371,7 +371,7 @@ class RemBertAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->RemBert
 class RemBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -387,7 +387,7 @@ class RemBertIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->RemBert
 class RemBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -401,7 +401,7 @@ class RemBertOutput(nn.Module):
 
 
 class RemBertLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -489,7 +489,7 @@ class RemBertLayer(GradientCheckpointingLayer):
 
 
 class RemBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.config = config
 
@@ -573,7 +573,7 @@ class RemBertEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->RemBert
 class RemBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -590,7 +590,7 @@ class RemBertPredictionHeadTransform(nn.Module):
 
 
 class RemBertLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.output_embedding_size)
         self.decoder = nn.Linear(config.output_embedding_size, config.vocab_size)
@@ -607,7 +607,7 @@ class RemBertLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->RemBert
 class RemBertOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__()
         self.predictions = RemBertLMPredictionHead(config)
 
@@ -654,7 +654,7 @@ class RemBertPreTrainedModel(PreTrainedModel):
     """
 )
 class RemBertModel(RemBertPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: RemBertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -794,7 +794,7 @@ class RemBertModel(RemBertPreTrainedModel):
 class RemBertForMaskedLM(RemBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -903,7 +903,7 @@ class RemBertForMaskedLM(RemBertPreTrainedModel):
 class RemBertForCausalLM(RemBertPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1022,7 +1022,7 @@ class RemBertForCausalLM(RemBertPreTrainedModel, GenerationMixin):
     """
 )
 class RemBertForSequenceClassification(RemBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.rembert = RemBertModel(config)
@@ -1107,7 +1107,7 @@ class RemBertForSequenceClassification(RemBertPreTrainedModel):
 
 @auto_docstring
 class RemBertForMultipleChoice(RemBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
 
         self.rembert = RemBertModel(config)
@@ -1211,7 +1211,7 @@ class RemBertForMultipleChoice(RemBertPreTrainedModel):
 
 @auto_docstring
 class RemBertForTokenClassification(RemBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1278,7 +1278,7 @@ class RemBertForTokenClassification(RemBertPreTrainedModel):
 
 @auto_docstring
 class RemBertForQuestionAnswering(RemBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RemBertConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

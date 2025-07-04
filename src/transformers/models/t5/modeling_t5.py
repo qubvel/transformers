@@ -573,7 +573,7 @@ class T5Attention(nn.Module):
 
 
 class T5LayerSelfAttention(nn.Module):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: T5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = T5Attention(
             config, has_relative_attention_bias=has_relative_attention_bias, layer_idx=layer_idx
@@ -609,7 +609,7 @@ class T5LayerSelfAttention(nn.Module):
 
 
 class T5LayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: T5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = T5Attention(config, has_relative_attention_bias=False, layer_idx=layer_idx)
         self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -647,7 +647,7 @@ class T5LayerCrossAttention(nn.Module):
 
 
 class T5Block(GradientCheckpointingLayer):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: T5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.layer = nn.ModuleList()
@@ -879,7 +879,7 @@ class T5PreTrainedModel(PreTrainedModel):
 
 
 class T5Stack(T5PreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: T5Config, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = embed_tokens

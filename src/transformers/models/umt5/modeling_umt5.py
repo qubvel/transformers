@@ -160,7 +160,7 @@ class UMT5Attention(nn.Module):
     T5's attention using relative_attention_bias.
     """
 
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: UMT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.has_relative_attention_bias = has_relative_attention_bias
@@ -350,7 +350,7 @@ class UMT5Attention(nn.Module):
 
 
 class UMT5LayerSelfAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: UMT5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = UMT5Attention(config, has_relative_attention_bias=True, layer_idx=layer_idx)
         self.layer_norm = UMT5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -378,7 +378,7 @@ class UMT5LayerSelfAttention(nn.Module):
 
 
 class UMT5LayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: UMT5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = UMT5Attention(config, has_relative_attention_bias=False, layer_idx=layer_idx)
         self.layer_norm = UMT5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -408,7 +408,7 @@ class UMT5LayerCrossAttention(nn.Module):
 
 
 class UMT5Block(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: UMT5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.layer = nn.ModuleList()
@@ -619,7 +619,7 @@ class UMT5PreTrainedModel(PreTrainedModel):
 
 
 class UMT5Stack(UMT5PreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: UMT5Config, embed_tokens=None):
         super().__init__(config)
         self.embed_tokens = embed_tokens
         self.is_decoder = config.is_decoder
@@ -973,7 +973,7 @@ class UMT5Model(UMT5PreTrainedModel):
     config_class = UMT5Config
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: UMT5Config):
         super().__init__(config)
         self.shared = nn.Embedding(config.vocab_size, config.d_model)
 
@@ -1186,7 +1186,7 @@ class UMT5ForConditionalGeneration(UMT5PreTrainedModel, GenerationMixin):
     model_type = "umt5"
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight", "lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: UMT5Config):
         super().__init__(config)
         self.model_dim = config.d_model
 
@@ -1437,7 +1437,7 @@ class UMT5EncoderModel(UMT5PreTrainedModel):
     # config_class = UMT5Config
     _tied_weights_keys = ["encoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: UMT5Config):
         super().__init__(config)
         self.shared = nn.Embedding(config.vocab_size, config.d_model)
 
@@ -1776,7 +1776,7 @@ class UMT5ForTokenClassification(UMT5PreTrainedModel):
 class UMT5ForQuestionAnswering(UMT5PreTrainedModel):
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: UMT5Config):
         super().__init__(config)
         self.model_dim = config.d_model
 

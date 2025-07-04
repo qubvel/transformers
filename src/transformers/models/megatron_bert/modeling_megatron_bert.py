@@ -121,7 +121,7 @@ def load_tf_weights_in_megatron_bert(model, config, tf_checkpoint_path):
 class MegatronBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -178,7 +178,7 @@ class MegatronBertEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->MegatronBert
 class MegatronBertSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: MegatronBertConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -313,7 +313,7 @@ class MegatronBertSelfAttention(nn.Module):
 
 # Based transformers.models.bert.modeling_bert.BertSelfOutput. Moved LayerNorm to MegatronBertAttention below.
 class MegatronBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -326,7 +326,7 @@ class MegatronBertSelfOutput(nn.Module):
 
 # Based transformers.models.bert.modeling_bert.BertAttention. Added LayerNorm.
 class MegatronBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.ln = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.self = MegatronBertSelfAttention(config)
@@ -378,7 +378,7 @@ class MegatronBertAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->MegatronBert
 class MegatronBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -394,7 +394,7 @@ class MegatronBertIntermediate(nn.Module):
 
 # Based on transformers.models.bert.modeling_bert.BertOutput. Moved LayerNorm to MegatronBertLayer below.
 class MegatronBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -407,7 +407,7 @@ class MegatronBertOutput(nn.Module):
 
 # Based on transformers.models.bert.modeling_bert.BertLayer. Added LayerNorm.
 class MegatronBertLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -495,7 +495,7 @@ class MegatronBertLayer(GradientCheckpointingLayer):
 
 
 class MegatronBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([MegatronBertLayer(config) for _ in range(config.num_hidden_layers)])
@@ -586,7 +586,7 @@ class MegatronBertEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->MegatronBert
 class MegatronBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -602,7 +602,7 @@ class MegatronBertPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->MegatronBert
 class MegatronBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -620,7 +620,7 @@ class MegatronBertPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->MegatronBert
 class MegatronBertLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.transform = MegatronBertPredictionHeadTransform(config)
 
@@ -644,7 +644,7 @@ class MegatronBertLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->MegatronBert
 class MegatronBertOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.predictions = MegatronBertLMPredictionHead(config)
 
@@ -655,7 +655,7 @@ class MegatronBertOnlyMLMHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyNSPHead with Bert->MegatronBert
 class MegatronBertOnlyNSPHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
@@ -666,7 +666,7 @@ class MegatronBertOnlyNSPHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPreTrainingHeads with Bert->MegatronBert
 class MegatronBertPreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__()
         self.predictions = MegatronBertLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -740,7 +740,7 @@ class MegatronBertModel(MegatronBertPreTrainedModel):
     `add_cross_attention` set to `True`; an `encoder_hidden_states` is then expected as an input to the forward pass.
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: MegatronBertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -885,7 +885,7 @@ class MegatronBertModel(MegatronBertPreTrainedModel):
 class MegatronBertForPreTraining(MegatronBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder"]
 
-    def __init__(self, config, add_binary_head=True):
+    def __init__(self, config: MegatronBertConfig, add_binary_head=True):
         r"""
         add_binary_head (`bool`, *optional*, defaults to `True`):
             Whether or not to add a binary head.
@@ -992,7 +992,7 @@ class MegatronBertForPreTraining(MegatronBertPreTrainedModel):
 class MegatronBertForCausalLM(MegatronBertPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["cls.predictions.decoder"]
 
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1108,7 +1108,7 @@ class MegatronBertForCausalLM(MegatronBertPreTrainedModel, GenerationMixin):
 class MegatronBertForMaskedLM(MegatronBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder"]
 
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1210,7 +1210,7 @@ class MegatronBertForMaskedLM(MegatronBertPreTrainedModel):
     """
 )
 class MegatronBertForNextSentencePrediction(MegatronBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
 
         self.bert = MegatronBertModel(config)
@@ -1310,7 +1310,7 @@ class MegatronBertForNextSentencePrediction(MegatronBertPreTrainedModel):
     """
 )
 class MegatronBertForSequenceClassification(MegatronBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1396,7 +1396,7 @@ class MegatronBertForSequenceClassification(MegatronBertPreTrainedModel):
 
 @auto_docstring
 class MegatronBertForMultipleChoice(MegatronBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
 
         self.bert = MegatronBertModel(config)
@@ -1500,7 +1500,7 @@ class MegatronBertForMultipleChoice(MegatronBertPreTrainedModel):
 
 @auto_docstring
 class MegatronBertForTokenClassification(MegatronBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1567,7 +1567,7 @@ class MegatronBertForTokenClassification(MegatronBertPreTrainedModel):
 
 @auto_docstring
 class MegatronBertForQuestionAnswering(MegatronBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MegatronBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

@@ -1006,7 +1006,7 @@ class LongT5TransientGlobalAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerSelfAttention with T5->LongT5
 class LongT5LayerSelfAttention(nn.Module):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: LongT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = LongT5Attention(
             config, has_relative_attention_bias=has_relative_attention_bias, layer_idx=layer_idx
@@ -1044,7 +1044,7 @@ class LongT5LayerSelfAttention(nn.Module):
 class LongT5LayerLocalSelfAttention(nn.Module):
     """Local self attention used in encoder"""
 
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: LongT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.LocalSelfAttention = LongT5LocalAttention(config, has_relative_attention_bias=has_relative_attention_bias)
         self.layer_norm = LongT5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -1075,7 +1075,7 @@ class LongT5LayerLocalSelfAttention(nn.Module):
 class LongT5LayerTransientGlobalSelfAttention(nn.Module):
     """Transient-Global self attention used in encoder"""
 
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: LongT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.TransientGlobalSelfAttention = LongT5TransientGlobalAttention(
             config, has_relative_attention_bias=has_relative_attention_bias
@@ -1107,7 +1107,7 @@ class LongT5LayerTransientGlobalSelfAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerCrossAttention with T5->LongT5
 class LongT5LayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: LongT5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = LongT5Attention(config, has_relative_attention_bias=False, layer_idx=layer_idx)
         self.layer_norm = LongT5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -1145,7 +1145,7 @@ class LongT5LayerCrossAttention(nn.Module):
 
 
 class LongT5Block(GradientCheckpointingLayer):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: LongT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         if config.is_decoder:
@@ -1344,7 +1344,7 @@ class LongT5PreTrainedModel(PreTrainedModel):
 
 
 class LongT5Stack(LongT5PreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: LongT5Config, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.d_model)

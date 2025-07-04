@@ -145,7 +145,7 @@ def load_tf_weights_in_gpt_neo(model, config, gpt_neo_checkpoint_path):
 
 
 class GPTNeoSelfAttention(nn.Module):
-    def __init__(self, config, attention_type, layer_id=None):
+    def __init__(self, config: GPTNeoConfig, attention_type, layer_id=None):
         super().__init__()
         self.config = config
 
@@ -378,7 +378,7 @@ GPT_NEO_ATTENTION_CLASSES = {
 
 
 class GPTNeoAttention(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: GPTNeoConfig, layer_id=0):
         super().__init__()
         self.layer_id = layer_id
         self.attention_layers = config.attention_layers
@@ -416,7 +416,7 @@ class GPTNeoAttention(nn.Module):
 
 
 class GPTNeoMLP(nn.Module):
-    def __init__(self, intermediate_size, config):  # in MLP: intermediate_size= 4 * hidden_size
+    def __init__(self, intermediate_size, config: GPTNeoConfig):  # in MLP: intermediate_size= 4 * hidden_size
         super().__init__()
         embed_dim = config.hidden_size
         self.c_fc = nn.Linear(embed_dim, intermediate_size)
@@ -433,7 +433,7 @@ class GPTNeoMLP(nn.Module):
 
 
 class GPTNeoBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=None):
+    def __init__(self, config: GPTNeoConfig, layer_id=None):
         super().__init__()
         hidden_size = config.hidden_size
         inner_dim = config.intermediate_size if config.intermediate_size is not None else 4 * hidden_size
@@ -518,7 +518,7 @@ class GPTNeoPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class GPTNeoModel(GPTNeoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoConfig):
         super().__init__(config)
 
         self.embed_dim = config.hidden_size
@@ -812,7 +812,7 @@ class GPTNeoModel(GPTNeoPreTrainedModel):
 class GPTNeoForCausalLM(GPTNeoPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoConfig):
         super().__init__(config)
         self.transformer = GPTNeoModel(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
@@ -943,7 +943,7 @@ class GPTNeoForCausalLM(GPTNeoPreTrainedModel, GenerationMixin):
     """
 )
 class GPTNeoForSequenceClassification(GPTNeoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = GPTNeoModel(config)
@@ -1064,7 +1064,7 @@ class GPTNeoForSequenceClassification(GPTNeoPreTrainedModel):
 
 @auto_docstring
 class GPTNeoForTokenClassification(GPTNeoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1149,7 +1149,7 @@ class GPTNeoForTokenClassification(GPTNeoPreTrainedModel):
 
 @auto_docstring
 class GPTNeoForQuestionAnswering(GPTNeoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = GPTNeoModel(config)

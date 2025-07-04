@@ -101,7 +101,7 @@ class VideoMAEEmbeddings(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VideoMAEConfig):
         super().__init__()
 
         self.patch_embeddings = VideoMAEPatchEmbeddings(config)
@@ -138,7 +138,7 @@ class VideoMAEPatchEmbeddings(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VideoMAEConfig):
         super().__init__()
 
         image_size = config.image_size
@@ -491,7 +491,7 @@ class VideoMAEPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class VideoMAEModel(VideoMAEPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VideoMAEConfig):
         super().__init__(config)
         self.config = config
 
@@ -643,7 +643,7 @@ class VideoMAEModel(VideoMAEPreTrainedModel):
 
 
 class VideoMAEDecoder(nn.Module):
-    def __init__(self, config, num_patches):
+    def __init__(self, config: VideoMAEConfig, num_patches):
         super().__init__()
 
         decoder_num_labels = config.num_channels * config.tubelet_size * config.patch_size**2
@@ -708,7 +708,7 @@ class VideoMAEDecoder(nn.Module):
     """
 )
 class VideoMAEForPreTraining(VideoMAEPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VideoMAEConfig):
         super().__init__(config)
         self.config = config
 
@@ -891,7 +891,7 @@ class VideoMAEForPreTraining(VideoMAEPreTrainedModel):
     """
 )
 class VideoMAEForVideoClassification(VideoMAEPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VideoMAEConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

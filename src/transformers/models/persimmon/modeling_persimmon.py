@@ -126,7 +126,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
 
 # Copied from transformers.models.gpt_neox.modeling_gpt_neox.GPTNeoXMLP with GPTNeoX->Persimmon
 class PersimmonMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PersimmonConfig):
         super().__init__()
         self.dense_h_to_4h = nn.Linear(config.hidden_size, config.intermediate_size)
         self.dense_4h_to_h = nn.Linear(config.intermediate_size, config.hidden_size)
@@ -686,7 +686,7 @@ class PersimmonForCausalLM(PersimmonPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
     # Copied from transformers.models.llama.modeling_llama.LlamaForCausalLM.__init__ with LLAMA->PERSIMMON,Llama->Persimmon
-    def __init__(self, config):
+    def __init__(self, config: PersimmonConfig):
         super().__init__(config)
         self.model = PersimmonModel(config)
         self.vocab_size = config.vocab_size
@@ -817,7 +817,7 @@ class PersimmonForCausalLM(PersimmonPreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.llama.modeling_llama.LlamaForSequenceClassification with LLAMA->PERSIMMON,Llama->Persimmon
 class PersimmonForSequenceClassification(PersimmonPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PersimmonConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = PersimmonModel(config)
@@ -905,7 +905,7 @@ class PersimmonForSequenceClassification(PersimmonPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.llama.modeling_llama.LlamaForTokenClassification with Llama->Persimmon, LLAMA->PERSIMMON
 class PersimmonForTokenClassification(PersimmonPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PersimmonConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = PersimmonModel(config)

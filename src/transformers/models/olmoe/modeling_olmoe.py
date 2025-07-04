@@ -215,7 +215,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
 
 # Copied from transformers.models.olmo.modeling_olmo.OlmoMLP with Olmo->Olmoe
 class OlmoeMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: OlmoeConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -565,7 +565,7 @@ OLMOE_ATTENTION_CLASSES = {
 
 
 class OlmoeSparseMoeBlock(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: OlmoeConfig):
         super().__init__()
         self.num_experts = config.num_experts
         self.top_k = config.num_experts_per_tok
@@ -998,7 +998,7 @@ class OlmoeModel(OlmoePreTrainedModel):
 class OlmoeForCausalLM(OlmoePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: OlmoeConfig):
         super().__init__(config)
         self.model = OlmoeModel(config)
         self.vocab_size = config.vocab_size

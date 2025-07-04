@@ -167,7 +167,7 @@ class ViTMAEEmbeddings(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ViTMAEConfig):
         super().__init__()
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
@@ -296,7 +296,7 @@ class ViTMAEPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ViTMAEConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -630,7 +630,7 @@ class ViTMAEPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class ViTMAEModel(ViTMAEPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViTMAEConfig):
         super().__init__(config)
         self.config = config
 
@@ -731,7 +731,7 @@ class ViTMAEModel(ViTMAEPreTrainedModel):
 
 
 class ViTMAEDecoder(nn.Module):
-    def __init__(self, config, num_patches):
+    def __init__(self, config: ViTMAEConfig, num_patches):
         super().__init__()
         self.decoder_embed = nn.Linear(config.hidden_size, config.decoder_hidden_size, bias=True)
         self.mask_token = nn.Parameter(torch.zeros(1, 1, config.decoder_hidden_size))
@@ -878,7 +878,7 @@ class ViTMAEDecoder(nn.Module):
     """
 )
 class ViTMAEForPreTraining(ViTMAEPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViTMAEConfig):
         super().__init__(config)
         self.config = config
 

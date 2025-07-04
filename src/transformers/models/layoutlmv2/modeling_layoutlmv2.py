@@ -52,7 +52,7 @@ logger = logging.get_logger(__name__)
 class LayoutLMv2Embeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -97,7 +97,7 @@ class LayoutLMv2Embeddings(nn.Module):
 
 
 class LayoutLMv2SelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -190,7 +190,7 @@ class LayoutLMv2SelfAttention(nn.Module):
 
 
 class LayoutLMv2Attention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.self = LayoutLMv2SelfAttention(config)
         self.output = LayoutLMv2SelfOutput(config)
@@ -218,7 +218,7 @@ class LayoutLMv2Attention(nn.Module):
 
 
 class LayoutLMv2SelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -233,7 +233,7 @@ class LayoutLMv2SelfOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->LayoutLMv2
 class LayoutLMv2Intermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -249,7 +249,7 @@ class LayoutLMv2Intermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->LayoutLM
 class LayoutLMv2Output(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -263,7 +263,7 @@ class LayoutLMv2Output(nn.Module):
 
 
 class LayoutLMv2Layer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -350,7 +350,7 @@ def relative_position_bucket(relative_position, bidirectional=True, num_buckets=
 
 
 class LayoutLMv2Encoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([LayoutLMv2Layer(config) for _ in range(config.num_hidden_layers)])
@@ -525,7 +525,7 @@ def my_convert_sync_batchnorm(module, process_group=None):
 
 
 class LayoutLMv2VisualBackbone(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.cfg = config.get_detectron2_config()
         meta_arch = self.cfg.MODEL.META_ARCHITECTURE
@@ -591,7 +591,7 @@ class LayoutLMv2VisualBackbone(nn.Module):
 
 
 class LayoutLMv2Pooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -607,7 +607,7 @@ class LayoutLMv2Pooler(nn.Module):
 
 @auto_docstring
 class LayoutLMv2Model(LayoutLMv2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         requires_backends(self, "detectron2")
         super().__init__(config)
         self.config = config
@@ -871,7 +871,7 @@ class LayoutLMv2Model(LayoutLMv2PreTrainedModel):
     """
 )
 class LayoutLMv2ForSequenceClassification(LayoutLMv2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.layoutlmv2 = LayoutLMv2Model(config)
@@ -1076,7 +1076,7 @@ class LayoutLMv2ForSequenceClassification(LayoutLMv2PreTrainedModel):
     """
 )
 class LayoutLMv2ForTokenClassification(LayoutLMv2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv2Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.layoutlmv2 = LayoutLMv2Model(config)
@@ -1224,7 +1224,7 @@ class LayoutLMv2ForTokenClassification(LayoutLMv2PreTrainedModel):
 
 @auto_docstring
 class LayoutLMv2ForQuestionAnswering(LayoutLMv2PreTrainedModel):
-    def __init__(self, config, has_visual_segment_embedding=True):
+    def __init__(self, config: LayoutLMv2Config, has_visual_segment_embedding=True):
         r"""
         has_visual_segment_embedding (`bool`, *optional*, defaults to `True`):
             Whether or not to add visual segment embeddings.

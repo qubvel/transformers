@@ -144,7 +144,7 @@ NORM2FN = {"layer_norm": nn.LayerNorm, "no_norm": NoNorm}
 class MobileBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.trigram_input = config.trigram_input
         self.embedding_size = config.embedding_size
@@ -218,7 +218,7 @@ class MobileBertEmbeddings(nn.Module):
 
 
 class MobileBertSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.num_attention_heads = config.num_attention_heads
         self.attention_head_size = int(config.true_hidden_size / config.num_attention_heads)
@@ -276,7 +276,7 @@ class MobileBertSelfAttention(nn.Module):
 
 
 class MobileBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.use_bottleneck = config.use_bottleneck
         self.dense = nn.Linear(config.true_hidden_size, config.true_hidden_size)
@@ -293,7 +293,7 @@ class MobileBertSelfOutput(nn.Module):
 
 
 class MobileBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.self = MobileBertSelfAttention(config)
         self.output = MobileBertSelfOutput(config)
@@ -343,7 +343,7 @@ class MobileBertAttention(nn.Module):
 
 
 class MobileBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.true_hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -358,7 +358,7 @@ class MobileBertIntermediate(nn.Module):
 
 
 class OutputBottleneck(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.true_hidden_size, config.hidden_size)
         self.LayerNorm = NORM2FN[config.normalization_type](config.hidden_size, eps=config.layer_norm_eps)
@@ -372,7 +372,7 @@ class OutputBottleneck(nn.Module):
 
 
 class MobileBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.use_bottleneck = config.use_bottleneck
         self.dense = nn.Linear(config.intermediate_size, config.true_hidden_size)
@@ -396,7 +396,7 @@ class MobileBertOutput(nn.Module):
 
 
 class BottleneckLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intra_bottleneck_size)
         self.LayerNorm = NORM2FN[config.normalization_type](config.intra_bottleneck_size, eps=config.layer_norm_eps)
@@ -408,7 +408,7 @@ class BottleneckLayer(nn.Module):
 
 
 class Bottleneck(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.key_query_shared_bottleneck = config.key_query_shared_bottleneck
         self.use_bottleneck_attention = config.use_bottleneck_attention
@@ -444,7 +444,7 @@ class Bottleneck(nn.Module):
 
 
 class FFNOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.true_hidden_size)
         self.LayerNorm = NORM2FN[config.normalization_type](config.true_hidden_size, eps=config.layer_norm_eps)
@@ -456,7 +456,7 @@ class FFNOutput(nn.Module):
 
 
 class FFNLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.intermediate = MobileBertIntermediate(config)
         self.output = FFNOutput(config)
@@ -468,7 +468,7 @@ class FFNLayer(nn.Module):
 
 
 class MobileBertLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.use_bottleneck = config.use_bottleneck
         self.num_feedforward_networks = config.num_feedforward_networks
@@ -531,7 +531,7 @@ class MobileBertLayer(nn.Module):
 
 
 class MobileBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.layer = nn.ModuleList([MobileBertLayer(config) for _ in range(config.num_hidden_layers)])
 
@@ -573,7 +573,7 @@ class MobileBertEncoder(nn.Module):
 
 
 class MobileBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.do_activate = config.classifier_activation
         if self.do_activate:
@@ -592,7 +592,7 @@ class MobileBertPooler(nn.Module):
 
 
 class MobileBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -609,7 +609,7 @@ class MobileBertPredictionHeadTransform(nn.Module):
 
 
 class MobileBertLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.transform = MobileBertPredictionHeadTransform(config)
         # The output weights are the same as the input embeddings, but there is
@@ -631,7 +631,7 @@ class MobileBertLMPredictionHead(nn.Module):
 
 
 class MobileBertOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.predictions = MobileBertLMPredictionHead(config)
 
@@ -641,7 +641,7 @@ class MobileBertOnlyMLMHead(nn.Module):
 
 
 class MobileBertPreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.predictions = MobileBertLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -709,7 +709,7 @@ class MobileBertModel(MobileBertPreTrainedModel):
     https://huggingface.co/papers/2004.02984
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: MobileBertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -819,7 +819,7 @@ class MobileBertModel(MobileBertPreTrainedModel):
 class MobileBertForPreTraining(MobileBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
         self.mobilebert = MobileBertModel(config)
         self.cls = MobileBertPreTrainingHeads(config)
@@ -925,7 +925,7 @@ class MobileBertForPreTraining(MobileBertPreTrainedModel):
 class MobileBertForMaskedLM(MobileBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
         self.mobilebert = MobileBertModel(config, add_pooling_layer=False)
         self.cls = MobileBertOnlyMLMHead(config)
@@ -1003,7 +1003,7 @@ class MobileBertForMaskedLM(MobileBertPreTrainedModel):
 
 
 class MobileBertOnlyNSPHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
@@ -1018,7 +1018,7 @@ class MobileBertOnlyNSPHead(nn.Module):
     """
 )
 class MobileBertForNextSentencePrediction(MobileBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
 
         self.mobilebert = MobileBertModel(config)
@@ -1118,7 +1118,7 @@ class MobileBertForNextSentencePrediction(MobileBertPreTrainedModel):
 )
 # Copied from transformers.models.bert.modeling_bert.BertForSequenceClassification with Bert->MobileBert all-casing
 class MobileBertForSequenceClassification(MobileBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1209,7 +1209,7 @@ class MobileBertForSequenceClassification(MobileBertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.bert.modeling_bert.BertForQuestionAnswering with Bert->MobileBert all-casing
 class MobileBertForQuestionAnswering(MobileBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1288,7 +1288,7 @@ class MobileBertForQuestionAnswering(MobileBertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.bert.modeling_bert.BertForMultipleChoice with Bert->MobileBert all-casing
 class MobileBertForMultipleChoice(MobileBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
 
         self.mobilebert = MobileBertModel(config)
@@ -1396,7 +1396,7 @@ class MobileBertForMultipleChoice(MobileBertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.bert.modeling_bert.BertForTokenClassification with Bert->MobileBert all-casing
 class MobileBertForTokenClassification(MobileBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MobileBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

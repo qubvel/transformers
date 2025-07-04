@@ -136,7 +136,7 @@ class TvpLoss(nn.Module):
 
 
 class TvpVisionModel(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.backbone = load_backbone(config)
 
@@ -180,7 +180,7 @@ class TvpVisualInputEmbedding(nn.Module):
     Takes input of both image and video (multi-frame)
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         # sequence embedding
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -291,7 +291,7 @@ class TvpVisualInputEmbedding(nn.Module):
 class TvpTextInputEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -325,7 +325,7 @@ class TvpTextInputEmbeddings(nn.Module):
 
 
 class TvpAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -424,7 +424,7 @@ class TvpAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Tvp
 class TvpIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -439,7 +439,7 @@ class TvpIntermediate(nn.Module):
 
 
 class TvpOutputLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -453,7 +453,7 @@ class TvpOutputLayer(nn.Module):
 
 
 class TvpEncodeLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.attention = TvpAttention(config)
         self.intermediate = TvpIntermediate(config)
@@ -481,7 +481,7 @@ class TvpEncodeLayer(GradientCheckpointingLayer):
 
 
 class TvpEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([TvpEncodeLayer(config) for _ in range(config.num_hidden_layers)])
@@ -535,7 +535,7 @@ class TvpEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->Tvp
 class TvpPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -580,7 +580,7 @@ class TvpFrameDownPadPrompter(nn.Module):
     Pad frames extracted from videos only at the bottom.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         if config.visual_prompter_apply not in ("add", "replace", "remove"):
             raise ValueError("`visual_prompter_apply` must be in (add, replace, remove)")
 
@@ -617,7 +617,7 @@ class TvpFramePadPrompter(nn.Module):
     Pad frames extracted from videos in the surroundings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         if config.visual_prompter_apply not in ("add", "replace", "remove"):
             raise ValueError("`visual_prompter_apply` must be in (add, replace, remove)")
 
@@ -714,7 +714,7 @@ TVP_PROMPTER_CLASSES_MAPPING = {
     """
 )
 class TvpModel(TvpPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__(config)
         self.config = config
         self.vision_model = TvpVisionModel(config)
@@ -818,7 +818,7 @@ class TvpModel(TvpPreTrainedModel):
 
 
 class TvpVideoGroundingHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__()
         self.layer_0 = nn.Linear(config.hidden_size, config.hidden_size * 2)
         self.layer_1 = nn.Linear(config.hidden_size * 2, 2)
@@ -837,7 +837,7 @@ class TvpVideoGroundingHead(nn.Module):
     """
 )
 class TvpForVideoGrounding(TvpPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: TvpConfig):
         super().__init__(config)
         self.config = config
         self.model = TvpModel(config)

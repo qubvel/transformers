@@ -67,7 +67,7 @@ class MPNetPreTrainedModel(PreTrainedModel):
 
 
 class MPNetEmbeddings(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.padding_idx = 1
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=self.padding_idx)
@@ -126,7 +126,7 @@ class MPNetEmbeddings(nn.Module):
 
 
 class MPNetSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -199,7 +199,7 @@ class MPNetSelfAttention(nn.Module):
 
 
 class MPNetAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.attn = MPNetSelfAttention(config)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -246,7 +246,7 @@ class MPNetAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class MPNetIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -262,7 +262,7 @@ class MPNetIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class MPNetOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -276,7 +276,7 @@ class MPNetOutput(nn.Module):
 
 
 class MPNetLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.attention = MPNetAttention(config)
         self.intermediate = MPNetIntermediate(config)
@@ -308,7 +308,7 @@ class MPNetLayer(nn.Module):
 
 
 class MPNetEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.config = config
         self.n_heads = config.num_attention_heads
@@ -398,7 +398,7 @@ class MPNetEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class MPNetPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -414,7 +414,7 @@ class MPNetPooler(nn.Module):
 
 @auto_docstring
 class MPNetModel(MPNetPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: MPNetConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -505,7 +505,7 @@ class MPNetModel(MPNetPreTrainedModel):
 class MPNetForMaskedLM(MPNetPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder"]
 
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__(config)
 
         self.mpnet = MPNetModel(config, add_pooling_layer=False)
@@ -576,7 +576,7 @@ class MPNetForMaskedLM(MPNetPreTrainedModel):
 class MPNetLMHead(nn.Module):
     """MPNet Head for masked and permuted language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -608,7 +608,7 @@ class MPNetLMHead(nn.Module):
     """
 )
 class MPNetForSequenceClassification(MPNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -689,7 +689,7 @@ class MPNetForSequenceClassification(MPNetPreTrainedModel):
 
 @auto_docstring
 class MPNetForMultipleChoice(MPNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__(config)
 
         self.mpnet = MPNetModel(config)
@@ -782,7 +782,7 @@ class MPNetForMultipleChoice(MPNetPreTrainedModel):
 
 @auto_docstring
 class MPNetForTokenClassification(MPNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -849,7 +849,7 @@ class MPNetForTokenClassification(MPNetPreTrainedModel):
 class MPNetClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -867,7 +867,7 @@ class MPNetClassificationHead(nn.Module):
 
 @auto_docstring
 class MPNetForQuestionAnswering(MPNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MPNetConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

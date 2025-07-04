@@ -275,7 +275,7 @@ class SqrtBoundDerivative(torch.autograd.Function):
 class RecurrentGemmaRglru(nn.Module):
     """A Real-Gated Linear Recurrent Unit (RG-LRU) layer."""
 
-    def __init__(self, config):
+    def __init__(self, config: RecurrentGemmaConfig):
         super().__init__()
         self.num_attention_heads = config.num_attention_heads
         self.block_width = config.lru_width // self.num_attention_heads
@@ -389,7 +389,7 @@ class RecurrentGemmaRglru(nn.Module):
 class RecurrentGemmaRecurrentBlock(nn.Module):
     """Griffin and Hawk's recurrent block."""
 
-    def __init__(self, config):
+    def __init__(self, config: RecurrentGemmaConfig):
         super().__init__()
         self.lru_width = config.lru_width
         self.hidden_size = config.hidden_size
@@ -453,7 +453,7 @@ TEMPORAL_BLOCK_CLASSES = {"recurrent": RecurrentGemmaRecurrentBlock, "attention"
 
 
 class RecurrentGemmaMlp(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RecurrentGemmaConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -471,7 +471,7 @@ class RecurrentGemmaMlp(nn.Module):
 class RecurrentGemmaDecoderLayer(GradientCheckpointingLayer):
     """Griffin and Hawk's residual block."""
 
-    def __init__(self, config, layer_idx):
+    def __init__(self, config: RecurrentGemmaConfig, layer_idx):
         super().__init__()
         self.temporal_pre_norm = RecurrentGemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.temporal_block = TEMPORAL_BLOCK_CLASSES[config.layers_block_type[layer_idx]](config)
@@ -699,7 +699,7 @@ class RecurrentGemmaModel(RecurrentGemmaPreTrainedModel):
 class RecurrentGemmaForCausalLM(RecurrentGemmaPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RecurrentGemmaConfig):
         super().__init__(config)
         self.model = RecurrentGemmaModel(config)
         self.vocab_size = config.vocab_size

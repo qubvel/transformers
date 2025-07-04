@@ -123,7 +123,7 @@ class UperNetHead(nn.Module):
     [UPerNet](https://huggingface.co/papers/1807.10221).
     """
 
-    def __init__(self, config, in_channels):
+    def __init__(self, config: UperNetConfig, in_channels):
         super().__init__()
 
         self.config = config
@@ -218,7 +218,7 @@ class UperNetFCNHead(nn.Module):
     """
 
     def __init__(
-        self, config, in_channels, in_index: int = 2, kernel_size: int = 3, dilation: Union[int, tuple[int, int]] = 1
+        self, config: UperNetConfig, in_channels, in_index: int = 2, kernel_size: int = 3, dilation: Union[int, tuple[int, int]] = 1
     ) -> None:
         super().__init__()
 
@@ -288,7 +288,7 @@ class UperNetPreTrainedModel(PreTrainedModel):
     """
 )
 class UperNetForSemanticSegmentation(UperNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: UperNetConfig):
         super().__init__(config)
 
         self.backbone = load_backbone(config)

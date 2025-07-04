@@ -123,7 +123,7 @@ ACT_FNS = {"relu": nn.ReLU(), "silu": silu, "gelu": gelu_new, "swish": silu}
 
 
 class Attention(nn.Module):
-    def __init__(self, nx, n_positions, config, scale=False):
+    def __init__(self, nx, n_positions, config: OpenAIGPTConfig, scale=False):
         super().__init__()
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
         # [switch nx => n_state from Block to Attention to keep identical to TF implementation]
@@ -216,7 +216,7 @@ class Attention(nn.Module):
 
 
 class MLP(nn.Module):
-    def __init__(self, n_state, config):  # in MLP: n_state=3072 (4 * n_embd)
+    def __init__(self, n_state, config: OpenAIGPTConfig):  # in MLP: n_state=3072 (4 * n_embd)
         super().__init__()
         nx = config.n_embd
         self.c_fc = Conv1D(n_state, nx)
@@ -231,7 +231,7 @@ class MLP(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, n_positions, config, scale=False):
+    def __init__(self, n_positions, config: OpenAIGPTConfig, scale=False):
         super().__init__()
         nx = config.n_embd
         self.attn = Attention(nx, n_positions, config, scale)
@@ -408,7 +408,7 @@ class OpenAIGPTDoubleHeadsModelOutput(ModelOutput):
 
 @auto_docstring
 class OpenAIGPTModel(OpenAIGPTPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: OpenAIGPTConfig):
         super().__init__(config)
 
         self.tokens_embed = nn.Embedding(config.vocab_size, config.n_embd)
@@ -535,7 +535,7 @@ class OpenAIGPTModel(OpenAIGPTPreTrainedModel):
 class OpenAIGPTLMHeadModel(OpenAIGPTPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: OpenAIGPTConfig):
         super().__init__(config)
         self.transformer = OpenAIGPTModel(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
@@ -623,7 +623,7 @@ class OpenAIGPTLMHeadModel(OpenAIGPTPreTrainedModel, GenerationMixin):
 class OpenAIGPTDoubleHeadsModel(OpenAIGPTPreTrainedModel):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: OpenAIGPTConfig):
         super().__init__(config)
 
         config.num_labels = 1
@@ -745,7 +745,7 @@ class OpenAIGPTDoubleHeadsModel(OpenAIGPTPreTrainedModel):
     """
 )
 class OpenAIGPTForSequenceClassification(OpenAIGPTPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: OpenAIGPTConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = OpenAIGPTModel(config)

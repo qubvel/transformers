@@ -318,7 +318,7 @@ class DeformableDetrConvEncoder(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DeformableDetrConfig):
         super().__init__()
 
         self.config = config

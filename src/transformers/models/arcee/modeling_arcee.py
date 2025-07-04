@@ -51,7 +51,7 @@ logger = logging.get_logger(__name__)
 
 
 class ArceeMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ArceeConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -480,7 +480,7 @@ class ArceeForCausalLM(ArceePreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: ArceeConfig):
         super().__init__(config)
         self.model = ArceeModel(config)
         self.vocab_size = config.vocab_size
@@ -585,7 +585,7 @@ class ArceeForCausalLM(ArceePreTrainedModel, GenerationMixin):
 
 @auto_docstring(checkpoint="arcee-ai/AFM-4.5B")
 class ArceeForSequenceClassification(ArceePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ArceeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = ArceeModel(config)
@@ -674,7 +674,7 @@ class ArceeForSequenceClassification(ArceePreTrainedModel):
 class ArceeForQuestionAnswering(ArceePreTrainedModel):
     base_model_prefix = "transformer"
 
-    def __init__(self, config):
+    def __init__(self, config: ArceeConfig):
         super().__init__(config)
         self.transformer = ArceeModel(config)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)
@@ -735,7 +735,7 @@ class ArceeForQuestionAnswering(ArceePreTrainedModel):
 
 @auto_docstring(checkpoint="arcee-ai/AFM-4.5B")
 class ArceeForTokenClassification(ArceePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ArceeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = ArceeModel(config)

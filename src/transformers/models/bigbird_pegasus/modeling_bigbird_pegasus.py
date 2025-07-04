@@ -108,7 +108,7 @@ class BigBirdPegasusScaledWordEmbedding(nn.Embedding):
 
 # Copied from transformers.models.big_bird.modeling_big_bird.BigBirdSelfAttention with BigBird->BigBirdPegasus
 class BigBirdPegasusSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdPegasusConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -213,7 +213,7 @@ class BigBirdPegasusSelfAttention(nn.Module):
 
 # Copied from transformers.models.big_bird.modeling_big_bird.BigBirdBlockSparseAttention with BigBird->BigBirdPegasus
 class BigBirdPegasusBlockSparseAttention(nn.Module):
-    def __init__(self, config, seed=None):
+    def __init__(self, config: BigBirdPegasusConfig, seed=None):
         super().__init__()
 
         self.max_seqlen = config.max_position_embeddings
@@ -1101,7 +1101,7 @@ class BigBirdPegasusBlockSparseAttention(nn.Module):
 
 
 class BigBirdPegasusEncoderAttention(nn.Module):
-    def __init__(self, config, seed=None):
+    def __init__(self, config: BigBirdPegasusConfig, seed=None):
         super().__init__()
         self.config = config
         self.seed = seed
@@ -2812,7 +2812,7 @@ class BigBirdPegasusForSequenceClassification(BigBirdPegasusPreTrainedModel):
 class BigBirdPegasusForQuestionAnswering(BigBirdPegasusPreTrainedModel):
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdPegasusConfig):
         super().__init__(config)
 
         config.num_labels = 2
@@ -2936,7 +2936,7 @@ class BigBirdPegasusDecoderWrapper(BigBirdPegasusPreTrainedModel):
     used in combination with the [`EncoderDecoderModel`] framework.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdPegasusConfig):
         super().__init__(config)
         self.decoder = BigBirdPegasusDecoder(config)
 
@@ -2947,7 +2947,7 @@ class BigBirdPegasusDecoderWrapper(BigBirdPegasusPreTrainedModel):
 class BigBirdPegasusForCausalLM(BigBirdPegasusPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdPegasusConfig):
         config = copy.deepcopy(config)
         config.is_decoder = True
         config.is_encoder_decoder = False

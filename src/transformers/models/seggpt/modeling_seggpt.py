@@ -95,7 +95,7 @@ class SegGptPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -211,7 +211,7 @@ class SegGptEmbeddings(nn.Module):
 class SegGptAttention(nn.Module):
     """Multi-head Attention block with relative position embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         image_size = image_size if isinstance(image_size, collections.abc.Iterable) else (image_size, image_size)
@@ -352,7 +352,7 @@ class SegGptAttention(nn.Module):
 
 # Copied from transformers.models.sam.modeling_sam.SamMLPBlock with SamMLPBlock->SegGptMlp
 class SegGptMlp(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         self.lin1 = nn.Linear(config.hidden_size, config.mlp_dim)
         self.lin2 = nn.Linear(config.mlp_dim, config.hidden_size)
@@ -540,7 +540,7 @@ class SegGptLayerNorm(nn.Module):
 
 
 class SegGptDecoderHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         self.conv = nn.Conv2d(
             config.decoder_hidden_size,
@@ -564,7 +564,7 @@ class SegGptDecoderHead(nn.Module):
 
 
 class SegGptDecoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         self.decoder_embed = nn.Linear(
             config.hidden_size * len(config.intermediate_hidden_state_indices),
@@ -808,7 +808,7 @@ def unpatchify(tensor: torch.Tensor, patch_height: int, patch_width: int) -> tor
 
 
 class SegGptLoss(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SegGptConfig):
         super().__init__()
         self.beta = config.beta
         self.patch_size = config.patch_size

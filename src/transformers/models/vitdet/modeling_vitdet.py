@@ -40,7 +40,7 @@ class VitDetEmbeddings(nn.Module):
     `hidden_states` (patch embeddings) to be consumed by a Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VitDetConfig):
         super().__init__()
         image_size, patch_size = config.pretrain_image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -203,7 +203,7 @@ def add_decomposed_relative_positions(attn, queries, rel_pos_h, rel_pos_w, q_siz
 class VitDetAttention(nn.Module):
     """Multi-head Attention block with relative position embeddings."""
 
-    def __init__(self, config, input_size=None):
+    def __init__(self, config: VitDetConfig, input_size=None):
         """
         Args:
             config (`VitDetConfig`):
@@ -326,7 +326,7 @@ class VitDetResBottleneckBlock(nn.Module):
     1x1, 3x3, 1x1.
     """
 
-    def __init__(self, config, in_channels, out_channels, bottleneck_channels):
+    def __init__(self, config: VitDetConfig, in_channels, out_channels, bottleneck_channels):
         """
         Args:
             config (`VitDetConfig`):
@@ -360,7 +360,7 @@ class VitDetResBottleneckBlock(nn.Module):
 
 
 class VitDetMlp(nn.Module):
-    def __init__(self, config, in_features: int, hidden_features: int) -> None:
+    def __init__(self, config: VitDetConfig, in_features: int, hidden_features: int) -> None:
         super().__init__()
         self.fc1 = nn.Linear(in_features, hidden_features)
         self.act = ACT2FN[config.hidden_act]
@@ -741,7 +741,7 @@ class VitDetModel(VitDetPreTrainedModel):
     """
 )
 class VitDetBackbone(VitDetPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: VitDetConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

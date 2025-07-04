@@ -1137,7 +1137,7 @@ class JetMoeModel(JetMoePreTrainedModel):
 class JetMoeForCausalLM(JetMoePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: JetMoeConfig):
         super().__init__(config)
         self.model = JetMoeModel(config)
         self.vocab_size = config.vocab_size
@@ -1277,7 +1277,7 @@ class JetMoeForCausalLM(JetMoePreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.llama.modeling_llama.LlamaForSequenceClassification with Llama->JetMoe, LLAMA->JETMOE, BaseModelOutputWithPast->MoeModelOutputWithPast
 class JetMoeForSequenceClassification(JetMoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: JetMoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = JetMoeModel(config)

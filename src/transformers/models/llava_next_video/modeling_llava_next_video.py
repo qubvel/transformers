@@ -106,7 +106,7 @@ class LlavaNextVideoCausalLMOutputWithPast(ModelOutput):
 
 
 class LlavaNextVideoPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LlavaNextVideoConfig):
         super().__init__()
 
         mode = config.spatial_pool_mode

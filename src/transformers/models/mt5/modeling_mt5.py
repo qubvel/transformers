@@ -449,7 +449,7 @@ class MT5Attention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerSelfAttention with T5->MT5
 class MT5LayerSelfAttention(nn.Module):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: MT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = MT5Attention(
             config, has_relative_attention_bias=has_relative_attention_bias, layer_idx=layer_idx
@@ -486,7 +486,7 @@ class MT5LayerSelfAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerCrossAttention with T5->MT5
 class MT5LayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: MT5Config, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = MT5Attention(config, has_relative_attention_bias=False, layer_idx=layer_idx)
         self.layer_norm = MT5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -525,7 +525,7 @@ class MT5LayerCrossAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5Block with T5->MT5
 class MT5Block(GradientCheckpointingLayer):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: MT5Config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.layer = nn.ModuleList()
@@ -866,7 +866,7 @@ class MT5PreTrainedModel(PreTrainedModel):
 
 # Copied from transformers.models.t5.modeling_t5.T5Stack with T5->MT5
 class MT5Stack(MT5PreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: MT5Config, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = embed_tokens

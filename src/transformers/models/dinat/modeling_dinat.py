@@ -135,7 +135,7 @@ class DinatEmbeddings(nn.Module):
     Construct the patch and position embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DinatConfig):
         super().__init__()
 
         self.patch_embeddings = DinatPatchEmbeddings(config)
@@ -159,7 +159,7 @@ class DinatPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DinatConfig):
         super().__init__()
         patch_size = config.patch_size
         num_channels, hidden_size = config.num_channels, config.embed_dim
@@ -248,7 +248,7 @@ class DinatDropPath(nn.Module):
 
 
 class NeighborhoodAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, kernel_size, dilation):
+    def __init__(self, config: DinatConfig, dim, num_heads, kernel_size, dilation):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -310,7 +310,7 @@ class NeighborhoodAttention(nn.Module):
 
 
 class NeighborhoodAttentionOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DinatConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -323,7 +323,7 @@ class NeighborhoodAttentionOutput(nn.Module):
 
 
 class NeighborhoodAttentionModule(nn.Module):
-    def __init__(self, config, dim, num_heads, kernel_size, dilation):
+    def __init__(self, config: DinatConfig, dim, num_heads, kernel_size, dilation):
         super().__init__()
         self.self = NeighborhoodAttention(config, dim, num_heads, kernel_size, dilation)
         self.output = NeighborhoodAttentionOutput(config, dim)
@@ -359,7 +359,7 @@ class NeighborhoodAttentionModule(nn.Module):
 
 
 class DinatIntermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DinatConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -374,7 +374,7 @@ class DinatIntermediate(nn.Module):
 
 
 class DinatOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DinatConfig, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -386,7 +386,7 @@ class DinatOutput(nn.Module):
 
 
 class DinatLayer(nn.Module):
-    def __init__(self, config, dim, num_heads, dilation, drop_path_rate=0.0):
+    def __init__(self, config: DinatConfig, dim, num_heads, dilation, drop_path_rate=0.0):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.kernel_size = config.kernel_size
@@ -457,7 +457,7 @@ class DinatLayer(nn.Module):
 
 
 class DinatStage(nn.Module):
-    def __init__(self, config, dim, depth, num_heads, dilations, drop_path_rate, downsample):
+    def __init__(self, config: DinatConfig, dim, depth, num_heads, dilations, drop_path_rate, downsample):
         super().__init__()
         self.config = config
         self.dim = dim
@@ -504,7 +504,7 @@ class DinatStage(nn.Module):
 
 
 class DinatEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DinatConfig):
         super().__init__()
         self.num_levels = len(config.depths)
         self.config = config
@@ -595,7 +595,7 @@ class DinatPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class DinatModel(DinatPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: DinatConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -683,7 +683,7 @@ class DinatModel(DinatPreTrainedModel):
     """
 )
 class DinatForImageClassification(DinatPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DinatConfig):
         super().__init__(config)
 
         requires_backends(self, ["natten"])
@@ -769,7 +769,7 @@ class DinatForImageClassification(DinatPreTrainedModel):
     """
 )
 class DinatBackbone(DinatPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: DinatConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

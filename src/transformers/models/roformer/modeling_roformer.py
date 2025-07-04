@@ -156,7 +156,7 @@ def load_tf_weights_in_roformer(model, config, tf_checkpoint_path):
 class RoFormerEmbeddings(nn.Module):
     """Construct the embeddings from word and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.embedding_size, padding_idx=config.pad_token_id)
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.embedding_size)
@@ -188,7 +188,7 @@ class RoFormerEmbeddings(nn.Module):
 
 
 class RoFormerSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -327,7 +327,7 @@ class RoFormerSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->RoFormer
 class RoFormerSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -341,7 +341,7 @@ class RoFormerSelfOutput(nn.Module):
 
 
 class RoFormerAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.self = RoFormerSelfAttention(config)
         self.output = RoFormerSelfOutput(config)
@@ -395,7 +395,7 @@ class RoFormerAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->RoFormer
 class RoFormerIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -411,7 +411,7 @@ class RoFormerIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->RoFormer
 class RoFormerOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -425,7 +425,7 @@ class RoFormerOutput(nn.Module):
 
 
 class RoFormerLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -514,7 +514,7 @@ class RoFormerLayer(GradientCheckpointingLayer):
 
 
 class RoFormerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.config = config
         self.embed_positions = RoFormerSinusoidalPositionalEmbedding(
@@ -703,7 +703,7 @@ class RoFormerSequenceSummary(nn.Module):
 
 
 class RoFormerPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.embedding_size)
         if isinstance(config.hidden_act, str):
@@ -720,7 +720,7 @@ class RoFormerPredictionHeadTransform(nn.Module):
 
 
 class RoFormerLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.transform = RoFormerPredictionHeadTransform(config)
 
@@ -744,7 +744,7 @@ class RoFormerLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->RoFormer
 class RoFormerOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.predictions = RoFormerLMPredictionHead(config)
 
@@ -796,7 +796,7 @@ class RoFormerPreTrainedModel(PreTrainedModel):
     """
 )
 class RoFormerModel(RoFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
         self.config = config
         self.embeddings = RoFormerEmbeddings(config)
@@ -929,7 +929,7 @@ class RoFormerModel(RoFormerPreTrainedModel):
 class RoFormerForMaskedLM(RoFormerPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1029,7 +1029,7 @@ class RoFormerForMaskedLM(RoFormerPreTrainedModel):
 class RoFormerForCausalLM(RoFormerPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1144,7 +1144,7 @@ class RoFormerForCausalLM(RoFormerPreTrainedModel, GenerationMixin):
 class RoFormerClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -1169,7 +1169,7 @@ class RoFormerClassificationHead(nn.Module):
     """
 )
 class RoFormerForSequenceClassification(RoFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.roformer = RoFormerModel(config)
@@ -1249,7 +1249,7 @@ class RoFormerForSequenceClassification(RoFormerPreTrainedModel):
 
 @auto_docstring
 class RoFormerForMultipleChoice(RoFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
 
         self.roformer = RoFormerModel(config)
@@ -1346,7 +1346,7 @@ class RoFormerForMultipleChoice(RoFormerPreTrainedModel):
 
 @auto_docstring
 class RoFormerForTokenClassification(RoFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1411,7 +1411,7 @@ class RoFormerForTokenClassification(RoFormerPreTrainedModel):
 
 @auto_docstring
 class RoFormerForQuestionAnswering(RoFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RoFormerConfig):
         super().__init__(config)
 
         config.num_labels = 2

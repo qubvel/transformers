@@ -205,7 +205,7 @@ class TapasEmbeddings(nn.Module):
     additional token type embeddings to encode tabular structure.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         # we do not include config.disabled_features and config.disable_position_embeddings from the original implementation
         # word embeddings
@@ -279,7 +279,7 @@ class TapasEmbeddings(nn.Module):
 
 
 class TapasSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -375,7 +375,7 @@ class TapasSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class TapasSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -389,7 +389,7 @@ class TapasSelfOutput(nn.Module):
 
 
 class TapasAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.self = TapasSelfAttention(config)
         self.output = TapasSelfOutput(config)
@@ -441,7 +441,7 @@ class TapasAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class TapasIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -457,7 +457,7 @@ class TapasIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class TapasOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -471,7 +471,7 @@ class TapasOutput(nn.Module):
 
 
 class TapasLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -559,7 +559,7 @@ class TapasLayer(GradientCheckpointingLayer):
 
 
 class TapasEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([TapasLayer(config) for _ in range(config.num_hidden_layers)])
@@ -611,7 +611,7 @@ class TapasEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class TapasPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -627,7 +627,7 @@ class TapasPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->Tapas
 class TapasPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -645,7 +645,7 @@ class TapasPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->Tapas
 class TapasLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.transform = TapasPredictionHeadTransform(config)
 
@@ -669,7 +669,7 @@ class TapasLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->Tapas
 class TapasOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__()
         self.predictions = TapasLMPredictionHead(config)
 
@@ -718,7 +718,7 @@ class TapasModel(TapasPreTrainedModel):
 
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: TapasConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -879,7 +879,7 @@ class TapasForMaskedLM(TapasPreTrainedModel):
     config_class = TapasConfig
     base_model_prefix = "tapas"
 
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__(config)
 
         self.tapas = TapasModel(config, add_pooling_layer=False)
@@ -1350,7 +1350,7 @@ class TapasForQuestionAnswering(TapasPreTrainedModel):
     """
 )
 class TapasForSequenceClassification(TapasPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: TapasConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

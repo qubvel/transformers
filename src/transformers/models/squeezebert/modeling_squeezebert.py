@@ -45,7 +45,7 @@ logger = logging.get_logger(__name__)
 class SqueezeBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.embedding_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.embedding_size)
@@ -158,7 +158,7 @@ class ConvActivation(nn.Module):
 
 
 class SqueezeBertSelfAttention(nn.Module):
-    def __init__(self, config, cin, q_groups=1, k_groups=1, v_groups=1):
+    def __init__(self, config: SqueezeBertConfig, cin, q_groups=1, k_groups=1, v_groups=1):
         """
         config = used for some things; ignored for others (work in progress...) cin = input channels = output channels
         groups = number of groups to use in conv1d layers
@@ -248,7 +248,7 @@ class SqueezeBertSelfAttention(nn.Module):
 
 
 class SqueezeBertModule(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         """
         - hidden_size = input chans = output chans for Q, K, V (they are all the same ... for now) = output chans for
           the module
@@ -290,7 +290,7 @@ class SqueezeBertModule(nn.Module):
 
 
 class SqueezeBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
 
         assert config.embedding_size == config.hidden_size, (
@@ -351,7 +351,7 @@ class SqueezeBertEncoder(nn.Module):
 
 
 class SqueezeBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -366,7 +366,7 @@ class SqueezeBertPooler(nn.Module):
 
 
 class SqueezeBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -383,7 +383,7 @@ class SqueezeBertPredictionHeadTransform(nn.Module):
 
 
 class SqueezeBertLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
         self.transform = SqueezeBertPredictionHeadTransform(config)
 
@@ -406,7 +406,7 @@ class SqueezeBertLMPredictionHead(nn.Module):
 
 
 class SqueezeBertOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__()
         self.predictions = SqueezeBertLMPredictionHead(config)
 
@@ -442,7 +442,7 @@ class SqueezeBertPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class SqueezeBertModel(SqueezeBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
 
         self.embeddings = SqueezeBertEmbeddings(config)
@@ -539,7 +539,7 @@ class SqueezeBertModel(SqueezeBertPreTrainedModel):
 class SqueezeBertForMaskedLM(SqueezeBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
 
         self.transformer = SqueezeBertModel(config)
@@ -616,7 +616,7 @@ class SqueezeBertForMaskedLM(SqueezeBertPreTrainedModel):
     """
 )
 class SqueezeBertForSequenceClassification(SqueezeBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -704,7 +704,7 @@ class SqueezeBertForSequenceClassification(SqueezeBertPreTrainedModel):
 
 @auto_docstring
 class SqueezeBertForMultipleChoice(SqueezeBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
 
         self.transformer = SqueezeBertModel(config)
@@ -808,7 +808,7 @@ class SqueezeBertForMultipleChoice(SqueezeBertPreTrainedModel):
 
 @auto_docstring
 class SqueezeBertForTokenClassification(SqueezeBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -875,7 +875,7 @@ class SqueezeBertForTokenClassification(SqueezeBertPreTrainedModel):
 
 @auto_docstring
 class SqueezeBertForQuestionAnswering(SqueezeBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SqueezeBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

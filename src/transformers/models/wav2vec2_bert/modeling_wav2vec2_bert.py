@@ -36,7 +36,7 @@ class Wav2Vec2BertRotaryPositionalEmbedding(nn.Module):
     Reference : https://blog.eleuther.ai/rotary-embeddings/ Paper: https://huggingface.co/papers/2104.09864
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         dim = config.hidden_size // config.num_attention_heads
         base = config.rotary_embedding_base
@@ -69,7 +69,7 @@ class Wav2Vec2BertRotaryPositionalEmbedding(nn.Module):
 class Wav2Vec2BertRelPositionalEmbedding(nn.Module):
     """Relative positional encoding module."""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         self.max_len = config.max_source_positions
         self.d_model = config.hidden_size
@@ -117,7 +117,7 @@ class Wav2Vec2BertRelPositionalEmbedding(nn.Module):
 
 
 class Wav2Vec2BertFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.feature_projection_input_dim, eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.feature_projection_input_dim, config.hidden_size)
@@ -132,7 +132,7 @@ class Wav2Vec2BertFeatureProjection(nn.Module):
 
 
 class Wav2Vec2BertFeedForward(nn.Module):
-    def __init__(self, config, act_fn=None, hidden_size=None):
+    def __init__(self, config: Wav2Vec2BertConfig, act_fn=None, hidden_size=None):
         super().__init__()
         act_fn = act_fn if act_fn is not None else config.hidden_act
         hidden_size = hidden_size if hidden_size is not None else config.hidden_size
@@ -157,7 +157,7 @@ class Wav2Vec2BertFeedForward(nn.Module):
 class Wav2Vec2BertConvolutionModule(nn.Module):
     """Convolution block used in the conformer block"""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         if (config.conv_depthwise_kernel_size - 1) % 2 == 1:
             raise ValueError("`config.conv_depthwise_kernel_size` should be a odd number for 'SAME' padding")
@@ -231,7 +231,7 @@ class Wav2Vec2BertSelfAttention(nn.Module):
     Can be enhanced with rotary or relative position embeddings.
     """
 
-    def __init__(self, config, is_adapter_attention=False):
+    def __init__(self, config: Wav2Vec2BertConfig, is_adapter_attention=False):
         super().__init__()
         hidden_size = config.hidden_size if not is_adapter_attention else config.output_hidden_size
 
@@ -398,7 +398,7 @@ class Wav2Vec2BertSelfAttention(nn.Module):
 class Wav2Vec2BertEncoderLayer(GradientCheckpointingLayer):
     """Conformer block based on https://huggingface.co/papers/2005.08100."""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         embed_dim = config.hidden_size
         dropout = config.attention_dropout
@@ -464,7 +464,7 @@ class Wav2Vec2BertEncoderLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2BertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         self.config = config
 
@@ -549,7 +549,7 @@ class Wav2Vec2BertEncoder(nn.Module):
 
 
 class Wav2Vec2BertAdapter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         # feature dim might need to be down-projected
         if config.output_hidden_size != config.hidden_size:
@@ -618,7 +618,7 @@ def _compute_new_attention_mask(hidden_states: torch.Tensor, seq_lens: torch.Ten
 
 
 class Wav2Vec2BertAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__()
         embed_dim = config.output_hidden_size
         dropout = config.conformer_conv_dropout
@@ -1053,7 +1053,7 @@ _HIDDEN_STATES_START_POSITION = 2
     """
 )
 class Wav2Vec2BertForCTC(Wav2Vec2BertPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: Wav2Vec2BertConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1168,7 +1168,7 @@ class Wav2Vec2BertForCTC(Wav2Vec2BertPreTrainedModel):
     """
 )
 class Wav2Vec2BertForSequenceClassification(Wav2Vec2BertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1264,7 +1264,7 @@ class Wav2Vec2BertForSequenceClassification(Wav2Vec2BertPreTrainedModel):
 
 @auto_docstring
 class Wav2Vec2BertForAudioFrameClassification(Wav2Vec2BertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1372,7 +1372,7 @@ class AMSoftmaxLoss(nn.Module):
 
 
 class TDNNLayer(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2BertConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.tdnn_dim[layer_id - 1] if layer_id > 0 else config.tdnn_dim[layer_id]
         self.out_conv_dim = config.tdnn_dim[layer_id]
@@ -1409,7 +1409,7 @@ class TDNNLayer(nn.Module):
     """
 )
 class Wav2Vec2BertForXVector(Wav2Vec2BertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2BertConfig):
         super().__init__(config)
 
         self.wav2vec2_bert = Wav2Vec2BertModel(config)

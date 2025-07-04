@@ -220,7 +220,7 @@ class Swinv2Embeddings(nn.Module):
     Construct the patch and position embeddings. Optionally, also the mask token.
     """
 
-    def __init__(self, config, use_mask_token=False):
+    def __init__(self, config: Swinv2Config, use_mask_token=False):
         super().__init__()
 
         self.patch_embeddings = Swinv2PatchEmbeddings(config)
@@ -315,7 +315,7 @@ class Swinv2PatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Swinv2Config):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.embed_dim
@@ -406,7 +406,7 @@ class Swinv2PatchMerging(nn.Module):
 
 
 class Swinv2SelfAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size, pretrained_window_size=[0, 0]):
+    def __init__(self, config: Swinv2Config, dim, num_heads, window_size, pretrained_window_size=[0, 0]):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -536,7 +536,7 @@ class Swinv2SelfAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfOutput with Swin->Swinv2
 class Swinv2SelfOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swinv2Config, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -549,7 +549,7 @@ class Swinv2SelfOutput(nn.Module):
 
 
 class Swinv2Attention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size, pretrained_window_size=0):
+    def __init__(self, config: Swinv2Config, dim, num_heads, window_size, pretrained_window_size=0):
         super().__init__()
         self.self = Swinv2SelfAttention(
             config=config,
@@ -596,7 +596,7 @@ class Swinv2Attention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinIntermediate with Swin->Swinv2
 class Swinv2Intermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swinv2Config, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -612,7 +612,7 @@ class Swinv2Intermediate(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinOutput with Swin->Swinv2
 class Swinv2Output(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swinv2Config, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -625,7 +625,7 @@ class Swinv2Output(nn.Module):
 
 class Swinv2Layer(nn.Module):
     def __init__(
-        self, config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0, pretrained_window_size=0
+        self, config: Swinv2Config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0, pretrained_window_size=0
     ):
         super().__init__()
         self.input_resolution = input_resolution
@@ -750,7 +750,7 @@ class Swinv2Layer(nn.Module):
 
 class Swinv2Stage(GradientCheckpointingLayer):
     def __init__(
-        self, config, dim, input_resolution, depth, num_heads, drop_path, downsample, pretrained_window_size=0
+        self, config: Swinv2Config, dim, input_resolution, depth, num_heads, drop_path, downsample, pretrained_window_size=0
     ):
         super().__init__()
         self.config = config
@@ -813,7 +813,7 @@ class Swinv2Stage(GradientCheckpointingLayer):
 
 
 class Swinv2Encoder(nn.Module):
-    def __init__(self, config, grid_size, pretrained_window_sizes=(0, 0, 0, 0)):
+    def __init__(self, config: Swinv2Config, grid_size, pretrained_window_sizes=(0, 0, 0, 0)):
         super().__init__()
         self.num_layers = len(config.depths)
         self.config = config
@@ -944,7 +944,7 @@ class Swinv2PreTrainedModel(PreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.swin.modeling_swin.SwinModel with SWIN->SWINV2,Swin->Swinv2
 class Swinv2Model(Swinv2PreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True, use_mask_token=False):
+    def __init__(self, config: Swinv2Config, add_pooling_layer=True, use_mask_token=False):
         r"""
         add_pooling_layer (`bool`, *optional*, defaults to `True`):
             Whether or not to apply pooling layer.
@@ -1057,7 +1057,7 @@ class Swinv2Model(Swinv2PreTrainedModel):
 )
 # Copied from transformers.models.swin.modeling_swin.SwinForMaskedImageModeling with swin->swinv2, base-simmim-window6-192->tiny-patch4-window8-256,SWIN->SWINV2,Swin->Swinv2,192->256
 class Swinv2ForMaskedImageModeling(Swinv2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Swinv2Config):
         super().__init__(config)
 
         self.swinv2 = Swinv2Model(config, add_pooling_layer=False, use_mask_token=True)
@@ -1175,7 +1175,7 @@ class Swinv2ForMaskedImageModeling(Swinv2PreTrainedModel):
 )
 # Copied from transformers.models.swin.modeling_swin.SwinForImageClassification with SWIN->SWINV2,Swin->Swinv2,swin->swinv2
 class Swinv2ForImageClassification(Swinv2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Swinv2Config):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -1244,7 +1244,7 @@ class Swinv2ForImageClassification(Swinv2PreTrainedModel):
     """
 )
 class Swinv2Backbone(Swinv2PreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: Swinv2Config):
         super().__init__(config)
         super()._init_backbone(config)
 

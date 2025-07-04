@@ -198,7 +198,7 @@ class Olmo2Attention(nn.Module):
 
 
 class Olmo2MLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Olmo2Config):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -464,7 +464,7 @@ class Olmo2ForCausalLM(Olmo2PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Olmo2Config):
         super().__init__(config)
         self.model = Olmo2Model(config)
         self.vocab_size = config.vocab_size

@@ -47,7 +47,7 @@ logger = logging.get_logger(__name__)
 class NystromformerEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings + 2, config.hidden_size)
@@ -105,7 +105,7 @@ class NystromformerEmbeddings(nn.Module):
 
 
 class NystromformerSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: NystromformerConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -236,7 +236,7 @@ class NystromformerSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class NystromformerSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -250,7 +250,7 @@ class NystromformerSelfOutput(nn.Module):
 
 
 class NystromformerAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: NystromformerConfig, position_embedding_type=None):
         super().__init__()
         self.self = NystromformerSelfAttention(config, position_embedding_type=position_embedding_type)
         self.output = NystromformerSelfOutput(config)
@@ -283,7 +283,7 @@ class NystromformerAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Nystromformer
 class NystromformerIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -299,7 +299,7 @@ class NystromformerIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->Nystromformer
 class NystromformerOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -313,7 +313,7 @@ class NystromformerOutput(nn.Module):
 
 
 class NystromformerLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -342,7 +342,7 @@ class NystromformerLayer(GradientCheckpointingLayer):
 
 
 class NystromformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([NystromformerLayer(config) for _ in range(config.num_hidden_layers)])
@@ -384,7 +384,7 @@ class NystromformerEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->Nystromformer
 class NystromformerPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -402,7 +402,7 @@ class NystromformerPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->Nystromformer
 class NystromformerLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.transform = NystromformerPredictionHeadTransform(config)
 
@@ -426,7 +426,7 @@ class NystromformerLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->Nystromformer
 class NystromformerOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.predictions = NystromformerLMPredictionHead(config)
 
@@ -461,7 +461,7 @@ class NystromformerPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class NystromformerModel(NystromformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
         self.config = config
 
@@ -570,7 +570,7 @@ class NystromformerModel(NystromformerPreTrainedModel):
 class NystromformerForMaskedLM(NystromformerPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder"]
 
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
 
         self.nystromformer = NystromformerModel(config)
@@ -643,7 +643,7 @@ class NystromformerForMaskedLM(NystromformerPreTrainedModel):
 class NystromformerClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -668,7 +668,7 @@ class NystromformerClassificationHead(nn.Module):
     """
 )
 class NystromformerForSequenceClassification(NystromformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.nystromformer = NystromformerModel(config)
@@ -750,7 +750,7 @@ class NystromformerForSequenceClassification(NystromformerPreTrainedModel):
 
 @auto_docstring
 class NystromformerForMultipleChoice(NystromformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
 
         self.nystromformer = NystromformerModel(config)
@@ -856,7 +856,7 @@ class NystromformerForMultipleChoice(NystromformerPreTrainedModel):
 
 @auto_docstring
 class NystromformerForTokenClassification(NystromformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -923,7 +923,7 @@ class NystromformerForTokenClassification(NystromformerPreTrainedModel):
 
 @auto_docstring
 class NystromformerForQuestionAnswering(NystromformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: NystromformerConfig):
         super().__init__(config)
 
         config.num_labels = 2

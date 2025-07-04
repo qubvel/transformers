@@ -112,7 +112,7 @@ class Swin2SREmbeddings(nn.Module):
     Construct the patch and optional position embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Swin2SRConfig):
         super().__init__()
 
         self.patch_embeddings = Swin2SRPatchEmbeddings(config)
@@ -138,7 +138,7 @@ class Swin2SREmbeddings(nn.Module):
 
 
 class Swin2SRPatchEmbeddings(nn.Module):
-    def __init__(self, config, normalize_patches=True):
+    def __init__(self, config: Swin2SRConfig, normalize_patches=True):
         super().__init__()
         num_channels = config.embed_dim
         image_size, patch_size = config.image_size, config.patch_size
@@ -167,7 +167,7 @@ class Swin2SRPatchEmbeddings(nn.Module):
 class Swin2SRPatchUnEmbeddings(nn.Module):
     r"""Image to Patch Unembedding"""
 
-    def __init__(self, config):
+    def __init__(self, config: Swin2SRConfig):
         super().__init__()
 
         self.embed_dim = config.embed_dim
@@ -235,7 +235,7 @@ class Swin2SRPatchMerging(nn.Module):
 
 # Copied from transformers.models.swinv2.modeling_swinv2.Swinv2SelfAttention with Swinv2->Swin2SR
 class Swin2SRSelfAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size, pretrained_window_size=[0, 0]):
+    def __init__(self, config: Swin2SRConfig, dim, num_heads, window_size, pretrained_window_size=[0, 0]):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -365,7 +365,7 @@ class Swin2SRSelfAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfOutput with Swin->Swin2SR
 class Swin2SRSelfOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swin2SRConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -379,7 +379,7 @@ class Swin2SRSelfOutput(nn.Module):
 
 # Copied from transformers.models.swinv2.modeling_swinv2.Swinv2Attention with Swinv2->Swin2SR
 class Swin2SRAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size, pretrained_window_size=0):
+    def __init__(self, config: Swin2SRConfig, dim, num_heads, window_size, pretrained_window_size=0):
         super().__init__()
         self.self = Swin2SRSelfAttention(
             config=config,
@@ -426,7 +426,7 @@ class Swin2SRAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinIntermediate with Swin->Swin2SR
 class Swin2SRIntermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swin2SRConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -442,7 +442,7 @@ class Swin2SRIntermediate(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinOutput with Swin->Swin2SR
 class Swin2SROutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: Swin2SRConfig, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -456,7 +456,7 @@ class Swin2SROutput(nn.Module):
 # Copied from transformers.models.swinv2.modeling_swinv2.Swinv2Layer with Swinv2->Swin2SR
 class Swin2SRLayer(nn.Module):
     def __init__(
-        self, config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0, pretrained_window_size=0
+        self, config: Swin2SRConfig, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0, pretrained_window_size=0
     ):
         super().__init__()
         self.input_resolution = input_resolution
@@ -584,7 +584,7 @@ class Swin2SRStage(GradientCheckpointingLayer):
     This corresponds to the Residual Swin Transformer Block (RSTB) in the original implementation.
     """
 
-    def __init__(self, config, dim, input_resolution, depth, num_heads, drop_path, pretrained_window_size=0):
+    def __init__(self, config: Swin2SRConfig, dim, input_resolution, depth, num_heads, drop_path, pretrained_window_size=0):
         super().__init__()
         self.config = config
         self.dim = dim
@@ -651,7 +651,7 @@ class Swin2SRStage(GradientCheckpointingLayer):
 
 
 class Swin2SREncoder(nn.Module):
-    def __init__(self, config, grid_size):
+    def __init__(self, config: Swin2SRConfig, grid_size):
         super().__init__()
         self.num_stages = len(config.depths)
         self.config = config
@@ -737,7 +737,7 @@ class Swin2SRPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class Swin2SRModel(Swin2SRPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Swin2SRConfig):
         super().__init__(config)
         self.config = config
 
@@ -909,7 +909,7 @@ class UpsampleOneStep(nn.Module):
 
 
 class PixelShuffleUpsampler(nn.Module):
-    def __init__(self, config, num_features):
+    def __init__(self, config: Swin2SRConfig, num_features):
         super().__init__()
         self.conv_before_upsample = nn.Conv2d(config.embed_dim, num_features, 3, 1, 1)
         self.activation = nn.LeakyReLU(inplace=True)
@@ -926,7 +926,7 @@ class PixelShuffleUpsampler(nn.Module):
 
 
 class NearestConvUpsampler(nn.Module):
-    def __init__(self, config, num_features):
+    def __init__(self, config: Swin2SRConfig, num_features):
         super().__init__()
         if config.upscale != 4:
             raise ValueError("The nearest+conv upsampler only supports an upscale factor of 4 at the moment.")
@@ -953,7 +953,7 @@ class NearestConvUpsampler(nn.Module):
 
 
 class PixelShuffleAuxUpsampler(nn.Module):
-    def __init__(self, config, num_features):
+    def __init__(self, config: Swin2SRConfig, num_features):
         super().__init__()
 
         self.upscale = config.upscale
@@ -986,7 +986,7 @@ class PixelShuffleAuxUpsampler(nn.Module):
     """
 )
 class Swin2SRForImageSuperResolution(Swin2SRPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Swin2SRConfig):
         super().__init__(config)
 
         self.swin2sr = Swin2SRModel(config)

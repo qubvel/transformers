@@ -90,7 +90,7 @@ class LEDLearnedPositionalEmbedding(nn.Embedding):
 
 # Copied from transformers.models.longformer.modeling_longformer.LongformerSelfAttention with Longformer->LEDEncoder
 class LEDEncoderSelfAttention(nn.Module):
-    def __init__(self, config, layer_id):
+    def __init__(self, config: LEDConfig, layer_id):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -725,7 +725,7 @@ class LEDEncoderSelfAttention(nn.Module):
 
 
 class LEDEncoderAttention(nn.Module):
-    def __init__(self, config, layer_id):
+    def __init__(self, config: LEDConfig, layer_id):
         super().__init__()
         self.longformer_self_attn = LEDEncoderSelfAttention(config, layer_id=layer_id)
         self.output = nn.Linear(config.d_model, config.d_model)
@@ -2398,7 +2398,7 @@ class LEDForSequenceClassification(LEDPreTrainedModel):
 class LEDForQuestionAnswering(LEDPreTrainedModel):
     _tied_weights_keys = ["decoder.embed_tokens.weight", "encoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: LEDConfig):
         super().__init__(config)
 
         config.num_labels = 2

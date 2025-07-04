@@ -393,7 +393,7 @@ class Pop2PianoAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerSelfAttention with T5->Pop2Piano,t5->pop2piano
 class Pop2PianoLayerSelfAttention(nn.Module):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: Pop2PianoConfig, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = Pop2PianoAttention(
             config, has_relative_attention_bias=has_relative_attention_bias, layer_idx=layer_idx
@@ -430,7 +430,7 @@ class Pop2PianoLayerSelfAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerCrossAttention with T5->Pop2Piano,t5->pop2piano
 class Pop2PianoLayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: Pop2PianoConfig, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = Pop2PianoAttention(config, has_relative_attention_bias=False, layer_idx=layer_idx)
         self.layer_norm = Pop2PianoLayerNorm(config.d_model, eps=config.layer_norm_epsilon)
@@ -469,7 +469,7 @@ class Pop2PianoLayerCrossAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5Block with T5->Pop2Piano,t5->pop2piano
 class Pop2PianoBlock(GradientCheckpointingLayer):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: Pop2PianoConfig, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.layer = nn.ModuleList()
@@ -657,7 +657,7 @@ class Pop2PianoPreTrainedModel(PreTrainedModel):
 
 class Pop2PianoStack(Pop2PianoPreTrainedModel):
     # Copied from transformers.models.t5.modeling_t5.T5Stack.__init__ with T5->Pop2Piano,t5->pop2piano
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: Pop2PianoConfig, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = embed_tokens
@@ -1012,7 +1012,7 @@ class Pop2PianoStack(Pop2PianoPreTrainedModel):
 class Pop2PianoConcatEmbeddingToMel(nn.Module):
     """Embedding Matrix for `composer` tokens."""
 
-    def __init__(self, config):
+    def __init__(self, config: Pop2PianoConfig):
         super().__init__()
         self.embedding = nn.Embedding(num_embeddings=config.composer_vocab_size, embedding_dim=config.d_model)
 

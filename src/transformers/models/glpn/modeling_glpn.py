@@ -99,7 +99,7 @@ class GLPNEfficientSelfAttention(nn.Module):
     """SegFormer's efficient self-attention mechanism. Employs the sequence reduction process introduced in the [PvT
     paper](https://huggingface.co/papers/2102.12122)."""
 
-    def __init__(self, config, hidden_size, num_attention_heads, sequence_reduction_ratio):
+    def __init__(self, config: GLPNConfig, hidden_size, num_attention_heads, sequence_reduction_ratio):
         super().__init__()
         self.hidden_size = hidden_size
         self.num_attention_heads = num_attention_heads
@@ -178,7 +178,7 @@ class GLPNEfficientSelfAttention(nn.Module):
 
 # Copied from transformers.models.segformer.modeling_segformer.SegformerSelfOutput
 class GLPNSelfOutput(nn.Module):
-    def __init__(self, config, hidden_size):
+    def __init__(self, config: GLPNConfig, hidden_size):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -191,7 +191,7 @@ class GLPNSelfOutput(nn.Module):
 
 # Copied from transformers.models.segformer.modeling_segformer.SegformerAttention with Segformer->GLPN
 class GLPNAttention(nn.Module):
-    def __init__(self, config, hidden_size, num_attention_heads, sequence_reduction_ratio):
+    def __init__(self, config: GLPNConfig, hidden_size, num_attention_heads, sequence_reduction_ratio):
         super().__init__()
         self.self = GLPNEfficientSelfAttention(
             config=config,
@@ -245,7 +245,7 @@ class GLPNDWConv(nn.Module):
 
 # Copied from transformers.models.segformer.modeling_segformer.SegformerMixFFN with Segformer->GLPN
 class GLPNMixFFN(nn.Module):
-    def __init__(self, config, in_features, hidden_features=None, out_features=None):
+    def __init__(self, config: GLPNConfig, in_features, hidden_features=None, out_features=None):
         super().__init__()
         out_features = out_features or in_features
         self.dense1 = nn.Linear(in_features, hidden_features)
@@ -271,7 +271,7 @@ class GLPNMixFFN(nn.Module):
 class GLPNLayer(nn.Module):
     """This corresponds to the Block class in the original implementation."""
 
-    def __init__(self, config, hidden_size, num_attention_heads, drop_path, sequence_reduction_ratio, mlp_ratio):
+    def __init__(self, config: GLPNConfig, hidden_size, num_attention_heads, drop_path, sequence_reduction_ratio, mlp_ratio):
         super().__init__()
         self.layer_norm_1 = nn.LayerNorm(hidden_size)
         self.attention = GLPNAttention(
@@ -312,7 +312,7 @@ class GLPNLayer(nn.Module):
 
 
 class GLPNEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GLPNConfig):
         super().__init__()
         self.config = config
 
@@ -428,7 +428,7 @@ class GLPNPreTrainedModel(PreTrainedModel):
 @auto_docstring
 class GLPNModel(GLPNPreTrainedModel):
     # Copied from transformers.models.segformer.modeling_segformer.SegformerModel.__init__ with Segformer->GLPN
-    def __init__(self, config):
+    def __init__(self, config: GLPNConfig):
         super().__init__(config)
         self.config = config
 
@@ -544,7 +544,7 @@ class GLPNDecoderStage(nn.Module):
 
 
 class GLPNDecoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GLPNConfig):
         super().__init__()
         # we use features from end -> start
         reserved_hidden_sizes = config.hidden_sizes[::-1]
@@ -592,7 +592,7 @@ class SiLogLoss(nn.Module):
 
 
 class GLPNDepthEstimationHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GLPNConfig):
         super().__init__()
 
         self.config = config
@@ -622,7 +622,7 @@ class GLPNDepthEstimationHead(nn.Module):
     """
 )
 class GLPNForDepthEstimation(GLPNPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GLPNConfig):
         super().__init__(config)
 
         self.glpn = GLPNModel(config)

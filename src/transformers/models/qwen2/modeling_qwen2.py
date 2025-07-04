@@ -34,7 +34,7 @@ logger = logging.get_logger(__name__)
 
 
 class Qwen2MLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2Config):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -470,7 +470,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen2Config):
         super().__init__(config)
         self.model = Qwen2Model(config)
         self.vocab_size = config.vocab_size
@@ -588,7 +588,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
     """
 )
 class Qwen2ForSequenceClassification(Qwen2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen2Model(config)
@@ -675,7 +675,7 @@ class Qwen2ForSequenceClassification(Qwen2PreTrainedModel):
 
 @auto_docstring
 class Qwen2ForTokenClassification(Qwen2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen2Model(config)
@@ -748,7 +748,7 @@ class Qwen2ForTokenClassification(Qwen2PreTrainedModel):
 class Qwen2ForQuestionAnswering(Qwen2PreTrainedModel):
     base_model_prefix = "transformer"
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen2Config):
         super().__init__(config)
         self.transformer = Qwen2Model(config)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)

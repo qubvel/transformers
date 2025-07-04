@@ -251,7 +251,7 @@ class SmolLM3PreTrainedModel(PreTrainedModel):
 
 
 class SmolLM3MLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SmolLM3Config):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -500,7 +500,7 @@ class SmolLM3ForCausalLM(SmolLM3PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: SmolLM3Config):
         super().__init__(config)
         self.model = SmolLM3Model(config)
         self.vocab_size = config.vocab_size
@@ -618,7 +618,7 @@ class SmolLM3ForCausalLM(SmolLM3PreTrainedModel, GenerationMixin):
     """
 )
 class SmolLM3ForSequenceClassification(SmolLM3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SmolLM3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = SmolLM3Model(config)
@@ -705,7 +705,7 @@ class SmolLM3ForSequenceClassification(SmolLM3PreTrainedModel):
 
 @auto_docstring
 class SmolLM3ForTokenClassification(SmolLM3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SmolLM3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = SmolLM3Model(config)
@@ -778,7 +778,7 @@ class SmolLM3ForTokenClassification(SmolLM3PreTrainedModel):
 class SmolLM3ForQuestionAnswering(SmolLM3PreTrainedModel):
     base_model_prefix = "transformer"
 
-    def __init__(self, config):
+    def __init__(self, config: SmolLM3Config):
         super().__init__(config)
         self.transformer = SmolLM3Model(config)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)

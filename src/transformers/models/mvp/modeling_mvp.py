@@ -470,7 +470,7 @@ class MvpClassificationHead(nn.Module):
 class MvpPrompt(nn.Module):
     """Layer-wise prompt for encoder or decoder."""
 
-    def __init__(self, config, num_layers, num_heads):
+    def __init__(self, config: MvpConfig, num_layers, num_heads):
         super().__init__()
         self.prompt_length = config.prompt_length
         self.num_layers = num_layers
@@ -1507,7 +1507,7 @@ class MvpForSequenceClassification(MvpPreTrainedModel):
 class MvpForQuestionAnswering(MvpPreTrainedModel):
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: MvpConfig):
         super().__init__(config)
 
         config.num_labels = 2
@@ -1679,7 +1679,7 @@ class MvpDecoderWrapper(MvpPreTrainedModel):
     used in combination with the [`EncoderDecoderModel`] framework.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: MvpConfig):
         super().__init__(config)
         self.decoder = MvpDecoder(config)
 
@@ -1690,7 +1690,7 @@ class MvpDecoderWrapper(MvpPreTrainedModel):
 class MvpForCausalLM(MvpPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: MvpConfig):
         config = copy.deepcopy(config)
         config.is_decoder = True
         config.is_encoder_decoder = False

@@ -87,7 +87,7 @@ class LevitPatchEmbeddings(nn.Module):
     `LevitConvEmbeddings`.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: LevitConfig):
         super().__init__()
         self.embedding_layer_1 = LevitConvEmbeddings(
             config.num_channels, config.hidden_sizes[0] // 8, config.kernel_size, config.stride, config.padding
@@ -342,7 +342,7 @@ class LevitStage(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: LevitConfig,
         idx,
         hidden_sizes,
         key_dim,
@@ -409,7 +409,7 @@ class LevitEncoder(nn.Module):
     LeViT Encoder consisting of multiple `LevitStage` stages.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: LevitConfig):
         super().__init__()
         self.config = config
         resolution = self.config.image_size // self.config.patch_size
@@ -489,7 +489,7 @@ class LevitPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class LevitModel(LevitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LevitConfig):
         super().__init__(config)
         self.config = config
         self.patch_embeddings = LevitPatchEmbeddings(config)
@@ -541,7 +541,7 @@ class LevitModel(LevitPreTrainedModel):
     """
 )
 class LevitForImageClassification(LevitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LevitConfig):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels
@@ -621,7 +621,7 @@ class LevitForImageClassification(LevitPreTrainedModel):
     """
 )
 class LevitForImageClassificationWithTeacher(LevitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LevitConfig):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels

@@ -232,7 +232,7 @@ class YosoLSHCumulation(torch.autograd.Function):
 class YosoEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings + 2, config.hidden_size)
@@ -290,7 +290,7 @@ class YosoEmbeddings(nn.Module):
 
 
 class YosoSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: YosoConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -432,7 +432,7 @@ class YosoSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class YosoSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -446,7 +446,7 @@ class YosoSelfOutput(nn.Module):
 
 
 class YosoAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: YosoConfig, position_embedding_type=None):
         super().__init__()
         self.self = YosoSelfAttention(config, position_embedding_type=position_embedding_type)
         self.output = YosoSelfOutput(config)
@@ -479,7 +479,7 @@ class YosoAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class YosoIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -495,7 +495,7 @@ class YosoIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class YosoOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -509,7 +509,7 @@ class YosoOutput(nn.Module):
 
 
 class YosoLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -538,7 +538,7 @@ class YosoLayer(GradientCheckpointingLayer):
 
 
 class YosoEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([YosoLayer(config) for _ in range(config.num_hidden_layers)])
@@ -580,7 +580,7 @@ class YosoEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform
 class YosoPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -598,7 +598,7 @@ class YosoPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->Yoso
 class YosoLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.transform = YosoPredictionHeadTransform(config)
 
@@ -622,7 +622,7 @@ class YosoLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->Yoso
 class YosoOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.predictions = YosoLMPredictionHead(config)
 
@@ -657,7 +657,7 @@ class YosoPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class YosoModel(YosoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
         self.config = config
 
@@ -762,7 +762,7 @@ class YosoModel(YosoPreTrainedModel):
 class YosoForMaskedLM(YosoPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
 
         self.yoso = YosoModel(config)
@@ -835,7 +835,7 @@ class YosoForMaskedLM(YosoPreTrainedModel):
 class YosoClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -860,7 +860,7 @@ class YosoClassificationHead(nn.Module):
     """
 )
 class YosoForSequenceClassification(YosoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.yoso = YosoModel(config)
@@ -942,7 +942,7 @@ class YosoForSequenceClassification(YosoPreTrainedModel):
 
 @auto_docstring
 class YosoForMultipleChoice(YosoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
 
         self.yoso = YosoModel(config)
@@ -1048,7 +1048,7 @@ class YosoForMultipleChoice(YosoPreTrainedModel):
 
 @auto_docstring
 class YosoForTokenClassification(YosoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1124,7 +1124,7 @@ class YosoForTokenClassification(YosoPreTrainedModel):
 
 @auto_docstring
 class YosoForQuestionAnswering(YosoPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: YosoConfig):
         super().__init__(config)
 
         config.num_labels = 2

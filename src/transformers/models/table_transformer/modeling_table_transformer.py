@@ -206,7 +206,7 @@ class TableTransformerConvEncoder(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TableTransformerConfig):
         super().__init__()
 
         self.config = config

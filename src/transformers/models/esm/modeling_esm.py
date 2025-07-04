@@ -164,7 +164,7 @@ class EsmEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
 
@@ -255,7 +255,7 @@ class EsmEmbeddings(nn.Module):
 
 
 class EsmSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: EsmConfig, position_embedding_type=None):
         super().__init__()
         self.config = config
 
@@ -371,7 +371,7 @@ class EsmSelfAttention(nn.Module):
 
 
 class EsmSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -390,7 +390,7 @@ class EsmFlashAttention2(EsmSelfAttention):
     flash attention and deal with padding tokens in case the input contains any of them.
     """
 
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: EsmConfig, position_embedding_type=None):
         super().__init__(config, position_embedding_type=position_embedding_type)
 
         # TODO: Should be removed once Flash Attention for RoCm is bumped to 2.1.
@@ -504,7 +504,7 @@ ESM_ATTENTION_CLASSES = {
 
 
 class EsmAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.self = ESM_ATTENTION_CLASSES[config._attn_implementation](config)
         self.output = EsmSelfOutput(config)
@@ -555,7 +555,7 @@ class EsmAttention(nn.Module):
 
 
 class EsmIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
 
@@ -566,7 +566,7 @@ class EsmIntermediate(nn.Module):
 
 
 class EsmOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -579,7 +579,7 @@ class EsmOutput(nn.Module):
 
 
 class EsmLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -654,7 +654,7 @@ class EsmLayer(GradientCheckpointingLayer):
 
 
 class EsmEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([EsmLayer(config) for _ in range(config.num_hidden_layers)])
@@ -718,7 +718,7 @@ class EsmEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class EsmPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -775,7 +775,7 @@ class EsmModel(EsmPreTrainedModel):
     `add_cross_attention` set to `True`; an `encoder_hidden_states` is then expected as an input to the forward pass.
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: EsmConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -937,7 +937,7 @@ class EsmModel(EsmPreTrainedModel):
 class EsmForMaskedLM(EsmPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1019,7 +1019,7 @@ class EsmForMaskedLM(EsmPreTrainedModel):
 class EsmLMHead(nn.Module):
     """ESM Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1044,7 +1044,7 @@ class EsmLMHead(nn.Module):
     """
 )
 class EsmForSequenceClassification(EsmPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1126,7 +1126,7 @@ class EsmForSequenceClassification(EsmPreTrainedModel):
 
 @auto_docstring
 class EsmForTokenClassification(EsmPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1192,7 +1192,7 @@ class EsmForTokenClassification(EsmPreTrainedModel):
 class EsmClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: EsmConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)

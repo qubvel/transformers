@@ -123,7 +123,7 @@ class Dinov2PatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Dinov2Config):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -303,7 +303,7 @@ class Dinov2Attention(nn.Module):
 
 
 class Dinov2LayerScale(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2Config) -> None:
         super().__init__()
         self.lambda1 = nn.Parameter(config.layerscale_value * torch.ones(config.hidden_size))
 
@@ -348,7 +348,7 @@ class Dinov2DropPath(nn.Module):
 
 
 class Dinov2MLP(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2Config) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)
@@ -367,7 +367,7 @@ class Dinov2MLP(nn.Module):
 
 
 class Dinov2SwiGLUFFN(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2Config) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)
@@ -703,7 +703,7 @@ class Dinov2ForImageClassification(Dinov2PreTrainedModel):
     """
 )
 class Dinov2Backbone(Dinov2PreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: Dinov2Config):
         super().__init__(config)
         super()._init_backbone(config)
 

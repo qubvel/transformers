@@ -70,7 +70,7 @@ class VitMatteBasicConv3x3(nn.Module):
     Basic convolution layers including: Conv3x3, BatchNorm2d, ReLU layers.
     """
 
-    def __init__(self, config, in_channels, out_channels, stride=2, padding=1):
+    def __init__(self, config: VitMatteConfig, in_channels, out_channels, stride=2, padding=1):
         super().__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -96,7 +96,7 @@ class VitMatteConvStream(nn.Module):
     Simple ConvStream containing a series of basic conv3x3 layers to extract detail features.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VitMatteConfig):
         super().__init__()
 
         # We use a default in-case there isn't a backbone config set. This is for backwards compatibility and
@@ -131,7 +131,7 @@ class VitMatteFusionBlock(nn.Module):
     Simple fusion block to fuse features from ConvStream and Plain Vision Transformer.
     """
 
-    def __init__(self, config, in_channels, out_channels):
+    def __init__(self, config: VitMatteConfig, in_channels, out_channels):
         super().__init__()
         self.conv = VitMatteBasicConv3x3(config, in_channels, out_channels, stride=1, padding=1)
 
@@ -148,7 +148,7 @@ class VitMatteHead(nn.Module):
     Simple Matting Head, containing only conv3x3 and conv1x1 layers.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VitMatteConfig):
         super().__init__()
 
         in_channels = config.fusion_hidden_sizes[-1]
@@ -172,7 +172,7 @@ class VitMatteDetailCaptureModule(nn.Module):
     Simple and lightweight Detail Capture Module for ViT Matting.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VitMatteConfig):
         super().__init__()
         if len(config.fusion_hidden_sizes) != len(config.convstream_hidden_sizes) + 1:
             raise ValueError(
@@ -214,7 +214,7 @@ class VitMatteDetailCaptureModule(nn.Module):
     """
 )
 class VitMatteForImageMatting(VitMattePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VitMatteConfig):
         super().__init__(config)
         self.config = config
 

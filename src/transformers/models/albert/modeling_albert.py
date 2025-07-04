@@ -355,7 +355,7 @@ class AlbertAttention(nn.Module):
 
 
 class AlbertSdpaAttention(AlbertAttention):
-    def __init__(self, config):
+    def __init__(self, config: AlbertConfig):
         super().__init__(config)
         self.dropout_prob = config.attention_probs_dropout_prob
         self.require_contiguous_qkv = not is_torch_greater_or_equal_than_2_2
@@ -890,7 +890,7 @@ class AlbertSOPHead(nn.Module):
 class AlbertForMaskedLM(AlbertPreTrainedModel):
     _tied_weights_keys = ["predictions.decoder.bias", "predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: AlbertConfig):
         super().__init__(config)
 
         self.albert = AlbertModel(config, add_pooling_layer=False)

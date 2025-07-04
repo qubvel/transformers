@@ -144,7 +144,7 @@ class DonutSwinEmbeddings(nn.Module):
     Construct the patch and position embeddings. Optionally, also the mask token.
     """
 
-    def __init__(self, config, use_mask_token=False):
+    def __init__(self, config: DonutSwinConfig, use_mask_token=False):
         super().__init__()
 
         self.patch_embeddings = DonutSwinPatchEmbeddings(config)
@@ -239,7 +239,7 @@ class DonutSwinPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DonutSwinConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.embed_dim
@@ -368,7 +368,7 @@ class DonutSwinDropPath(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfAttention with Swin->DonutSwin
 class DonutSwinSelfAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: DonutSwinConfig, dim, num_heads, window_size):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -464,7 +464,7 @@ class DonutSwinSelfAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfOutput
 class DonutSwinSelfOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DonutSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -478,7 +478,7 @@ class DonutSwinSelfOutput(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinAttention with Swin->DonutSwin
 class DonutSwinAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: DonutSwinConfig, dim, num_heads, window_size):
         super().__init__()
         self.self = DonutSwinSelfAttention(config, dim, num_heads, window_size)
         self.output = DonutSwinSelfOutput(config, dim)
@@ -517,7 +517,7 @@ class DonutSwinAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinIntermediate
 class DonutSwinIntermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DonutSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -533,7 +533,7 @@ class DonutSwinIntermediate(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinOutput
 class DonutSwinOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: DonutSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -546,7 +546,7 @@ class DonutSwinOutput(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinLayer with Swin->DonutSwin
 class DonutSwinLayer(nn.Module):
-    def __init__(self, config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
+    def __init__(self, config: DonutSwinConfig, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.shift_size = shift_size
@@ -672,7 +672,7 @@ class DonutSwinLayer(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinStage with Swin->DonutSwin
 class DonutSwinStage(GradientCheckpointingLayer):
-    def __init__(self, config, dim, input_resolution, depth, num_heads, drop_path, downsample):
+    def __init__(self, config: DonutSwinConfig, dim, input_resolution, depth, num_heads, drop_path, downsample):
         super().__init__()
         self.config = config
         self.dim = dim
@@ -733,7 +733,7 @@ class DonutSwinStage(GradientCheckpointingLayer):
 
 # Copied from transformers.models.swin.modeling_swin.SwinEncoder with Swin->DonutSwin
 class DonutSwinEncoder(nn.Module):
-    def __init__(self, config, grid_size):
+    def __init__(self, config: DonutSwinConfig, grid_size):
         super().__init__()
         self.num_layers = len(config.depths)
         self.config = config
@@ -855,7 +855,7 @@ class DonutSwinPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class DonutSwinModel(DonutSwinPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True, use_mask_token=False):
+    def __init__(self, config: DonutSwinConfig, add_pooling_layer=True, use_mask_token=False):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -967,7 +967,7 @@ class DonutSwinModel(DonutSwinPreTrainedModel):
 )
 # Copied from transformers.models.swin.modeling_swin.SwinForImageClassification with Swin->DonutSwin,swin->donut
 class DonutSwinForImageClassification(DonutSwinPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DonutSwinConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

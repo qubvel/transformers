@@ -639,7 +639,7 @@ class DFineConvEncoder(nn.Module):
     https://github.com/lyuwenyu/RT-DETR/blob/main/DFine_pytorch/src/nn/backbone/presnet.py#L142
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DFineConfig):
         super().__init__()
 
         backbone = load_backbone(config)
@@ -1826,7 +1826,7 @@ class DFineMLPPredictionHead(nn.Module):
 
     """
 
-    def __init__(self, config, input_dim, d_model, output_dim, num_layers):
+    def __init__(self, config: DFineConfig, input_dim, d_model, output_dim, num_layers):
         super().__init__()
         self.num_layers = num_layers
         h = [d_model] * (num_layers - 1)

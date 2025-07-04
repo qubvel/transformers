@@ -76,7 +76,7 @@ class ViltEmbeddings(nn.Module):
     Patch embeddings are equivalent to ViT embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
 
         # text embeddings
@@ -224,7 +224,7 @@ class ViltEmbeddings(nn.Module):
 class TextEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -283,7 +283,7 @@ class ViltPatchEmbeddings(nn.Module):
     Image to Patch Embedding.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -310,7 +310,7 @@ class ViltPatchEmbeddings(nn.Module):
 
 
 class ViltSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -389,7 +389,7 @@ class ViltSelfOutput(nn.Module):
 
 
 class ViltAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.attention = ViltSelfAttention(config)
         self.output = ViltSelfOutput(config)
@@ -458,7 +458,7 @@ class ViltOutput(nn.Module):
 class ViltLayer(GradientCheckpointingLayer):
     """This corresponds to the Block class in the timm implementation."""
 
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -494,7 +494,7 @@ class ViltLayer(GradientCheckpointingLayer):
 
 
 class ViltEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([ViltLayer(config) for _ in range(config.num_hidden_layers)])
@@ -564,7 +564,7 @@ class ViltPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class ViltModel(ViltPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: ViltConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -716,7 +716,7 @@ class ViltModel(ViltPreTrainedModel):
 
 
 class ViltPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -738,7 +738,7 @@ class ViltPooler(nn.Module):
 class ViltForMaskedLM(ViltPreTrainedModel):
     _tied_weights_keys = ["mlm_score.decoder.weight", "mlm_score.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__(config)
 
         self.vilt = ViltModel(config)
@@ -870,7 +870,7 @@ class ViltForMaskedLM(ViltPreTrainedModel):
 
 
 class ViltPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -887,7 +887,7 @@ class ViltPredictionHeadTransform(nn.Module):
 
 
 class ViltMLMHead(nn.Module):
-    def __init__(self, config, weight=None):
+    def __init__(self, config: ViltConfig, weight=None):
         super().__init__()
         self.config = config
         self.transform = ViltPredictionHeadTransform(config)
@@ -915,7 +915,7 @@ class ViltMLMHead(nn.Module):
     """
 )
 class ViltForQuestionAnswering(ViltPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -1027,7 +1027,7 @@ class ViltForQuestionAnswering(ViltPreTrainedModel):
     """
 )
 class ViltForImageAndTextRetrieval(ViltPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__(config)
 
         self.vilt = ViltModel(config)
@@ -1125,7 +1125,7 @@ class ViltForImageAndTextRetrieval(ViltPreTrainedModel):
     """
 )
 class ViltForImagesAndTextClassification(ViltPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -1261,7 +1261,7 @@ class ViltForImagesAndTextClassification(ViltPreTrainedModel):
 
 @auto_docstring
 class ViltForTokenClassification(ViltPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ViltConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

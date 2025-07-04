@@ -41,7 +41,7 @@ logger = logging.get_logger(__name__)
 class TimesformerPatchEmbeddings(nn.Module):
     """Image to Patch Embedding"""
 
-    def __init__(self, config):
+    def __init__(self, config: TimesformerConfig):
         super().__init__()
 
         image_size = config.image_size
@@ -72,7 +72,7 @@ class TimesformerEmbeddings(nn.Module):
     Construct the patch and position embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: TimesformerConfig):
         super().__init__()
 
         embed_dim = config.hidden_size
@@ -477,7 +477,7 @@ class TimesformerPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class TimesformerModel(TimesformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: TimesformerConfig):
         super().__init__(config)
         self.config = config
 
@@ -617,7 +617,7 @@ class TimesformerModel(TimesformerPreTrainedModel):
     """
 )
 class TimesformerForVideoClassification(TimesformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: TimesformerConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

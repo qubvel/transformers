@@ -261,7 +261,7 @@ def load_tf_weights_in_lxmert(model, config, tf_checkpoint_path):
 class LxmertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=0)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size, padding_idx=0)
@@ -299,7 +299,7 @@ class LxmertEmbeddings(nn.Module):
 
 
 class LxmertAttention(nn.Module):
-    def __init__(self, config, ctx_dim=None):
+    def __init__(self, config: LxmertConfig, ctx_dim=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -360,7 +360,7 @@ class LxmertAttention(nn.Module):
 
 
 class LxmertAttentionOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=1e-12)
@@ -374,7 +374,7 @@ class LxmertAttentionOutput(nn.Module):
 
 
 class LxmertCrossAttentionLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.att = LxmertAttention(config)
         self.output = LxmertAttentionOutput(config)
@@ -389,7 +389,7 @@ class LxmertCrossAttentionLayer(nn.Module):
 
 
 class LxmertSelfAttentionLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.self = LxmertAttention(config)
         self.output = LxmertAttentionOutput(config)
@@ -410,7 +410,7 @@ class LxmertSelfAttentionLayer(nn.Module):
 
 
 class LxmertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         self.intermediate_act_fn = ACT2FN[config.hidden_act]
@@ -422,7 +422,7 @@ class LxmertIntermediate(nn.Module):
 
 
 class LxmertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=1e-12)
@@ -436,7 +436,7 @@ class LxmertOutput(nn.Module):
 
 
 class LxmertLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.attention = LxmertSelfAttentionLayer(config)
         self.intermediate = LxmertIntermediate(config)
@@ -452,7 +452,7 @@ class LxmertLayer(nn.Module):
 
 
 class LxmertXLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         # The cross-attention Layer
         self.visual_attention = LxmertCrossAttentionLayer(config)
@@ -543,7 +543,7 @@ class LxmertXLayer(nn.Module):
 
 
 class LxmertVisualFeatureEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         feat_dim = config.visual_feat_dim
         pos_dim = config.visual_pos_dim
@@ -570,7 +570,7 @@ class LxmertVisualFeatureEncoder(nn.Module):
 
 
 class LxmertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
 
         # Obj-level image embedding layer
@@ -651,7 +651,7 @@ class LxmertEncoder(nn.Module):
 
 
 class LxmertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -666,7 +666,7 @@ class LxmertPooler(nn.Module):
 
 
 class LxmertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.transform_act_fn = ACT2FN[config.hidden_act]
@@ -680,7 +680,7 @@ class LxmertPredictionHeadTransform(nn.Module):
 
 
 class LxmertLMPredictionHead(nn.Module):
-    def __init__(self, config, lxmert_model_embedding_weights):
+    def __init__(self, config: LxmertConfig, lxmert_model_embedding_weights):
         super().__init__()
         self.transform = LxmertPredictionHeadTransform(config)
 
@@ -701,7 +701,7 @@ class LxmertLMPredictionHead(nn.Module):
 
 
 class LxmertVisualAnswerHead(nn.Module):
-    def __init__(self, config, num_labels):
+    def __init__(self, config: LxmertConfig, num_labels):
         super().__init__()
         hid_dim = config.hidden_size
         self.logit_fc = nn.Sequential(
@@ -716,7 +716,7 @@ class LxmertVisualAnswerHead(nn.Module):
 
 
 class LxmertVisualObjHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__()
         self.transform = LxmertPredictionHeadTransform(config)
         # Decide the use of visual losses
@@ -747,7 +747,7 @@ class LxmertVisualObjHead(nn.Module):
 
 
 class LxmertPreTrainingHeads(nn.Module):
-    def __init__(self, config, lxmert_model_embedding_weights):
+    def __init__(self, config: LxmertConfig, lxmert_model_embedding_weights):
         super().__init__()
         self.predictions = LxmertLMPredictionHead(config, lxmert_model_embedding_weights)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -787,7 +787,7 @@ class LxmertPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class LxmertModel(LxmertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__(config)
         self.embeddings = LxmertEmbeddings(config)
         self.encoder = LxmertEncoder(config)
@@ -939,7 +939,7 @@ class LxmertModel(LxmertPreTrainedModel):
 class LxmertForPreTraining(LxmertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__(config)
         # Configuration
         self.config = config
@@ -1242,7 +1242,7 @@ class LxmertForPreTraining(LxmertPreTrainedModel):
     """
 )
 class LxmertForQuestionAnswering(LxmertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LxmertConfig):
         super().__init__(config)
         # Configuration
         self.config = config

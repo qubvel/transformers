@@ -78,7 +78,7 @@ class ASTPatchEmbeddings(nn.Module):
     seq_length, hidden_size)` to be consumed by a Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ASTConfig):
         super().__init__()
 
         patch_size = config.patch_size

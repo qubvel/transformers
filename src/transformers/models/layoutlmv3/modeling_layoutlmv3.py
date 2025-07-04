@@ -49,7 +49,7 @@ class LayoutLMv3PatchEmbeddings(nn.Module):
     """LayoutLMv3 image (patch) embeddings. This class also automatically interpolates the position embeddings for varying
     image sizes."""
 
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
 
         image_size = (
@@ -85,7 +85,7 @@ class LayoutLMv3TextEmbeddings(nn.Module):
     LayoutLMv3 text embeddings. Same as `RobertaEmbeddings` but with added spatial (layout) embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.hidden_size)
@@ -226,7 +226,7 @@ class LayoutLMv3PreTrainedModel(PreTrainedModel):
 
 
 class LayoutLMv3SelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -317,7 +317,7 @@ class LayoutLMv3SelfAttention(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfOutput
 class LayoutLMv3SelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -332,7 +332,7 @@ class LayoutLMv3SelfOutput(nn.Module):
 
 # Copied from transformers.models.layoutlmv2.modeling_layoutlmv2.LayoutLMv2Attention with LayoutLMv2->LayoutLMv3
 class LayoutLMv3Attention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.self = LayoutLMv3SelfAttention(config)
         self.output = LayoutLMv3SelfOutput(config)
@@ -361,7 +361,7 @@ class LayoutLMv3Attention(nn.Module):
 
 # Copied from transformers.models.layoutlmv2.modeling_layoutlmv2.LayoutLMv2Layer with LayoutLMv2->LayoutLMv3
 class LayoutLMv3Layer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -404,7 +404,7 @@ class LayoutLMv3Layer(GradientCheckpointingLayer):
 
 
 class LayoutLMv3Encoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([LayoutLMv3Layer(config) for _ in range(config.num_hidden_layers)])
@@ -551,7 +551,7 @@ class LayoutLMv3Encoder(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaIntermediate
 class LayoutLMv3Intermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -567,7 +567,7 @@ class LayoutLMv3Intermediate(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaOutput
 class LayoutLMv3Output(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -582,7 +582,7 @@ class LayoutLMv3Output(nn.Module):
 
 @auto_docstring
 class LayoutLMv3Model(LayoutLMv3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__(config)
         self.config = config
 
@@ -874,7 +874,7 @@ class LayoutLMv3ClassificationHead(nn.Module):
     Head for sentence-level classification tasks. Reference: RobertaClassificationHead
     """
 
-    def __init__(self, config, pool_feature=False):
+    def __init__(self, config: LayoutLMv3Config, pool_feature=False):
         super().__init__()
         self.pool_feature = pool_feature
         if pool_feature:
@@ -905,7 +905,7 @@ class LayoutLMv3ClassificationHead(nn.Module):
     """
 )
 class LayoutLMv3ForTokenClassification(LayoutLMv3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1010,7 +1010,7 @@ class LayoutLMv3ForTokenClassification(LayoutLMv3PreTrainedModel):
 
 @auto_docstring
 class LayoutLMv3ForQuestionAnswering(LayoutLMv3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1131,7 +1131,7 @@ class LayoutLMv3ForQuestionAnswering(LayoutLMv3PreTrainedModel):
     """
 )
 class LayoutLMv3ForSequenceClassification(LayoutLMv3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMv3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config

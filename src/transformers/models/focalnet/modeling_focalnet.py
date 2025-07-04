@@ -138,7 +138,7 @@ class FocalNetEmbeddings(nn.Module):
     Construct the patch embeddings and layernorm. Optionally, also the mask token.
     """
 
-    def __init__(self, config, use_mask_token=False):
+    def __init__(self, config: FocalNetConfig, use_mask_token=False):
         super().__init__()
 
         self.patch_embeddings = FocalNetPatchEmbeddings(
@@ -176,7 +176,7 @@ class FocalNetEmbeddings(nn.Module):
 class FocalNetPatchEmbeddings(nn.Module):
     def __init__(
         self,
-        config,
+        config: FocalNetConfig,
         image_size,
         patch_size,
         num_channels,
@@ -281,7 +281,7 @@ class FocalNetDropPath(nn.Module):
 
 
 class FocalNetModulation(nn.Module):
-    def __init__(self, config, index, dim, focal_factor=2, bias=True, projection_dropout=0.0):
+    def __init__(self, config: FocalNetConfig, index, dim, focal_factor=2, bias=True, projection_dropout=0.0):
         super().__init__()
 
         self.dim = dim
@@ -352,7 +352,7 @@ class FocalNetModulation(nn.Module):
 
 
 class FocalNetMlp(nn.Module):
-    def __init__(self, config, in_features, hidden_features=None, out_features=None, drop=0.0):
+    def __init__(self, config: FocalNetConfig, in_features, hidden_features=None, out_features=None, drop=0.0):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
@@ -386,7 +386,7 @@ class FocalNetLayer(nn.Module):
             Stochastic depth rate.
     """
 
-    def __init__(self, config, index, dim, input_resolution, drop_path=0.0):
+    def __init__(self, config: FocalNetConfig, index, dim, input_resolution, drop_path=0.0):
         super().__init__()
 
         self.config = config
@@ -440,7 +440,7 @@ class FocalNetLayer(nn.Module):
 
 
 class FocalNetStage(GradientCheckpointingLayer):
-    def __init__(self, config, index, input_resolution):
+    def __init__(self, config: FocalNetConfig, index, input_resolution):
         super().__init__()
 
         self.config = config
@@ -506,7 +506,7 @@ class FocalNetStage(GradientCheckpointingLayer):
 
 
 class FocalNetEncoder(nn.Module):
-    def __init__(self, config, grid_size):
+    def __init__(self, config: FocalNetConfig, grid_size):
         super().__init__()
         self.num_stages = len(config.depths)
         self.config = config
@@ -611,7 +611,7 @@ class FocalNetPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class FocalNetModel(FocalNetPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True, use_mask_token=False):
+    def __init__(self, config: FocalNetConfig, add_pooling_layer=True, use_mask_token=False):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -700,7 +700,7 @@ class FocalNetModel(FocalNetPreTrainedModel):
     """
 )
 class FocalNetForMaskedImageModeling(FocalNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FocalNetConfig):
         super().__init__(config)
 
         self.focalnet = FocalNetModel(config, add_pooling_layer=False, use_mask_token=True)
@@ -805,7 +805,7 @@ class FocalNetForMaskedImageModeling(FocalNetPreTrainedModel):
 )
 class FocalNetForImageClassification(FocalNetPreTrainedModel):
     # Copied from transformers.models.swin.modeling_swin.SwinForImageClassification.__init__ with Swin->FocalNet, swin->focalnet
-    def __init__(self, config):
+    def __init__(self, config: FocalNetConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

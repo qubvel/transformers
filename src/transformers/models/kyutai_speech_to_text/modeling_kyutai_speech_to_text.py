@@ -230,7 +230,7 @@ class KyutaiSpeechToTextConv1dPaddingCache:
 
 
 class KyutaiSpeechToTextEmbeddings(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: KyutaiSpeechToTextConfig):
         super().__init__()
         self.embed_tokens = nn.Embedding(
             config.vocab_size + (config.num_codebooks * config.codebook_vocab_size) + 1,
@@ -306,7 +306,7 @@ class KyutaiSpeechToTextRotaryEmbedding(nn.Module):
 
 
 class KyutaiSpeechToTextGatingMLP(nn.Module):
-    def __init__(self, config, use_flexible_linear=False):
+    def __init__(self, config: KyutaiSpeechToTextConfig, use_flexible_linear=False):
         super().__init__()
 
         self.activation_fn = ACT2FN[config.hidden_act]
@@ -806,7 +806,7 @@ class KyutaiSpeechToTextDecoderLayer(GradientCheckpointingLayer):
 
 @auto_docstring
 class KyutaiSpeechToTextModel(KyutaiSpeechToTextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: KyutaiSpeechToTextConfig):
         super().__init__(config)
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
@@ -1106,7 +1106,7 @@ class KyutaiSpeechToTextForConditionalGeneration(KyutaiSpeechToTextPreTrainedMod
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
     _keep_in_fp32_modules_strict = ["codec_model"]
 
-    def __init__(self, config):
+    def __init__(self, config: KyutaiSpeechToTextConfig):
         super().__init__(config)
         self.model = KyutaiSpeechToTextModel(config)
         self.vocab_size = config.vocab_size

@@ -77,7 +77,7 @@ class Conv1dSubsampler(nn.Module):
     via gated linear units (https://huggingface.co/papers/1911.08460)
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Speech2TextConfig):
         super().__init__()
         self.config = config
         self.num_layers = config.num_conv_layers

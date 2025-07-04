@@ -134,7 +134,7 @@ class BitGroupNormActivation(nn.GroupNorm):
     A module that combines group normalization with an activation function.
     """
 
-    def __init__(self, config, num_channels, eps=1e-5, affine=True, apply_activation=True):
+    def __init__(self, config: BitConfig, num_channels, eps=1e-5, affine=True, apply_activation=True):
         super().__init__(config.num_groups, num_channels, eps=eps, affine=affine)
         if apply_activation:
             self.activation = ACT2FN[config.hidden_act]
@@ -331,7 +331,7 @@ class BitPreActivationBottleneckLayer(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: BitConfig,
         in_channels,
         out_channels=None,
         bottle_ratio=0.25,
@@ -394,7 +394,7 @@ class BitBottleneckLayer(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: BitConfig,
         in_channels,
         out_channels=None,
         bottle_ratio=0.25,
@@ -465,7 +465,7 @@ class BitBottleneckLayer(nn.Module):
 class BitDownsampleConv(nn.Module):
     def __init__(
         self,
-        config,
+        config: BitConfig,
         in_channels,
         out_channels,
         stride=1,
@@ -492,7 +492,7 @@ class BitStage(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: BitConfig,
         in_channels,
         out_channels,
         stride,
@@ -654,7 +654,7 @@ class BitPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class BitModel(BitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: BitConfig):
         super().__init__(config)
         self.config = config
 
@@ -709,7 +709,7 @@ class BitModel(BitPreTrainedModel):
     """
 )
 class BitForImageClassification(BitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: BitConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.bit = BitModel(config)
@@ -778,7 +778,7 @@ class BitForImageClassification(BitPreTrainedModel):
     """
 )
 class BitBackbone(BitPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: BitConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

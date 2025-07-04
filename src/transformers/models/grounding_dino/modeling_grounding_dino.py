@@ -374,7 +374,7 @@ class GroundingDinoConvEncoder(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
 
         self.config = config
@@ -456,7 +456,7 @@ class GroundingDinoSinePositionEmbedding(nn.Module):
     need paper, generalized to work on images.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
         self.embedding_dim = config.d_model // 2
         self.temperature = config.positional_embedding_temperature
@@ -485,7 +485,7 @@ class GroundingDinoLearnedPositionEmbedding(nn.Module):
     This module learns positional embeddings up to a fixed maximum size.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
 
         embedding_dim = config.d_model // 2
@@ -630,7 +630,7 @@ class GroundingDinoMultiscaleDeformableAttention(nn.Module):
 class GroundingDinoTextEnhancerLayer(nn.Module):
     """Vanilla Transformer with text embeddings as input"""
 
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
         self.self_attn = GroundingDinoMultiheadAttention(
             config, num_attention_heads=config.encoder_attention_heads // 2
@@ -710,7 +710,7 @@ class GroundingDinoTextEnhancerLayer(nn.Module):
 
 
 class GroundingDinoBiMultiHeadAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
 
         vision_dim = text_dim = config.d_model
@@ -897,7 +897,7 @@ class GroundingDinoDropPath(nn.Module):
 
 
 class GroundingDinoFusionLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
         drop_path = config.fusion_droppath
 
@@ -1081,7 +1081,7 @@ def get_sine_pos_embed(
 
 
 class GroundingDinoEncoderLayer(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: GroundingDinoConfig) -> None:
         super().__init__()
 
         self.d_model = config.d_model
@@ -1163,7 +1163,7 @@ class GroundingDinoEncoderLayer(nn.Module):
 class GroundingDinoMultiheadAttention(nn.Module):
     """Equivalent implementation of nn.MultiheadAttention with `batch_first=True`."""
 
-    def __init__(self, config, num_attention_heads=None):
+    def __init__(self, config: GroundingDinoConfig, num_attention_heads=None):
         super().__init__()
         if config.hidden_size % num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -1347,7 +1347,7 @@ class GroundingDinoDecoderLayer(nn.Module):
 
 
 class GroundingDinoContrastiveEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GroundingDinoConfig):
         super().__init__()
         self.max_text_len = config.max_text_len
 

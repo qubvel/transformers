@@ -244,7 +244,7 @@ def get_mask(input, local_context):
 
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2NoLayerNormConvLayer with Wav2Vec2->SEWD
 class SEWDNoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWDConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -266,7 +266,7 @@ class SEWDNoLayerNormConvLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2LayerNormConvLayer with Wav2Vec2->SEWD
 class SEWDLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWDConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -294,7 +294,7 @@ class SEWDLayerNormConvLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2GroupNormConvLayer with Wav2Vec2->SEWD
 class SEWDGroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWDConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -319,7 +319,7 @@ class SEWDGroupNormConvLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.sew.modeling_sew.SEWPositionalConvEmbedding with SEW->SEWD
 class SEWDPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -375,7 +375,7 @@ class SEWDSamePadLayer(nn.Module):
 
 # Copied from transformers.models.sew.modeling_sew.SEWUpsampling with SEW->SEWD
 class SEWDUpsampling(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.projection = nn.Linear(config.hidden_size, config.hidden_size * config.squeeze_factor)
         self.activation = ACT2FN[config.feat_extract_activation]
@@ -400,7 +400,7 @@ class SEWDUpsampling(nn.Module):
 class SEWDFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -436,7 +436,7 @@ class SEWDFeatureEncoder(nn.Module):
 
 
 class SEWDFeatureExtractor(SEWDFeatureEncoder):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__(config)
         warnings.warn(
             f"The class `{self.__class__.__name__}` has been depreciated "
@@ -447,7 +447,7 @@ class SEWDFeatureExtractor(SEWDFeatureEncoder):
 
 
 class ContextPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.dense = nn.Linear(config.pooler_hidden_size, config.pooler_hidden_size)
         self.dropout = StableDropout(config.pooler_dropout)
@@ -628,7 +628,7 @@ class StableDropout(nn.Module):
 
 
 class SEWDSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = LayerNorm(config.hidden_size, config.layer_norm_eps)
@@ -652,7 +652,7 @@ class DisentangledSelfAttention(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -859,7 +859,7 @@ class DisentangledSelfAttention(nn.Module):
 
 
 class SEWDAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.self = DisentangledSelfAttention(config)
         self.output = SEWDSelfOutput(config)
@@ -896,7 +896,7 @@ class SEWDAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->SEWD
 class SEWDIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -911,7 +911,7 @@ class SEWDIntermediate(nn.Module):
 
 
 class SEWDOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = LayerNorm(config.hidden_size, config.layer_norm_eps)
@@ -926,7 +926,7 @@ class SEWDOutput(nn.Module):
 
 
 class SEWDLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.attention = SEWDAttention(config)
         self.intermediate = SEWDIntermediate(config)
@@ -960,7 +960,7 @@ class SEWDLayer(GradientCheckpointingLayer):
 
 
 class ConvLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         kernel_size = getattr(config, "conv_kernel_size", 3)
         groups = getattr(config, "conv_groups", 1)
@@ -998,7 +998,7 @@ class ConvLayer(nn.Module):
 class SEWDTransformerEncoder(nn.Module):
     """Modified BertEncoder with relative position bias support"""
 
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
 
         self.layer = nn.ModuleList([SEWDLayer(config) for _ in range(config.num_hidden_layers)])
@@ -1118,7 +1118,7 @@ class SEWDTransformerEncoder(nn.Module):
 
 
 class SEWDEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = SEWDPositionalConvEmbedding(config)
@@ -1384,7 +1384,7 @@ class SEWDModel(SEWDPreTrainedModel):
 )
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2ForCTC with Wav2Vec2->SEWD, wav2vec2->sew_d, WAV2VEC2->SEWD
 class SEWDForCTC(SEWDPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: SEWDConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1541,7 +1541,7 @@ class SEWDForCTC(SEWDPreTrainedModel):
 )
 # Copied from transformers.models.wav2vec2.modeling_wav2vec2.Wav2Vec2ForSequenceClassification with Wav2Vec2->SEWD, wav2vec2->sew_d, WAV2VEC2->SEWD
 class SEWDForSequenceClassification(SEWDPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SEWDConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:

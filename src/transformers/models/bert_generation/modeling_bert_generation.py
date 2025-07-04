@@ -39,7 +39,7 @@ logger = logging.get_logger(__name__)
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->BertGeneration
 class BertGenerationSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -54,7 +54,7 @@ class BertGenerationSelfOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->BertGeneration
 class BertGenerationSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: BertGenerationConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -194,7 +194,7 @@ BERT_GENERATION_SELF_ATTENTION_CLASSES = {
 
 # Copied from transformers.models.bert.modeling_bert.BertAttention with Bert->BertGeneration,BERT->BERT_GENERATION
 class BertGenerationAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: BertGenerationConfig, position_embedding_type=None):
         super().__init__()
         self.self = BERT_GENERATION_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -246,7 +246,7 @@ class BertGenerationAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->BertGeneration
 class BertGenerationIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -262,7 +262,7 @@ class BertGenerationIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->BertGeneration
 class BertGenerationOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -277,7 +277,7 @@ class BertGenerationOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLayer with Bert->BertGeneration
 class BertGenerationLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -364,7 +364,7 @@ class BertGenerationLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.bert.modeling_bert.BertEncoder with Bert->BertGeneration
 class BertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([BertGenerationLayer(config) for _ in range(config.num_hidden_layers)])
@@ -531,7 +531,7 @@ def load_tf_weights_in_bert_generation(
 class BertGenerationEmbeddings(nn.Module):
     """Construct the embeddings from word and position embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -614,7 +614,7 @@ class BertGenerationEncoder(BertGenerationPreTrainedModel):
     `add_cross_attention` set to `True`; an `encoder_hidden_states` is then expected as an input to the forward pass.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__(config)
         self.config = config
 
@@ -741,7 +741,7 @@ class BertGenerationEncoder(BertGenerationPreTrainedModel):
 
 
 class BertGenerationOnlyLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__()
         self.decoder = nn.Linear(config.hidden_size, config.vocab_size)
         self.bias = nn.Parameter(torch.zeros(config.vocab_size))
@@ -768,7 +768,7 @@ class BertGenerationOnlyLMHead(nn.Module):
 class BertGenerationDecoder(BertGenerationPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: BertGenerationConfig):
         super().__init__(config)
 
         if not config.is_decoder:

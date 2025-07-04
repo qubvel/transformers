@@ -269,7 +269,7 @@ class ResNetPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class ResNetModel(ResNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ResNetConfig):
         super().__init__(config)
         self.config = config
         self.embedder = ResNetEmbeddings(config)
@@ -314,7 +314,7 @@ class ResNetModel(ResNetPreTrainedModel):
     """
 )
 class ResNetForImageClassification(ResNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ResNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.resnet = ResNetModel(config)
@@ -383,7 +383,7 @@ class ResNetForImageClassification(ResNetPreTrainedModel):
     """
 )
 class ResNetBackbone(ResNetPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: ResNetConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

@@ -407,7 +407,7 @@ class FalconMambaRMSNorm(nn.Module):
 
 # Copied from transformers.models.mamba.modeling_mamba.MambaBlock with Mamba->FalconMamba,FalconMambaCache->MambaCache
 class FalconMambaBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx):
+    def __init__(self, config: FalconMambaConfig, layer_idx):
         super().__init__()
         self.config = config
         self.layer_idx = layer_idx
@@ -554,7 +554,7 @@ class FalconMambaCausalLMOutput(ModelOutput):
 
 @auto_docstring
 class FalconMambaModel(FalconMambaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FalconMambaConfig):
         super().__init__(config)
 
         self.embeddings = nn.Embedding(config.vocab_size, config.hidden_size)
@@ -662,7 +662,7 @@ class FalconMambaModel(FalconMambaPreTrainedModel):
 class FalconMambaForCausalLM(FalconMambaPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: FalconMambaConfig):
         super().__init__(config)
         self.backbone = FalconMambaModel(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)

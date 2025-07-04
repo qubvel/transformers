@@ -79,7 +79,7 @@ def masked_softmax(x: torch.Tensor, mask: torch.Tensor, mask_value: torch.Tensor
 
 
 class GPTBigCodeAttention(nn.Module):
-    def __init__(self, config, is_cross_attention=False, layer_idx=None):
+    def __init__(self, config: GPTBigCodeConfig, is_cross_attention=False, layer_idx=None):
         super().__init__()
         self.config = config
 
@@ -535,7 +535,7 @@ class GPTBigCodeSdpaAttention(GPTBigCodeAttention):
 
 
 class GPTBigCodeMLP(nn.Module):
-    def __init__(self, intermediate_size, config):
+    def __init__(self, intermediate_size, config: GPTBigCodeConfig):
         super().__init__()
         embed_dim = config.hidden_size
         self.c_fc = nn.Linear(embed_dim, intermediate_size)
@@ -560,7 +560,7 @@ GPTBIGCODE_ATTENTION_CLASSES = {
 
 
 class GPTBigCodeBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: GPTBigCodeConfig, layer_idx=None):
         super().__init__()
         hidden_size = config.hidden_size
         self.inner_dim = config.n_inner if config.n_inner is not None else 4 * hidden_size
@@ -692,7 +692,7 @@ class GPTBigCodePreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class GPTBigCodeModel(GPTBigCodePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTBigCodeConfig):
         super().__init__(config)
         self.multi_query = config.multi_query
         self.embed_dim = config.hidden_size
@@ -951,7 +951,7 @@ class GPTBigCodeModel(GPTBigCodePreTrainedModel):
 class GPTBigCodeForCausalLM(GPTBigCodePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: GPTBigCodeConfig):
         super().__init__(config)
         self.transformer = GPTBigCodeModel(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
@@ -1141,7 +1141,7 @@ class GPTBigCodeForCausalLM(GPTBigCodePreTrainedModel, GenerationMixin):
     """
 )
 class GPTBigCodeForSequenceClassification(GPTBigCodePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTBigCodeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = GPTBigCodeModel(config)
@@ -1264,7 +1264,7 @@ class GPTBigCodeForSequenceClassification(GPTBigCodePreTrainedModel):
 
 @auto_docstring
 class GPTBigCodeForTokenClassification(GPTBigCodePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTBigCodeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

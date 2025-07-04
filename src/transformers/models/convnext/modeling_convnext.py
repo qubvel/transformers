@@ -108,7 +108,7 @@ class ConvNextEmbeddings(nn.Module):
     found in src/transformers/models/swin/modeling_swin.py.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ConvNextConfig):
         super().__init__()
         self.patch_embeddings = nn.Conv2d(
             config.num_channels, config.hidden_sizes[0], kernel_size=config.patch_size, stride=config.patch_size
@@ -141,7 +141,7 @@ class ConvNextLayer(nn.Module):
         drop_path (`float`): Stochastic depth rate. Default: 0.0.
     """
 
-    def __init__(self, config, dim, drop_path=0):
+    def __init__(self, config: ConvNextConfig, dim, drop_path=0):
         super().__init__()
         self.dwconv = nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim)  # depthwise conv
         self.layernorm = ConvNextLayerNorm(dim, eps=1e-6)
@@ -182,7 +182,7 @@ class ConvNextStage(nn.Module):
         drop_path_rates(`list[float]`): Stochastic depth rates for each layer.
     """
 
-    def __init__(self, config, in_channels, out_channels, kernel_size=2, stride=2, depth=2, drop_path_rates=None):
+    def __init__(self, config: ConvNextConfig, in_channels, out_channels, kernel_size=2, stride=2, depth=2, drop_path_rates=None):
         super().__init__()
 
         if in_channels != out_channels or stride > 1:
@@ -204,7 +204,7 @@ class ConvNextStage(nn.Module):
 
 
 class ConvNextEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextConfig):
         super().__init__()
         self.stages = nn.ModuleList()
         drop_path_rates = [
@@ -277,7 +277,7 @@ class ConvNextPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class ConvNextModel(ConvNextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextConfig):
         super().__init__(config)
         self.config = config
 
@@ -335,7 +335,7 @@ class ConvNextModel(ConvNextPreTrainedModel):
     """
 )
 class ConvNextForImageClassification(ConvNextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -410,7 +410,7 @@ class ConvNextForImageClassification(ConvNextPreTrainedModel):
     """
 )
 class ConvNextBackbone(ConvNextPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: ConvNextConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

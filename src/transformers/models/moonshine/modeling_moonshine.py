@@ -49,7 +49,7 @@ logger = logging.get_logger(__name__)
 
 
 class MoonshineEncoderMLP(nn.Module):
-    def __init__(self, config, hidden_act):
+    def __init__(self, config: MoonshineConfig, hidden_act):
         super().__init__()
         self.config = config
         self.activation_fn = ACT2FN[hidden_act]
@@ -64,7 +64,7 @@ class MoonshineEncoderMLP(nn.Module):
 
 
 class MoonshineDecoderMLP(nn.Module):
-    def __init__(self, config, hidden_act):
+    def __init__(self, config: MoonshineConfig, hidden_act):
         super().__init__()
         self.config = config
         self.activation_fn = ACT2FN[hidden_act]

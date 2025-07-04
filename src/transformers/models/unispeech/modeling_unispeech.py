@@ -97,7 +97,7 @@ class UniSpeechSamePadLayer(nn.Module):
 
 
 class UniSpeechPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -142,7 +142,7 @@ class UniSpeechPositionalConvEmbedding(nn.Module):
 
 
 class UniSpeechNoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: UniSpeechConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -163,7 +163,7 @@ class UniSpeechNoLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class UniSpeechLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: UniSpeechConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -190,7 +190,7 @@ class UniSpeechLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class UniSpeechGroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: UniSpeechConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -216,7 +216,7 @@ class UniSpeechGroupNormConvLayer(GradientCheckpointingLayer):
 class UniSpeechFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -255,7 +255,7 @@ class UniSpeechFeatureEncoder(nn.Module):
 
 
 class UniSpeechFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.conv_dim[-1], eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.conv_dim[-1], config.hidden_size)
@@ -390,7 +390,7 @@ class UniSpeechAttention(nn.Module):
 
 
 class UniSpeechFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -414,7 +414,7 @@ class UniSpeechFeedForward(nn.Module):
 
 
 class UniSpeechEncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.attention = UniSpeechAttention(
             embed_dim=config.hidden_size,
@@ -450,7 +450,7 @@ class UniSpeechEncoderLayer(GradientCheckpointingLayer):
 
 
 class UniSpeechEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = UniSpeechPositionalConvEmbedding(config)
@@ -543,7 +543,7 @@ class UniSpeechEncoder(nn.Module):
 
 
 class UniSpeechAttnAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         """
         Implements adapter modules directly with 3D tensor weight as parameters and without using ModuleList to speed
         up training throughput.
@@ -568,7 +568,7 @@ class UniSpeechAttnAdapterLayer(nn.Module):
 
 
 class UniSpeechEncoderLayerStableLayerNorm(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.attention = UniSpeechAttention(
             embed_dim=config.hidden_size,
@@ -614,7 +614,7 @@ class UniSpeechEncoderLayerStableLayerNorm(GradientCheckpointingLayer):
 
 
 class UniSpeechEncoderStableLayerNorm(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = UniSpeechPositionalConvEmbedding(config)
@@ -716,7 +716,7 @@ class UniSpeechGumbelVectorQuantizer(nn.Module):
     GUMBEL-SOFTMAX](https://huggingface.co/papers/1611.01144) for more information.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__()
         self.num_groups = config.num_codevector_groups
         self.num_vars = config.num_codevectors_per_group
@@ -1243,7 +1243,7 @@ _HIDDEN_STATES_START_POSITION = 2
     """
 )
 class UniSpeechForCTC(UniSpeechPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: UniSpeechConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1399,7 +1399,7 @@ class UniSpeechForCTC(UniSpeechPreTrainedModel):
     """
 )
 class UniSpeechForSequenceClassification(UniSpeechPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: UniSpeechConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:

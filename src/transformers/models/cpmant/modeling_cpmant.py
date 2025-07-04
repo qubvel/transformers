@@ -399,7 +399,7 @@ class CpmAntEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->CPMAnt
 class CpmAntIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CpmAntConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -507,7 +507,7 @@ class CpmAntSegmentPositionEmbedding(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->CPMAnt
 class CpmAntOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CpmAntConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)

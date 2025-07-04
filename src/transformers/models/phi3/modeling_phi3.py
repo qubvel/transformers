@@ -49,7 +49,7 @@ logger = logging.get_logger(__name__)
 
 
 class Phi3MLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Phi3Config):
         super().__init__()
 
         self.config = config
@@ -511,7 +511,7 @@ class Phi3ForCausalLM(Phi3PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Phi3Config):
         super().__init__(config)
         self.model = Phi3Model(config)
         self.vocab_size = config.vocab_size
@@ -668,7 +668,7 @@ class Phi3ForCausalLM(Phi3PreTrainedModel, GenerationMixin):
     """
 )
 class Phi3ForSequenceClassification(Phi3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Phi3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Phi3Model(config)
@@ -755,7 +755,7 @@ class Phi3ForSequenceClassification(Phi3PreTrainedModel):
 
 @auto_docstring
 class Phi3ForTokenClassification(Phi3PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Phi3Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Phi3Model(config)

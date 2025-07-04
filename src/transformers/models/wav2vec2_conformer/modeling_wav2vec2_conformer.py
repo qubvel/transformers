@@ -82,7 +82,7 @@ class Wav2Vec2ConformerSamePadLayer(nn.Module):
 
 
 class Wav2Vec2ConformerPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -131,7 +131,7 @@ class Wav2Vec2ConformerRotaryPositionalEmbedding(nn.Module):
     Reference : https://blog.eleuther.ai/rotary-embeddings/ Paper: https://huggingface.co/papers/2104.09864
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         dim = config.hidden_size // config.num_attention_heads
         base = config.rotary_embedding_base
@@ -163,7 +163,7 @@ class Wav2Vec2ConformerRotaryPositionalEmbedding(nn.Module):
 class Wav2Vec2ConformerRelPositionalEmbedding(nn.Module):
     """Relative positional encoding module."""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.max_len = config.max_source_positions
         self.d_model = config.hidden_size
@@ -211,7 +211,7 @@ class Wav2Vec2ConformerRelPositionalEmbedding(nn.Module):
 
 
 class Wav2Vec2ConformerNoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2ConformerConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -232,7 +232,7 @@ class Wav2Vec2ConformerNoLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2ConformerLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2ConformerConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -259,7 +259,7 @@ class Wav2Vec2ConformerLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2ConformerGroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2ConformerConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -285,7 +285,7 @@ class Wav2Vec2ConformerGroupNormConvLayer(GradientCheckpointingLayer):
 class Wav2Vec2ConformerFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -324,7 +324,7 @@ class Wav2Vec2ConformerFeatureEncoder(nn.Module):
 
 
 class Wav2Vec2ConformerFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.conv_dim[-1], eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.conv_dim[-1], config.hidden_size)
@@ -339,7 +339,7 @@ class Wav2Vec2ConformerFeatureProjection(nn.Module):
 
 
 class Wav2Vec2ConformerFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -365,7 +365,7 @@ class Wav2Vec2ConformerFeedForward(nn.Module):
 class Wav2Vec2ConformerConvolutionModule(nn.Module):
     """Convolution block used in the conformer block"""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         if (config.conv_depthwise_kernel_size - 1) % 2 == 1:
             raise ValueError("`config.conv_depthwise_kernel_size` should be a odd number for 'SAME' padding")
@@ -427,7 +427,7 @@ class Wav2Vec2ConformerSelfAttention(nn.Module):
     Can be enhanced with rotary or relative position embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
 
         self.head_size = config.hidden_size // config.num_attention_heads
@@ -573,7 +573,7 @@ class Wav2Vec2ConformerSelfAttention(nn.Module):
 class Wav2Vec2ConformerEncoderLayer(GradientCheckpointingLayer):
     """Conformer block based on https://huggingface.co/papers/2005.08100."""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         embed_dim = config.hidden_size
         dropout = config.attention_dropout
@@ -638,7 +638,7 @@ class Wav2Vec2ConformerEncoderLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2ConformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.config = config
 
@@ -730,7 +730,7 @@ class Wav2Vec2ConformerGumbelVectorQuantizer(nn.Module):
     GUMBEL-SOFTMAX](https://huggingface.co/papers/1611.01144) for more information.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.num_groups = config.num_codevector_groups
         self.num_vars = config.num_codevectors_per_group
@@ -801,7 +801,7 @@ class Wav2Vec2ConformerGumbelVectorQuantizer(nn.Module):
 
 
 class Wav2Vec2ConformerAdapter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
 
         # feature dim might need to be down-projected
@@ -832,7 +832,7 @@ class Wav2Vec2ConformerAdapter(nn.Module):
 
 
 class Wav2Vec2ConformerAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.output_hidden_size,
@@ -1420,7 +1420,7 @@ _HIDDEN_STATES_START_POSITION = 2
     """
 )
 class Wav2Vec2ConformerForCTC(Wav2Vec2ConformerPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: Wav2Vec2ConformerConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1535,7 +1535,7 @@ class Wav2Vec2ConformerForCTC(Wav2Vec2ConformerPreTrainedModel):
     """
 )
 class Wav2Vec2ConformerForSequenceClassification(Wav2Vec2ConformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1638,7 +1638,7 @@ class Wav2Vec2ConformerForSequenceClassification(Wav2Vec2ConformerPreTrainedMode
 
 @auto_docstring
 class Wav2Vec2ConformerForAudioFrameClassification(Wav2Vec2ConformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1753,7 +1753,7 @@ class AMSoftmaxLoss(nn.Module):
 
 
 class TDNNLayer(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2ConformerConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.tdnn_dim[layer_id - 1] if layer_id > 0 else config.tdnn_dim[layer_id]
         self.out_conv_dim = config.tdnn_dim[layer_id]
@@ -1790,7 +1790,7 @@ class TDNNLayer(nn.Module):
     """
 )
 class Wav2Vec2ConformerForXVector(Wav2Vec2ConformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2ConformerConfig):
         super().__init__(config)
 
         self.wav2vec2_conformer = Wav2Vec2ConformerModel(config)

@@ -496,7 +496,7 @@ class XLMSequenceSummary(nn.Module):
 class MultiHeadAttention(nn.Module):
     NEW_ID = itertools.count()
 
-    def __init__(self, n_heads, dim, config):
+    def __init__(self, n_heads, dim, config: XLMConfig):
         super().__init__()
         self.layer_id = next(MultiHeadAttention.NEW_ID)
         self.dim = dim
@@ -590,7 +590,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class TransformerFFN(nn.Module):
-    def __init__(self, in_dim, dim_hidden, out_dim, config):
+    def __init__(self, in_dim, dim_hidden, out_dim, config: XLMConfig):
         super().__init__()
         self.dropout = config.dropout
         self.lin1 = nn.Linear(in_dim, dim_hidden)
@@ -687,7 +687,7 @@ class XLMForQuestionAnsweringOutput(ModelOutput):
 
 @auto_docstring
 class XLMModel(XLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
 
         # encoder / decoder, output layer
@@ -936,7 +936,7 @@ class XLMPredLayer(nn.Module):
     Prediction layer (cross_entropy or adaptive_softmax).
     """
 
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__()
         self.asm = config.asm
         self.n_words = config.n_words
@@ -982,7 +982,7 @@ class XLMPredLayer(nn.Module):
 class XLMWithLMHeadModel(XLMPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["pred_layer.proj.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
         self.transformer = XLMModel(config)
         self.pred_layer = XLMPredLayer(config)
@@ -1093,7 +1093,7 @@ class XLMWithLMHeadModel(XLMPreTrainedModel, GenerationMixin):
     """
 )
 class XLMForSequenceClassification(XLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1208,7 +1208,7 @@ class XLMForSequenceClassification(XLMPreTrainedModel):
     """
 )
 class XLMForQuestionAnsweringSimple(XLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
 
         self.transformer = XLMModel(config)
@@ -1312,7 +1312,7 @@ class XLMForQuestionAnsweringSimple(XLMPreTrainedModel):
 
 @auto_docstring
 class XLMForQuestionAnswering(XLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
 
         self.transformer = XLMModel(config)
@@ -1435,7 +1435,7 @@ class XLMForQuestionAnswering(XLMPreTrainedModel):
 
 @auto_docstring
 class XLMForTokenClassification(XLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1527,7 +1527,7 @@ class XLMForTokenClassification(XLMPreTrainedModel):
 
 @auto_docstring
 class XLMForMultipleChoice(XLMPreTrainedModel):
-    def __init__(self, config, *inputs, **kwargs):
+    def __init__(self, config: XLMConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.transformer = XLMModel(config)

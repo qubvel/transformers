@@ -129,7 +129,7 @@ class VitPoseSimpleDecoder(nn.Module):
     feature maps into heatmaps.
     """
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: VitPoseConfig) -> None:
         super().__init__()
 
         self.activation = nn.ReLU()

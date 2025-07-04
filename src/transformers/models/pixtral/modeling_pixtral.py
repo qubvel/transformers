@@ -58,7 +58,7 @@ class PixtralRotaryEmbedding(nn.Module):
     a corresponding positional embedding, based on its index in the grid.
     """
 
-    def __init__(self, config, device=None):
+    def __init__(self, config: PixtralVisionConfig, device=None):
         super().__init__()
         self.rope_type = "default"
         self.dim = config.head_dim
@@ -161,7 +161,7 @@ class PixtralAttention(nn.Module):
     Multi-headed attention compatible with ALL_ATTENTION_FUNCTIONS.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PixtralVisionConfig):
         super().__init__()
         self.config = config
         self.embed_dim = config.hidden_size
@@ -237,7 +237,7 @@ class PixtralAttention(nn.Module):
 
 # Copied from transformers.models.mistral.modeling_mistral.MistralMLP with Mistral->Pixtral
 class PixtralMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PixtralVisionConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -274,7 +274,7 @@ class PixtralRMSNorm(nn.Module):
 
 
 class PixtralAttentionLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: PixtralVisionConfig):
         super().__init__()
         self.attention_norm = PixtralRMSNorm(config.hidden_size, eps=1e-5)
         self.feed_forward = PixtralMLP(config)
@@ -324,7 +324,7 @@ class PixtralAttentionLayer(GradientCheckpointingLayer):
 
 
 class PixtralTransformer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PixtralVisionConfig):
         super().__init__()
         self.config = config
         self.layers = torch.nn.ModuleList()
@@ -445,7 +445,7 @@ def generate_block_attention_mask(patch_embeds_list, tensor):
 class PixtralVisionModel(PixtralPreTrainedModel):
     base_model_prefix = "vision_encoder"
 
-    def __init__(self, config):
+    def __init__(self, config: PixtralVisionConfig):
         super().__init__(config)
         self.config = config
         self.patch_conv = nn.Conv2d(

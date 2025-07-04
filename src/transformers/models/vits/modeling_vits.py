@@ -704,7 +704,7 @@ class VitsElementwiseAffine(nn.Module):
 
 
 class VitsStochasticDurationPredictor(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VitsConfig):
         super().__init__()
         embed_dim = config.speaker_embedding_size
         filter_channels = config.hidden_size
@@ -804,7 +804,7 @@ class VitsStochasticDurationPredictor(nn.Module):
 
 
 class VitsDurationPredictor(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VitsConfig):
         super().__init__()
         kernel_size = config.duration_predictor_kernel_size
         filter_channels = config.duration_predictor_filter_channels
@@ -1007,7 +1007,7 @@ class VitsAttention(nn.Module):
 
 
 class VitsFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VitsConfig):
         super().__init__()
         self.conv_1 = nn.Conv1d(config.hidden_size, config.ffn_dim, config.ffn_kernel_size)
         self.conv_2 = nn.Conv1d(config.ffn_dim, config.hidden_size, config.ffn_kernel_size)

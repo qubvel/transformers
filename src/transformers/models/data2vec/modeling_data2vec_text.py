@@ -54,7 +54,7 @@ class Data2VecTextForTextEmbeddings(nn.Module):
     """
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -139,7 +139,7 @@ class Data2VecTextForTextEmbeddings(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfAttention with Roberta->Data2VecText
 class Data2VecTextSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: Data2VecTextConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -274,7 +274,7 @@ class Data2VecTextSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class Data2VecTextSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -294,7 +294,7 @@ DATA2VEC_TEXT_SELF_ATTENTION_CLASSES = {
 
 # Copied from transformers.models.bert.modeling_bert.BertAttention with Bert->Data2VecText,BERT->DATA2VEC_TEXT
 class Data2VecTextAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: Data2VecTextConfig, position_embedding_type=None):
         super().__init__()
         self.self = DATA2VEC_TEXT_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -346,7 +346,7 @@ class Data2VecTextAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class Data2VecTextIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -362,7 +362,7 @@ class Data2VecTextIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class Data2VecTextOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -377,7 +377,7 @@ class Data2VecTextOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLayer with Bert->Data2VecText
 class Data2VecTextLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -464,7 +464,7 @@ class Data2VecTextLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.bert.modeling_bert.BertEncoder with Bert->Data2VecText
 class Data2VecTextEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([Data2VecTextLayer(config) for _ in range(config.num_hidden_layers)])
@@ -546,7 +546,7 @@ class Data2VecTextEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class Data2VecTextPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -604,7 +604,7 @@ class Data2VecTextModel(Data2VecTextPreTrainedModel):
 
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: Data2VecTextConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -754,7 +754,7 @@ class Data2VecTextModel(Data2VecTextPreTrainedModel):
 class Data2VecTextForCausalLM(Data2VecTextPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -871,7 +871,7 @@ class Data2VecTextForCausalLM(Data2VecTextPreTrainedModel, GenerationMixin):
 class Data2VecTextForMaskedLM(Data2VecTextPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -955,7 +955,7 @@ class Data2VecTextForMaskedLM(Data2VecTextPreTrainedModel):
 class Data2VecTextLMHead(nn.Module):
     """Data2VecText Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -990,7 +990,7 @@ class Data2VecTextLMHead(nn.Module):
     """
 )
 class Data2VecTextForSequenceClassification(Data2VecTextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1076,7 +1076,7 @@ class Data2VecTextForSequenceClassification(Data2VecTextPreTrainedModel):
 
 @auto_docstring
 class Data2VecTextForMultipleChoice(Data2VecTextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
 
         self.data2vec_text = Data2VecTextModel(config)
@@ -1181,7 +1181,7 @@ class Data2VecTextForMultipleChoice(Data2VecTextPreTrainedModel):
 
 @auto_docstring
 class Data2VecTextForTokenClassification(Data2VecTextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1255,7 +1255,7 @@ class Data2VecTextForTokenClassification(Data2VecTextPreTrainedModel):
 class Data2VecTextClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -1276,7 +1276,7 @@ class Data2VecTextClassificationHead(nn.Module):
 
 @auto_docstring
 class Data2VecTextForQuestionAnswering(Data2VecTextPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecTextConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

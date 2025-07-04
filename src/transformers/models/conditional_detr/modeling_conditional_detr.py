@@ -257,7 +257,7 @@ class ConditionalDetrConvEncoder(nn.Module):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ConditionalDetrConfig):
         super().__init__()
 
         self.config = config

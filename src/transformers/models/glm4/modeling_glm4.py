@@ -48,7 +48,7 @@ logger = logging.get_logger(__name__)
 
 
 class Glm4MLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Glm4Config):
         super().__init__()
 
         self.config = config
@@ -499,7 +499,7 @@ class Glm4ForCausalLM(Glm4PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Glm4Config):
         super().__init__(config)
         self.model = Glm4Model(config)
         self.vocab_size = config.vocab_size
@@ -617,7 +617,7 @@ class Glm4ForCausalLM(Glm4PreTrainedModel, GenerationMixin):
     """
 )
 class Glm4ForSequenceClassification(Glm4PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Glm4Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Glm4Model(config)
@@ -704,7 +704,7 @@ class Glm4ForSequenceClassification(Glm4PreTrainedModel):
 
 @auto_docstring
 class Glm4ForTokenClassification(Glm4PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Glm4Config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Glm4Model(config)

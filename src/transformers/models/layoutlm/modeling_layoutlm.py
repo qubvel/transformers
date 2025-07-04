@@ -47,7 +47,7 @@ LayoutLMLayerNorm = nn.LayerNorm
 class LayoutLMEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -150,7 +150,7 @@ def eager_attention_forward(
 
 # Copied from transformers.models.align.modeling_align.AlignTextSelfAttention with AlignText->LayoutLM
 class LayoutLMSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -215,7 +215,7 @@ class LayoutLMSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->LayoutLM
 class LayoutLMSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -230,7 +230,7 @@ class LayoutLMSelfOutput(nn.Module):
 
 # Copied from transformers.models.align.modeling_align.AlignTextAttention with AlignText->LayoutLM
 class LayoutLMAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.self = LayoutLMSelfAttention(config)
         self.output = LayoutLMSelfOutput(config)
@@ -282,7 +282,7 @@ class LayoutLMAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class LayoutLMIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -298,7 +298,7 @@ class LayoutLMIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->LayoutLM
 class LayoutLMOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -313,7 +313,7 @@ class LayoutLMOutput(nn.Module):
 
 # Copied from transformers.models.align.modeling_align.AlignTextLayer with AlignText->LayoutLM
 class LayoutLMLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -360,7 +360,7 @@ class LayoutLMLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.align.modeling_align.AlignTextEncoder with AlignText->LayoutLM
 class LayoutLMEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([LayoutLMLayer(config) for i in range(config.num_hidden_layers)])
@@ -418,7 +418,7 @@ class LayoutLMEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class LayoutLMPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -434,7 +434,7 @@ class LayoutLMPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->LayoutLM
 class LayoutLMPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -452,7 +452,7 @@ class LayoutLMPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->LayoutLM
 class LayoutLMLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.transform = LayoutLMPredictionHeadTransform(config)
 
@@ -476,7 +476,7 @@ class LayoutLMLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->LayoutLM
 class LayoutLMOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__()
         self.predictions = LayoutLMLMPredictionHead(config)
 
@@ -513,7 +513,7 @@ class LayoutLMPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class LayoutLMModel(LayoutLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__(config)
         self.config = config
 
@@ -666,7 +666,7 @@ class LayoutLMModel(LayoutLMPreTrainedModel):
 class LayoutLMForMaskedLM(LayoutLMPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__(config)
 
         self.layoutlm = LayoutLMModel(config)
@@ -794,7 +794,7 @@ class LayoutLMForMaskedLM(LayoutLMPreTrainedModel):
     """
 )
 class LayoutLMForSequenceClassification(LayoutLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.layoutlm = LayoutLMModel(config)
@@ -930,7 +930,7 @@ class LayoutLMForSequenceClassification(LayoutLMPreTrainedModel):
     """
 )
 class LayoutLMForTokenClassification(LayoutLMPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LayoutLMConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.layoutlm = LayoutLMModel(config)
@@ -1040,7 +1040,7 @@ class LayoutLMForTokenClassification(LayoutLMPreTrainedModel):
 
 @auto_docstring
 class LayoutLMForQuestionAnswering(LayoutLMPreTrainedModel):
-    def __init__(self, config, has_visual_segment_embedding=True):
+    def __init__(self, config: LayoutLMConfig, has_visual_segment_embedding=True):
         r"""
         has_visual_segment_embedding (`bool`, *optional*, defaults to `True`):
             Whether or not to add visual segment embeddings.

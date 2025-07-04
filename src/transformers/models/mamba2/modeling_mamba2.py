@@ -684,7 +684,7 @@ class Mamba2RMSNorm(nn.Module):
 
 
 class Mamba2Block(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx):
+    def __init__(self, config: Mamba2Config, layer_idx):
         super().__init__()
         self.config = config
         self.layer_idx = layer_idx
@@ -824,7 +824,7 @@ class Mamba2CausalLMOutput(ModelOutput):
 
 @auto_docstring
 class Mamba2Model(Mamba2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Mamba2Config):
         super().__init__(config)
 
         self.embeddings = nn.Embedding(config.vocab_size, config.hidden_size)
@@ -941,7 +941,7 @@ class Mamba2Model(Mamba2PreTrainedModel):
 class Mamba2ForCausalLM(Mamba2PreTrainedModel, GenerationMixin):
     _tied_weights_keys = []
 
-    def __init__(self, config):
+    def __init__(self, config: Mamba2Config):
         super().__init__(config)
         self.backbone = Mamba2Model(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)

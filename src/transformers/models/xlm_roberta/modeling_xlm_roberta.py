@@ -54,7 +54,7 @@ class XLMRobertaEmbeddings(nn.Module):
     """
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -139,7 +139,7 @@ class XLMRobertaEmbeddings(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfAttention with Roberta->XLMRoberta
 class XLMRobertaSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -274,7 +274,7 @@ class XLMRobertaSelfAttention(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSdpaSelfAttention with Roberta->XLMRoberta
 class XLMRobertaSdpaSelfAttention(XLMRobertaSelfAttention):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaConfig, position_embedding_type=None):
         super().__init__(config, position_embedding_type=position_embedding_type)
         self.dropout_prob = config.attention_probs_dropout_prob
         self.require_contiguous_qkv = version.parse(get_torch_version()) < version.parse("2.2.0")
@@ -376,7 +376,7 @@ class XLMRobertaSdpaSelfAttention(XLMRobertaSelfAttention):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfOutput with Roberta->XLMRoberta
 class XLMRobertaSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -397,7 +397,7 @@ XLM_ROBERTA_SELF_ATTENTION_CLASSES = {
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaAttention with Roberta->XLMRoberta,ROBERTA->XLM_ROBERTA
 class XLMRobertaAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaConfig, position_embedding_type=None):
         super().__init__()
         self.self = XLM_ROBERTA_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -449,7 +449,7 @@ class XLMRobertaAttention(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaIntermediate with Roberta->XLMRoberta
 class XLMRobertaIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -465,7 +465,7 @@ class XLMRobertaIntermediate(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaOutput with Roberta->XLMRoberta
 class XLMRobertaOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -480,7 +480,7 @@ class XLMRobertaOutput(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaLayer with Roberta->XLMRoberta
 class XLMRobertaLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -567,7 +567,7 @@ class XLMRobertaLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaEncoder with Roberta->XLMRoberta
 class XLMRobertaEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([XLMRobertaLayer(config) for _ in range(config.num_hidden_layers)])
@@ -649,7 +649,7 @@ class XLMRobertaEncoder(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaPooler with Roberta->XLMRoberta
 class XLMRobertaPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -698,7 +698,7 @@ class XLMRobertaPreTrainedModel(PreTrainedModel):
 class XLMRobertaModel(XLMRobertaPreTrainedModel):
     _no_split_modules = ["XLMRobertaEmbeddings", "XLMRobertaLayer"]
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: XLMRobertaConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -884,7 +884,7 @@ class XLMRobertaModel(XLMRobertaPreTrainedModel):
 class XLMRobertaForCausalLM(XLMRobertaPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1013,7 +1013,7 @@ class XLMRobertaForCausalLM(XLMRobertaPreTrainedModel, GenerationMixin):
 class XLMRobertaForMaskedLM(XLMRobertaPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1106,7 +1106,7 @@ class XLMRobertaForMaskedLM(XLMRobertaPreTrainedModel):
 class XLMRobertaLMHead(nn.Module):
     """Roberta Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1142,7 +1142,7 @@ class XLMRobertaLMHead(nn.Module):
 )
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForSequenceClassification with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class XLMRobertaForSequenceClassification(XLMRobertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1238,7 +1238,7 @@ class XLMRobertaForSequenceClassification(XLMRobertaPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForMultipleChoice with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class XLMRobertaForMultipleChoice(XLMRobertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
 
         self.roberta = XLMRobertaModel(config)
@@ -1345,7 +1345,7 @@ class XLMRobertaForMultipleChoice(XLMRobertaPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForTokenClassification with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class XLMRobertaForTokenClassification(XLMRobertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1428,7 +1428,7 @@ class XLMRobertaForTokenClassification(XLMRobertaPreTrainedModel):
 class XLMRobertaClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -1450,7 +1450,7 @@ class XLMRobertaClassificationHead(nn.Module):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForQuestionAnswering with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class XLMRobertaForQuestionAnswering(XLMRobertaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

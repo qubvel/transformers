@@ -80,7 +80,7 @@ class EncodecConv1d(nn.Module):
     """Conv1d with asymmetric or causal padding and normalization."""
 
     def __init__(
-        self, config, in_channels: int, out_channels: int, kernel_size: int, stride: int = 1, dilation: int = 1
+        self, config: EncodecConfig, in_channels: int, out_channels: int, kernel_size: int, stride: int = 1, dilation: int = 1
     ):
         super().__init__()
         self.causal = config.use_causal_conv
@@ -176,7 +176,7 @@ class EncodecConv1d(nn.Module):
 class EncodecConvTranspose1d(nn.Module):
     """ConvTranspose1d with asymmetric or causal padding and normalization."""
 
-    def __init__(self, config, in_channels: int, out_channels: int, kernel_size: int, stride: int = 1):
+    def __init__(self, config: EncodecConfig, in_channels: int, out_channels: int, kernel_size: int, stride: int = 1):
         super().__init__()
         self.causal = config.use_causal_conv
         self.trim_right_ratio = config.trim_right_ratio

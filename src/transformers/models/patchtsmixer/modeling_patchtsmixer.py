@@ -168,7 +168,7 @@ class PatchTSMixerNormLayer(nn.Module):
 
 
 class PatchTSMixerMLP(nn.Module):
-    def __init__(self, in_features, out_features, config):
+    def __init__(self, in_features, out_features, config: PatchTSMixerConfig):
         super().__init__()
         num_hidden = in_features * config.expansion_factor
         self.fc1 = nn.Linear(in_features, num_hidden)

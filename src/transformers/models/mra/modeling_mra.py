@@ -464,7 +464,7 @@ def mra2_attention(
 class MraEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings + 2, config.hidden_size)
@@ -520,7 +520,7 @@ class MraEmbeddings(nn.Module):
 
 
 class MraSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: MraConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -613,7 +613,7 @@ class MraSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class MraSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -627,7 +627,7 @@ class MraSelfOutput(nn.Module):
 
 
 class MraAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: MraConfig, position_embedding_type=None):
         super().__init__()
         self.self = MraSelfAttention(config, position_embedding_type=position_embedding_type)
         self.output = MraSelfOutput(config)
@@ -660,7 +660,7 @@ class MraAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class MraIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -676,7 +676,7 @@ class MraIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class MraOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -690,7 +690,7 @@ class MraOutput(nn.Module):
 
 
 class MraLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -719,7 +719,7 @@ class MraLayer(GradientCheckpointingLayer):
 
 
 class MraEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([MraLayer(config) for _ in range(config.num_hidden_layers)])
@@ -756,7 +756,7 @@ class MraEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform
 class MraPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -774,7 +774,7 @@ class MraPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->Mra
 class MraLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.transform = MraPredictionHeadTransform(config)
 
@@ -798,7 +798,7 @@ class MraLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->Mra
 class MraOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.predictions = MraLMPredictionHead(config)
 
@@ -834,7 +834,7 @@ class MraPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class MraModel(MraPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
         self.config = config
 
@@ -940,7 +940,7 @@ class MraModel(MraPreTrainedModel):
 class MraForMaskedLM(MraPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
 
         self.mra = MraModel(config)
@@ -1012,7 +1012,7 @@ class MraForMaskedLM(MraPreTrainedModel):
 class MraClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -1037,7 +1037,7 @@ class MraClassificationHead(nn.Module):
     """
 )
 class MraForSequenceClassification(MraPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.mra = MraModel(config)
@@ -1117,7 +1117,7 @@ class MraForSequenceClassification(MraPreTrainedModel):
 
 @auto_docstring
 class MraForMultipleChoice(MraPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
 
         self.mra = MraModel(config)
@@ -1221,7 +1221,7 @@ class MraForMultipleChoice(MraPreTrainedModel):
 
 @auto_docstring
 class MraForTokenClassification(MraPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1295,7 +1295,7 @@ class MraForTokenClassification(MraPreTrainedModel):
 
 @auto_docstring
 class MraForQuestionAnswering(MraPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: MraConfig):
         super().__init__(config)
 
         config.num_labels = 2

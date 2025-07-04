@@ -99,7 +99,7 @@ class HeliumRotaryEmbedding(nn.Module):
 
 
 class HeliumMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HeliumConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size

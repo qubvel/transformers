@@ -125,7 +125,7 @@ class PerceiverClassifierOutput(ModelOutput):
 class PerceiverEmbeddings(nn.Module):
     """Construct the latent embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__()
         self.latents = nn.Parameter(torch.randn(config.num_latents, config.d_latents))
 
@@ -138,7 +138,7 @@ class PerceiverSelfAttention(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         is_cross_attention=False,
         qk_channels=None,
         v_channels=None,
@@ -249,7 +249,7 @@ class PerceiverSelfAttention(nn.Module):
 
 
 class PerceiverSelfOutput(nn.Module):
-    def __init__(self, config, input_channels, output_channels):
+    def __init__(self, config: PerceiverConfig, input_channels, output_channels):
         super().__init__()
         self.dense = nn.Linear(input_channels, output_channels)
 
@@ -263,7 +263,7 @@ class PerceiverAttention(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         is_cross_attention=False,
         qk_channels=None,
         v_channels=None,
@@ -361,7 +361,7 @@ class PerceiverAttention(nn.Module):
 class PerceiverMLP(nn.Module):
     """A Transformer-style dense module to follow attention."""
 
-    def __init__(self, config, input_size, widening_factor):
+    def __init__(self, config: PerceiverConfig, input_size, widening_factor):
         super().__init__()
         self.dense1 = nn.Linear(input_size, widening_factor * input_size)
         if isinstance(config.hidden_act, str):
@@ -380,7 +380,7 @@ class PerceiverMLP(nn.Module):
 class PerceiverLayer(nn.Module):
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         is_cross_attention=False,
         qk_channels=None,
         v_channels=None,
@@ -446,7 +446,7 @@ class PerceiverLayer(nn.Module):
 class PerceiverEncoder(nn.Module):
     """The Perceiver Encoder: a scalable, fully attentional encoder."""
 
-    def __init__(self, config, kv_dim=None):
+    def __init__(self, config: PerceiverConfig, kv_dim=None):
         super().__init__()
         self.config = config
 
@@ -605,7 +605,7 @@ class PerceiverPreTrainedModel(PreTrainedModel):
 class PerceiverModel(PerceiverPreTrainedModel):
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         decoder: Optional["PerceiverAbstractDecoder"] = None,
         input_preprocessor: PreprocessorType = None,
         output_postprocessor: PostprocessorType = None,
@@ -997,7 +997,7 @@ class PerceiverForMaskedLM(PerceiverPreTrainedModel):
     """
 )
 class PerceiverForSequenceClassification(PerceiverPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__(config)
 
         trainable_position_encoding_kwargs_decoder = {"num_channels": config.d_latents, "index_dims": 1}
@@ -1120,7 +1120,7 @@ class PerceiverForSequenceClassification(PerceiverPreTrainedModel):
     """
 )
 class PerceiverForImageClassificationLearned(PerceiverPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__(config)
 
         trainable_position_encoding_kwargs_preprocessor = {"num_channels": 256, "index_dims": config.image_size**2}
@@ -1263,7 +1263,7 @@ class PerceiverForImageClassificationLearned(PerceiverPreTrainedModel):
     """
 )
 class PerceiverForImageClassificationFourier(PerceiverPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__(config)
 
         fourier_position_encoding_kwargs_preprocessor = {
@@ -1404,7 +1404,7 @@ class PerceiverForImageClassificationFourier(PerceiverPreTrainedModel):
     """
 )
 class PerceiverForImageClassificationConvProcessing(PerceiverPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__(config)
 
         fourier_position_encoding_kwargs_preprocessor = {
@@ -1546,7 +1546,7 @@ class PerceiverForImageClassificationConvProcessing(PerceiverPreTrainedModel):
     """
 )
 class PerceiverForOpticalFlow(PerceiverPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__(config)
 
         fourier_position_encoding_kwargs_preprocessor = {
@@ -1961,7 +1961,7 @@ class PerceiverProjectionDecoder(PerceiverAbstractDecoder):
             Model configuration.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PerceiverConfig):
         super().__init__()
         self.classifier = nn.Linear(config.d_latents, config.num_labels)
 
@@ -2175,7 +2175,7 @@ class PerceiverClassificationDecoder(PerceiverAbstractDecoder):
             Model configuration.
     """
 
-    def __init__(self, config, **decoder_kwargs):
+    def __init__(self, config: PerceiverConfig, **decoder_kwargs):
         super().__init__()
 
         self.num_labels = config.num_labels
@@ -2213,7 +2213,7 @@ class PerceiverClassificationDecoder(PerceiverAbstractDecoder):
 class PerceiverOpticalFlowDecoder(PerceiverAbstractDecoder):
     """Cross-attention based optical flow decoder."""
 
-    def __init__(self, config, output_image_shape, output_num_channels=2, rescale_factor=100.0, **decoder_kwargs):
+    def __init__(self, config: PerceiverConfig, output_image_shape, output_num_channels=2, rescale_factor=100.0, **decoder_kwargs):
         super().__init__()
 
         self.output_image_shape = output_image_shape
@@ -2976,7 +2976,7 @@ class PerceiverImagePreprocessor(AbstractPreprocessor):
 
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         prep_type="conv",
         spatial_downsample: int = 4,
         temporal_downsample: int = 1,
@@ -3226,7 +3226,7 @@ class PerceiverAudioPreprocessor(AbstractPreprocessor):
 
     def __init__(
         self,
-        config,
+        config: PerceiverConfig,
         prep_type: str = "patches",
         samples_per_patch: int = 96,
         position_encoding_type: str = "fourier",

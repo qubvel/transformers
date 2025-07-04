@@ -405,7 +405,7 @@ class OmDetTurboMultiscaleDeformableAttention(nn.Module):
 
 # Copied from transformers.models.rt_detr.modeling_rt_detr.RTDetrConvNormLayer with RTDetr->OmDetTurbo
 class OmDetTurboConvNormLayer(nn.Module):
-    def __init__(self, config, in_channels, out_channels, kernel_size, stride, padding=None, activation=None):
+    def __init__(self, config: OmDetTurboConfig, in_channels, out_channels, kernel_size, stride, padding=None, activation=None):
         super().__init__()
         self.conv = nn.Conv2d(
             in_channels,
@@ -478,7 +478,7 @@ class OmDetTurboCSPRepLayer(nn.Module):
 class OmDetTurboMultiheadAttention(nn.Module):
     """Equivalent implementation of nn.MultiheadAttention with `batch_first=True`."""
 
-    def __init__(self, config, hidden_size, num_attention_heads, dropout):
+    def __init__(self, config: OmDetTurboConfig, hidden_size, num_attention_heads, dropout):
         super().__init__()
         if hidden_size % num_attention_heads != 0:
             raise ValueError(
@@ -812,7 +812,7 @@ class OmDetTurboHybridEncoder(nn.Module):
 
 
 class OmDetTurboMLPWithDropout(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: OmDetTurboConfig):
         super().__init__()
         self.linear1 = nn.Linear(config.class_embed_dim, config.task_encoder_hidden_dim)
         self.activation = ACT2FN[config.decoder_activation]
@@ -846,7 +846,7 @@ class OmDetTurboResidualLayer(nn.Module):
     A residual connection followed by a layer norm.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: OmDetTurboConfig):
         super().__init__()
         self.norm1 = nn.LayerNorm(config.class_embed_dim, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.decoder_dropout)
@@ -856,7 +856,7 @@ class OmDetTurboResidualLayer(nn.Module):
 
 
 class OmDetTurboTaskEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: OmDetTurboConfig):
         super().__init__()
         self.mlp = OmDetTurboMLPWithDropout(config)
         self.res1 = OmDetTurboResidualLayer(config)
@@ -872,7 +872,7 @@ class OmDetTurboDeformableTransformerDecoderLayer(GradientCheckpointingLayer):
     A single layer of the Deformable Transformer Decoder.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: OmDetTurboConfig):
         super().__init__()
         # self attention
         self.self_attn = OmDetTurboMultiheadAttention(

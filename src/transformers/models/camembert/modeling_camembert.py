@@ -54,7 +54,7 @@ class CamembertEmbeddings(nn.Module):
     """
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -139,7 +139,7 @@ class CamembertEmbeddings(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfAttention with Roberta->Camembert
 class CamembertSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: CamembertConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -274,7 +274,7 @@ class CamembertSelfAttention(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSdpaSelfAttention with Roberta->Camembert
 class CamembertSdpaSelfAttention(CamembertSelfAttention):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: CamembertConfig, position_embedding_type=None):
         super().__init__(config, position_embedding_type=position_embedding_type)
         self.dropout_prob = config.attention_probs_dropout_prob
         self.require_contiguous_qkv = version.parse(get_torch_version()) < version.parse("2.2.0")
@@ -376,7 +376,7 @@ class CamembertSdpaSelfAttention(CamembertSelfAttention):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaSelfOutput with Roberta->Camembert
 class CamembertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -397,7 +397,7 @@ CAMEMBERT_SELF_ATTENTION_CLASSES = {
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaAttention with Roberta->Camembert,ROBERTA->CAMEMBERT
 class CamembertAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: CamembertConfig, position_embedding_type=None):
         super().__init__()
         self.self = CAMEMBERT_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -449,7 +449,7 @@ class CamembertAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Roberta->Camembert
 class CamembertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -465,7 +465,7 @@ class CamembertIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->Roberta->Camembert
 class CamembertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -480,7 +480,7 @@ class CamembertOutput(nn.Module):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaLayer with Roberta->Camembert
 class CamembertLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -567,7 +567,7 @@ class CamembertLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.roberta.modeling_roberta.RobertaEncoder with Roberta->Camembert
 class CamembertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([CamembertLayer(config) for _ in range(config.num_hidden_layers)])
@@ -649,7 +649,7 @@ class CamembertEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class CamembertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -695,7 +695,7 @@ class CamembertPreTrainedModel(PreTrainedModel):
 class CamembertClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -718,7 +718,7 @@ class CamembertClassificationHead(nn.Module):
 class CamembertLMHead(nn.Module):
     """Camembert Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -766,7 +766,7 @@ class CamembertModel(CamembertPreTrainedModel):
     _no_split_modules = []
 
     # Copied from transformers.models.roberta.modeling_roberta.RobertaModel.__init__ with Roberta->Camembert
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: CamembertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -949,7 +949,7 @@ class CamembertModel(CamembertPreTrainedModel):
 class CamembertForMaskedLM(CamembertPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1046,7 +1046,7 @@ class CamembertForMaskedLM(CamembertPreTrainedModel):
 )
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForSequenceClassification with Roberta->Camembert, ROBERTA->CAMEMBERT
 class CamembertForSequenceClassification(CamembertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1142,7 +1142,7 @@ class CamembertForSequenceClassification(CamembertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForMultipleChoice with Roberta->Camembert, ROBERTA->CAMEMBERT
 class CamembertForMultipleChoice(CamembertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
 
         self.roberta = CamembertModel(config)
@@ -1249,7 +1249,7 @@ class CamembertForMultipleChoice(CamembertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForTokenClassification with Roberta->Camembert, ROBERTA->CAMEMBERT
 class CamembertForTokenClassification(CamembertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1331,7 +1331,7 @@ class CamembertForTokenClassification(CamembertPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForQuestionAnswering with Roberta->Camembert, ROBERTA->CAMEMBERT
 class CamembertForQuestionAnswering(CamembertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1427,7 +1427,7 @@ class CamembertForQuestionAnswering(CamembertPreTrainedModel):
 class CamembertForCausalLM(CamembertPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: CamembertConfig):
         super().__init__(config)
 
         if not config.is_decoder:

@@ -50,7 +50,7 @@ class IBertEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.embedding_bit = 8
@@ -168,7 +168,7 @@ class IBertEmbeddings(nn.Module):
 
 
 class IBertSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -310,7 +310,7 @@ class IBertSelfAttention(nn.Module):
 
 
 class IBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.act_bit = 8
@@ -357,7 +357,7 @@ class IBertSelfOutput(nn.Module):
 
 
 class IBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.self = IBertSelfAttention(config)
@@ -406,7 +406,7 @@ class IBertAttention(nn.Module):
 
 
 class IBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.act_bit = 8
@@ -440,7 +440,7 @@ class IBertIntermediate(nn.Module):
 
 
 class IBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.act_bit = 8
@@ -487,7 +487,7 @@ class IBertOutput(nn.Module):
 
 
 class IBertLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.act_bit = 8
@@ -545,7 +545,7 @@ class IBertLayer(nn.Module):
 
 
 class IBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.config = config
         self.quant_mode = config.quant_mode
@@ -609,7 +609,7 @@ class IBertEncoder(nn.Module):
 
 
 class IBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.quant_mode = config.quant_mode
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -663,7 +663,7 @@ class IBertModel(IBertPreTrainedModel):
 
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: IBertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -777,7 +777,7 @@ class IBertModel(IBertPreTrainedModel):
 class IBertForMaskedLM(IBertPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.bias", "lm_head.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__(config)
 
         self.ibert = IBertModel(config, add_pooling_layer=False)
@@ -849,7 +849,7 @@ class IBertForMaskedLM(IBertPreTrainedModel):
 class IBertLMHead(nn.Module):
     """I-BERT Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -884,7 +884,7 @@ class IBertLMHead(nn.Module):
     """
 )
 class IBertForSequenceClassification(IBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -966,7 +966,7 @@ class IBertForSequenceClassification(IBertPreTrainedModel):
 
 @auto_docstring
 class IBertForMultipleChoice(IBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__(config)
 
         self.ibert = IBertModel(config)
@@ -1069,7 +1069,7 @@ class IBertForMultipleChoice(IBertPreTrainedModel):
 
 @auto_docstring
 class IBertForTokenClassification(IBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1137,7 +1137,7 @@ class IBertForTokenClassification(IBertPreTrainedModel):
 class IBertClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -1155,7 +1155,7 @@ class IBertClassificationHead(nn.Module):
 
 @auto_docstring
 class IBertForQuestionAnswering(IBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: IBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

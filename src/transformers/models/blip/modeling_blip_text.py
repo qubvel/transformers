@@ -47,7 +47,7 @@ logger = logging.get_logger(__name__)
 class BlipTextEmbeddings(nn.Module):
     """Construct the embeddings from word and position embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -97,7 +97,7 @@ class BlipTextEmbeddings(nn.Module):
 
 # Adapted from https://github.com/salesforce/BLIP/blob/main/models/med.py#L97
 class BlipTextSelfAttention(nn.Module):
-    def __init__(self, config, is_cross_attention):
+    def __init__(self, config: BlipTextConfig, is_cross_attention):
         super().__init__()
         self.config = config
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
@@ -224,7 +224,7 @@ class BlipTextSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert -> BlipText
 class BlipTextSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -239,7 +239,7 @@ class BlipTextSelfOutput(nn.Module):
 
 # Adapted from https://github.com/salesforce/BLIP/blob/main/models/med.py#242
 class BlipTextAttention(nn.Module):
-    def __init__(self, config, is_cross_attention=False):
+    def __init__(self, config: BlipTextConfig, is_cross_attention=False):
         super().__init__()
         self.self = BlipTextSelfAttention(config, is_cross_attention)
         self.output = BlipTextSelfOutput(config)
@@ -289,7 +289,7 @@ class BlipTextAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert -> BlipText
 class BlipTextIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -305,7 +305,7 @@ class BlipTextIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert -> BlipText
 class BlipTextOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -319,7 +319,7 @@ class BlipTextOutput(nn.Module):
 
 
 class BlipTextLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_num):
+    def __init__(self, config: BlipTextConfig, layer_num):
         super().__init__()
         self.config = config
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
@@ -383,7 +383,7 @@ class BlipTextLayer(GradientCheckpointingLayer):
 
 # Adapted from https://github.com/salesforce/BLIP/blob/main/models/med.py#L386
 class BlipTextEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([BlipTextLayer(config, i) for i in range(config.num_hidden_layers)])
@@ -465,7 +465,7 @@ class BlipTextEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->BlipText
 class BlipTextPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -481,7 +481,7 @@ class BlipTextPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->BlipText
 class BlipTextPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -499,7 +499,7 @@ class BlipTextPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->BlipText
 class BlipTextLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.transform = BlipTextPredictionHeadTransform(config)
 
@@ -523,7 +523,7 @@ class BlipTextLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->BlipText
 class BlipTextOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__()
         self.predictions = BlipTextLMPredictionHead(config)
 
@@ -567,7 +567,7 @@ class BlipTextModel(BlipTextPreTrainedModel):
     `encoder_hidden_states` is then expected as an input to the forward pass.
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: BlipTextConfig, add_pooling_layer=True):
         super().__init__(config)
         self.config = config
 
@@ -796,7 +796,7 @@ class BlipTextModel(BlipTextPreTrainedModel):
 
 # Adapted from https://github.com/salesforce/BLIP/blob/main/models/med.py#L811
 class BlipTextLMHeadModel(BlipTextPreTrainedModel, GenerationMixin):
-    def __init__(self, config):
+    def __init__(self, config: BlipTextConfig):
         super().__init__(config)
 
         self.bert = BlipTextModel(config, add_pooling_layer=False)

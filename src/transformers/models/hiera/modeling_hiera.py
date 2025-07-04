@@ -170,7 +170,7 @@ class HieraPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config, is_mae: bool = False):
+    def __init__(self, config: HieraConfig, is_mae: bool = False):
         super().__init__()
 
         # Support any number of spatial dimensions
@@ -438,7 +438,7 @@ class HieraDropPath(nn.Module):
 
 
 class HieraMlp(nn.Module):
-    def __init__(self, config, dim: int) -> None:
+    def __init__(self, config: HieraConfig, dim: int) -> None:
         super().__init__()
         self.activation_fn = ACT2FN[config.hidden_act]
         self.fc1 = nn.Linear(dim, int(dim * config.mlp_ratio))
@@ -454,7 +454,7 @@ class HieraMlp(nn.Module):
 class HieraLayer(nn.Module):
     def __init__(
         self,
-        config,
+        config: HieraConfig,
         hidden_size: int,
         hidden_size_output: int,
         num_heads: int,
@@ -518,7 +518,7 @@ class HieraLayer(nn.Module):
 class HieraStage(GradientCheckpointingLayer):
     def __init__(
         self,
-        config,
+        config: HieraConfig,
         depth: int,
         hidden_size: int,
         hidden_size_output: int,

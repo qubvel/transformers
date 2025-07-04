@@ -205,7 +205,7 @@ class BeitPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: BeitConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -1418,7 +1418,7 @@ class BeitForSemanticSegmentation(BeitPreTrainedModel):
     """
 )
 class BeitBackbone(BeitPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: BeitConfig):
         super().__init__(config)
         super()._init_backbone(config)
 

@@ -47,7 +47,7 @@ class Dinov2WithRegistersPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Dinov2WithRegistersConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -322,7 +322,7 @@ class Dinov2WithRegistersAttention(nn.Module):
 
 
 class Dinov2WithRegistersLayerScale(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2WithRegistersConfig) -> None:
         super().__init__()
         self.lambda1 = nn.Parameter(config.layerscale_value * torch.ones(config.hidden_size))
 
@@ -365,7 +365,7 @@ class Dinov2WithRegistersDropPath(nn.Module):
 
 
 class Dinov2WithRegistersMLP(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2WithRegistersConfig) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)
@@ -384,7 +384,7 @@ class Dinov2WithRegistersMLP(nn.Module):
 
 
 class Dinov2WithRegistersSwiGLUFFN(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: Dinov2WithRegistersConfig) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)
@@ -722,7 +722,7 @@ class Dinov2WithRegistersForImageClassification(Dinov2WithRegistersPreTrainedMod
     """
 )
 class Dinov2WithRegistersBackbone(Dinov2WithRegistersPreTrainedModel, BackboneMixin):
-    def __init__(self, config):
+    def __init__(self, config: Dinov2WithRegistersConfig):
         super().__init__(config)
         super()._init_backbone(config)
         self.num_features = [config.hidden_size for _ in range(config.num_hidden_layers + 1)]

@@ -234,7 +234,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
 
 # Modified from transformers.models.mistral.modeling_mistral.MistralMLP with Mistral->Qwen2Moe
 class Qwen2MoeMLP(nn.Module):
-    def __init__(self, config, intermediate_size=None):
+    def __init__(self, config: Qwen2MoeConfig, intermediate_size=None):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -578,7 +578,7 @@ QWEN2MOE_ATTENTION_CLASSES = {
 
 
 class Qwen2MoeSparseMoeBlock(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2MoeConfig):
         super().__init__()
         self.num_experts = config.num_experts
         self.top_k = config.num_experts_per_tok
@@ -1071,7 +1071,7 @@ class Qwen2MoeForCausalLM(Qwen2MoePreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen2MoeConfig):
         super().__init__(config)
         self.model = Qwen2MoeModel(config)
         self.vocab_size = config.vocab_size
@@ -1211,7 +1211,7 @@ class Qwen2MoeForCausalLM(Qwen2MoePreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.llama.modeling_llama.LlamaForSequenceClassification with Llama->Qwen2Moe, LLAMA->QWEN2MOE, BaseModelOutputWithPast->MoeModelOutputWithPast
 class Qwen2MoeForSequenceClassification(Qwen2MoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2MoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen2MoeModel(config)
@@ -1299,7 +1299,7 @@ class Qwen2MoeForSequenceClassification(Qwen2MoePreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.llama.modeling_llama.LlamaForTokenClassification with Llama->Qwen2Moe, LLAMA->QWEN2MOE, BaseModelOutputWithPast->MoeModelOutputWithPast
 class Qwen2MoeForTokenClassification(Qwen2MoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen2MoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen2MoeModel(config)
@@ -1373,7 +1373,7 @@ class Qwen2MoeForTokenClassification(Qwen2MoePreTrainedModel):
 class Qwen2MoeForQuestionAnswering(Qwen2MoePreTrainedModel):
     base_model_prefix = "model"
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen2MoeConfig):
         super().__init__(config)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)
         self.model = Qwen2MoeModel(config)  # diff with Llama: transformer->model

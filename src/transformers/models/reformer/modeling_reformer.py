@@ -106,7 +106,7 @@ class AxialPositionEmbeddings(nn.Module):
     Constructs axial position embeddings. Useful for very long input sequences to save memory and time.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.axial_pos_shape = config.axial_pos_shape
         self.axial_pos_embds_dim = config.axial_pos_embds_dim
@@ -200,7 +200,7 @@ class AxialPositionEmbeddings(nn.Module):
 class PositionEmbeddings(nn.Module):
     """Constructs conventional position embeddings of shape `[max_pos_embeddings, hidden_size]`."""
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.dropout = config.hidden_dropout_prob
         self.embedding = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -214,7 +214,7 @@ class PositionEmbeddings(nn.Module):
 class ReformerEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.max_position_embeddings = config.max_position_embeddings
         self.dropout = config.hidden_dropout_prob
@@ -316,7 +316,7 @@ class EfficientAttentionMixin:
 
 
 class LSHSelfAttention(nn.Module, EfficientAttentionMixin):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.config = config
 
@@ -1016,7 +1016,7 @@ class ReverseSort(Function):
 
 
 class LocalSelfAttention(nn.Module, EfficientAttentionMixin):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
 
         self.num_attention_heads = config.num_attention_heads
@@ -1240,7 +1240,7 @@ class LocalSelfAttention(nn.Module, EfficientAttentionMixin):
 
 
 class ReformerSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         all_head_size = config.num_attention_heads * config.attention_head_size
         self.dropout = config.hidden_dropout_prob
@@ -1254,7 +1254,7 @@ class ReformerSelfOutput(nn.Module):
 
 
 class ReformerAttention(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: ReformerConfig, layer_id=0):
         super().__init__()
         self.layer_id = layer_id
         self.attn_layers = config.attn_layers
@@ -1346,7 +1346,7 @@ class ReformerAttention(nn.Module):
 
 
 class ReformerFeedForwardDense(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.dropout = config.hidden_dropout_prob
 
@@ -1365,7 +1365,7 @@ class ReformerFeedForwardDense(nn.Module):
 
 
 class ReformerFeedForwardOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.dropout = config.hidden_dropout_prob
 
@@ -1378,7 +1378,7 @@ class ReformerFeedForwardOutput(nn.Module):
 
 
 class ChunkReformerFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -1402,7 +1402,7 @@ class ChunkReformerFeedForward(nn.Module):
 
 
 class ReformerLayer(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: ReformerConfig, layer_id=0):
         super().__init__()
         self.attention = ReformerAttention(config, layer_id)
         # dropout requires to have the same
@@ -1682,7 +1682,7 @@ class _ReversibleFunction(Function):
 
 
 class ReformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.dropout = config.hidden_dropout_prob
 
@@ -1743,7 +1743,7 @@ class ReformerEncoder(nn.Module):
 
 
 class ReformerOnlyLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         # Reformer is using Rev Nets, thus last layer outputs are concatenated and
         # Layer Norm is done over 2 * hidden_size
@@ -1866,7 +1866,7 @@ class ReformerModelWithLMHeadOutput(ModelOutput):
 
 @auto_docstring
 class ReformerModel(ReformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__(config)
         self.config = config
         assert self.config.num_hidden_layers > 0, (
@@ -2102,7 +2102,7 @@ class ReformerModel(ReformerPreTrainedModel):
 class ReformerModelWithLMHead(ReformerPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__(config)
         assert config.is_decoder, "If you want to use `ReformerModelWithLMHead` make sure that `is_decoder=True`."
         assert "local" not in self.config.attn_layers or config.local_num_chunks_after == 0, (
@@ -2248,7 +2248,7 @@ class ReformerModelWithLMHead(ReformerPreTrainedModel, GenerationMixin):
 class ReformerForMaskedLM(ReformerPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__(config)
         assert not config.is_decoder, (
             "If you want to use `ReformerForMaskedLM` make sure `config.is_decoder=False` for bi-directional"
@@ -2387,7 +2387,7 @@ class ReformerForMaskedLM(ReformerPreTrainedModel):
     """
 )
 class ReformerForSequenceClassification(ReformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -2518,7 +2518,7 @@ class ReformerForSequenceClassification(ReformerPreTrainedModel):
 class ReformerClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__()
         self.dense = nn.Linear(2 * config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -2539,7 +2539,7 @@ class ReformerClassificationHead(nn.Module):
 
 @auto_docstring
 class ReformerForQuestionAnswering(ReformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ReformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

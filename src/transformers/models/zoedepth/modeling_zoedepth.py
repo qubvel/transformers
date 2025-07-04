@@ -70,7 +70,7 @@ class ZoeDepthReassembleStage(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
 
         self.readout_type = config.readout_type
@@ -129,7 +129,7 @@ class ZoeDepthReassembleStage(nn.Module):
 
 
 class ZoeDepthReassembleLayer(nn.Module):
-    def __init__(self, config, channels, factor):
+    def __init__(self, config: ZoeDepthConfig, channels, factor):
         super().__init__()
         # projection
         hidden_size = config.backbone_hidden_size
@@ -153,7 +153,7 @@ class ZoeDepthReassembleLayer(nn.Module):
 
 # Copied from transformers.models.dpt.modeling_dpt.DPTFeatureFusionStage with DPT->ZoeDepth
 class ZoeDepthFeatureFusionStage(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
         self.layers = nn.ModuleList()
         for _ in range(len(config.neck_hidden_sizes)):
@@ -187,7 +187,7 @@ class ZoeDepthPreActResidualLayer(nn.Module):
     """
 
     # Ignore copy
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
 
         self.use_batch_norm = config.use_batch_norm_in_fusion_residual
@@ -250,7 +250,7 @@ class ZoeDepthFeatureFusionLayer(nn.Module):
             The align_corner setting for bilinear upsample.
     """
 
-    def __init__(self, config, align_corners=True):
+    def __init__(self, config: ZoeDepthConfig, align_corners=True):
         super().__init__()
 
         self.align_corners = align_corners
@@ -290,7 +290,7 @@ class ZoeDepthNeck(nn.Module):
     """
 
     # Copied from transformers.models.dpt.modeling_dpt.DPTNeck.__init__ with DPT->ZoeDepth
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
         self.config = config
 
@@ -338,7 +338,7 @@ class ZoeDepthRelativeDepthEstimationHead(nn.Module):
     supplementary material).
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
 
         self.head_in_index = config.head_in_index
@@ -429,7 +429,7 @@ class LogBinomialSoftmax(nn.Module):
 class ZoeDepthConditionalLogBinomialSoftmax(nn.Module):
     def __init__(
         self,
-        config,
+        config: ZoeDepthConfig,
         in_features,
         condition_dim,
         n_classes=256,
@@ -494,7 +494,7 @@ class ZoeDepthConditionalLogBinomialSoftmax(nn.Module):
 
 
 class ZoeDepthSeedBinRegressor(nn.Module):
-    def __init__(self, config, n_bins=16, mlp_dim=256, min_depth=1e-3, max_depth=10):
+    def __init__(self, config: ZoeDepthConfig, n_bins=16, mlp_dim=256, min_depth=1e-3, max_depth=10):
         """Bin center regressor network.
 
         Can be "normed" or "unnormed". If "normed", bin centers are bounded on the (min_depth, max_depth) interval.
@@ -572,7 +572,7 @@ def inv_attractor(dx, alpha: float = 300, gamma: int = 2):
 class ZoeDepthAttractorLayer(nn.Module):
     def __init__(
         self,
-        config,
+        config: ZoeDepthConfig,
         n_bins,
         n_attractors=16,
         min_depth=1e-3,
@@ -667,7 +667,7 @@ class ZoeDepthAttractorLayer(nn.Module):
 class ZoeDepthAttractorLayerUnnormed(nn.Module):
     def __init__(
         self,
-        config,
+        config: ZoeDepthConfig,
         n_bins,
         n_attractors=16,
         min_depth=1e-3,
@@ -845,7 +845,7 @@ class ZoeDepthMultiheadAttention(nn.Module):
 
 
 class ZoeDepthTransformerEncoderLayer(nn.Module):
-    def __init__(self, config, dropout=0.1, activation="relu"):
+    def __init__(self, config: ZoeDepthConfig, dropout=0.1, activation="relu"):
         super().__init__()
 
         hidden_size = config.patch_transformer_hidden_size
@@ -881,7 +881,7 @@ class ZoeDepthTransformerEncoderLayer(nn.Module):
 
 
 class ZoeDepthPatchTransformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         """ViT-like transformer block
 
         Args:
@@ -965,7 +965,7 @@ class ZoeDepthMultipleMetricDepthEstimationHeads(nn.Module):
     Multiple metric depth estimation heads. A MLP classifier is used to route between 2 different heads.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
 
         bin_embedding_dim = config.bin_embedding_dim
@@ -1102,7 +1102,7 @@ class ZoeDepthMultipleMetricDepthEstimationHeads(nn.Module):
 
 
 class ZoeDepthMetricDepthEstimationHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__()
 
         bin_configuration = config.bin_configurations[0]
@@ -1227,7 +1227,7 @@ class ZoeDepthPreTrainedModel(PreTrainedModel):
     """
 )
 class ZoeDepthForDepthEstimation(ZoeDepthPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ZoeDepthConfig):
         super().__init__(config)
 
         self.backbone = load_backbone(config)

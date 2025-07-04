@@ -51,7 +51,7 @@ class XLMRobertaXLEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -136,7 +136,7 @@ class XLMRobertaXLEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->XLMRobertaXL
 class XLMRobertaXLSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaXLConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -271,7 +271,7 @@ class XLMRobertaXLSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSdpaSelfAttention with Bert->XLMRobertaXL
 class XLMRobertaXLSdpaSelfAttention(XLMRobertaXLSelfAttention):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaXLConfig, position_embedding_type=None):
         super().__init__(config, position_embedding_type=position_embedding_type)
         self.dropout_prob = config.attention_probs_dropout_prob
         self.require_contiguous_qkv = version.parse(get_torch_version()) < version.parse("2.2.0")
@@ -372,7 +372,7 @@ class XLMRobertaXLSdpaSelfAttention(XLMRobertaXLSelfAttention):
 
 
 class XLMRobertaXLSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -391,7 +391,7 @@ XLMROBERTAXL_SELF_ATTENTION_CLASSES = {
 
 
 class XLMRobertaXLAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: XLMRobertaXLConfig, position_embedding_type=None):
         super().__init__()
         self.self_attn_layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.self = XLMROBERTAXL_SELF_ATTENTION_CLASSES[config._attn_implementation](
@@ -445,7 +445,7 @@ class XLMRobertaXLAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class XLMRobertaXLIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -460,7 +460,7 @@ class XLMRobertaXLIntermediate(nn.Module):
 
 
 class XLMRobertaXLOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
 
@@ -471,7 +471,7 @@ class XLMRobertaXLOutput(nn.Module):
 
 
 class XLMRobertaXLLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -559,7 +559,7 @@ class XLMRobertaXLLayer(GradientCheckpointingLayer):
 
 
 class XLMRobertaXLEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([XLMRobertaXLLayer(config) for _ in range(config.num_hidden_layers)])
@@ -643,7 +643,7 @@ class XLMRobertaXLEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class XLMRobertaXLPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -690,7 +690,7 @@ class XLMRobertaXLPreTrainedModel(PreTrainedModel):
 class XLMRobertaXLModel(XLMRobertaXLPreTrainedModel):
     _no_split_modules = ["XLMRobertaXLEmbeddings", "XLMRobertaXLLayer"]
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: XLMRobertaXLConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -875,7 +875,7 @@ class XLMRobertaXLModel(XLMRobertaXLPreTrainedModel):
 class XLMRobertaXLForCausalLM(XLMRobertaXLPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1028,7 +1028,7 @@ class XLMRobertaXLForCausalLM(XLMRobertaXLPreTrainedModel, GenerationMixin):
 class XLMRobertaXLForMaskedLM(XLMRobertaXLPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1109,7 +1109,7 @@ class XLMRobertaXLForMaskedLM(XLMRobertaXLPreTrainedModel):
 class XLMRobertaXLLMHead(nn.Module):
     """XLM-RoBERTa-XL Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1144,7 +1144,7 @@ class XLMRobertaXLLMHead(nn.Module):
     """
 )
 class XLMRobertaXLForSequenceClassification(XLMRobertaXLPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1227,7 +1227,7 @@ class XLMRobertaXLForSequenceClassification(XLMRobertaXLPreTrainedModel):
 
 @auto_docstring
 class XLMRobertaXLForMultipleChoice(XLMRobertaXLPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
 
         self.roberta = XLMRobertaXLModel(config)
@@ -1323,7 +1323,7 @@ class XLMRobertaXLForMultipleChoice(XLMRobertaXLPreTrainedModel):
 
 @auto_docstring
 class XLMRobertaXLForTokenClassification(XLMRobertaXLPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1402,7 +1402,7 @@ class XLMRobertaXLForTokenClassification(XLMRobertaXLPreTrainedModel):
 class XLMRobertaXLClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -1423,7 +1423,7 @@ class XLMRobertaXLClassificationHead(nn.Module):
 
 @auto_docstring
 class XLMRobertaXLForQuestionAnswering(XLMRobertaXLPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: XLMRobertaXLConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

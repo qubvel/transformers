@@ -33,7 +33,7 @@ logger = logging.get_logger(__name__)
 
 
 class GPTNeoXMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__()
         self.dense_h_to_4h = nn.Linear(config.hidden_size, config.intermediate_size)
         self.dense_4h_to_h = nn.Linear(config.intermediate_size, config.hidden_size)
@@ -124,7 +124,7 @@ def eager_attention_forward(
 
 
 class GPTNeoXAttention(nn.Module):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: GPTNeoXConfig, layer_idx=None):
         super().__init__()
         self.config = config
         self.head_size = config.hidden_size // config.num_attention_heads
@@ -192,7 +192,7 @@ class GPTNeoXAttention(nn.Module):
 
 
 class GPTNeoXLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx):
+    def __init__(self, config: GPTNeoXConfig, layer_idx):
         super().__init__()
         self.use_parallel_residual = config.use_parallel_residual
         self.input_layernorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -320,7 +320,7 @@ class GPTNeoXPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class GPTNeoXModel(GPTNeoXPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__(config)
         self.config = config
 
@@ -462,7 +462,7 @@ class GPTNeoXForCausalLM(GPTNeoXPreTrainedModel, GenerationMixin):
     _tp_plan = {"embed_out": "colwise_rep"}
     _pp_plan = {"embed_out": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__(config)
 
         self.gpt_neox = GPTNeoXModel(config)
@@ -565,7 +565,7 @@ class GPTNeoXForCausalLM(GPTNeoXPreTrainedModel, GenerationMixin):
     """
 )
 class GPTNeoXForSequenceClassification(GPTNeoXPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.gpt_neox = GPTNeoXModel(config)
@@ -643,7 +643,7 @@ class GPTNeoXForSequenceClassification(GPTNeoXPreTrainedModel):
 
 
 class GPTNeoXForTokenClassification(GPTNeoXPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -707,7 +707,7 @@ class GPTNeoXForTokenClassification(GPTNeoXPreTrainedModel):
 
 @auto_docstring
 class GPTNeoXForQuestionAnswering(GPTNeoXPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTNeoXConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.gpt_neox = GPTNeoXModel(config)

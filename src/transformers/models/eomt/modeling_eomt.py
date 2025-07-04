@@ -645,7 +645,7 @@ class EomtPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: EomtConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.hidden_size
@@ -734,7 +734,7 @@ def eager_attention_forward(
 class EomtAttention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
 
-    def __init__(self, config):
+    def __init__(self, config: EomtConfig):
         super().__init__()
         self.config = config
         self.embed_dim = config.hidden_size
@@ -794,7 +794,7 @@ class EomtAttention(nn.Module):
 
 
 class EomtLayerScale(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: EomtConfig) -> None:
         super().__init__()
         self.lambda1 = nn.Parameter(config.layerscale_value * torch.ones(config.hidden_size))
 
@@ -837,7 +837,7 @@ class EomtDropPath(nn.Module):
 
 
 class EomtMLP(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: EomtConfig) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)
@@ -856,7 +856,7 @@ class EomtMLP(nn.Module):
 
 
 class EomtSwiGLUFFN(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config: EomtConfig) -> None:
         super().__init__()
         in_features = out_features = config.hidden_size
         hidden_features = int(config.hidden_size * config.mlp_ratio)

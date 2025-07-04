@@ -196,7 +196,7 @@ class HybridMambaAttentionDynamicCache(DynamicCache):
     and `ssm_states` represents the ssm state and has a shape of `(batch_size, d_inner, d_state)`.
     """
 
-    def __init__(self, config, batch_size, dtype=torch.float16, device=None):
+    def __init__(self, config: JambaConfig, batch_size, dtype=torch.float16, device=None):
         super().__init__()
         self.dtype = dtype
         self.layers_block_type = config.layers_block_type
@@ -821,7 +821,7 @@ class JambaMambaMixer(nn.Module):
 
 # Copied from transformers.models.mistral.modeling_mistral.MistralMLP with Mistral->Jamba
 class JambaMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: JambaConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -1485,7 +1485,7 @@ class JambaForCausalLM(JambaPreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.mixtral.modeling_mixtral.MixtralForSequenceClassification with Mixtral->Jamba, MIXTRAL->JAMBA, BaseModelOutputWithPast->MoeModelOutputWithPast
 class JambaForSequenceClassification(JambaPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: JambaConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = JambaModel(config)

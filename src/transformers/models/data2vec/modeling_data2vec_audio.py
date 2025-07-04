@@ -54,7 +54,7 @@ if is_torch_flex_attn_available():
 
 
 class Data2VecAudioConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Data2VecAudioConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -92,7 +92,7 @@ class Data2VecAudioPadLayer(nn.Module):
 
 
 class Data2VecAudioPositionalConvLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -119,7 +119,7 @@ class Data2VecAudioPositionalConvLayer(nn.Module):
 
 
 class Data2VecAudioPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.layers = nn.ModuleList(
             [Data2VecAudioPositionalConvLayer(config) for _ in range(config.num_conv_pos_embeddings)]
@@ -136,7 +136,7 @@ class Data2VecAudioPositionalConvEmbedding(nn.Module):
 class Data2VecAudioFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.conv_layers = nn.ModuleList(
             [Data2VecAudioConvLayer(config, layer_id=i) for i in range(config.num_feat_extract_layers)]
@@ -163,7 +163,7 @@ class Data2VecAudioFeatureEncoder(nn.Module):
 
 
 class Data2VecAudioFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.conv_dim[-1], eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.conv_dim[-1], config.hidden_size)
@@ -298,7 +298,7 @@ class Data2VecAudioAttention(nn.Module):
 
 
 class Data2VecAudioFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -322,7 +322,7 @@ class Data2VecAudioFeedForward(nn.Module):
 
 
 class Data2VecAudioEncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.attention = Data2VecAudioAttention(
             embed_dim=config.hidden_size,
@@ -358,7 +358,7 @@ class Data2VecAudioEncoderLayer(GradientCheckpointingLayer):
 
 
 class Data2VecAudioEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = Data2VecAudioPositionalConvEmbedding(config)
@@ -451,7 +451,7 @@ class Data2VecAudioEncoder(nn.Module):
 
 
 class Data2VecAudioAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.output_hidden_size,
@@ -469,7 +469,7 @@ class Data2VecAudioAdapterLayer(nn.Module):
 
 
 class Data2VecAudioAdapter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__()
 
         # feature dim might need to be down-projected
@@ -841,7 +841,7 @@ _HIDDEN_STATES_START_POSITION = 2
     """
 )
 class Data2VecAudioForCTC(Data2VecAudioPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -966,7 +966,7 @@ class Data2VecAudioForCTC(Data2VecAudioPreTrainedModel):
     """
 )
 class Data2VecAudioForSequenceClassification(Data2VecAudioPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1081,7 +1081,7 @@ class Data2VecAudioForSequenceClassification(Data2VecAudioPreTrainedModel):
 
 @auto_docstring
 class Data2VecAudioForAudioFrameClassification(Data2VecAudioPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -1208,7 +1208,7 @@ class AMSoftmaxLoss(nn.Module):
 
 
 class TDNNLayer(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Data2VecAudioConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.tdnn_dim[layer_id - 1] if layer_id > 0 else config.tdnn_dim[layer_id]
         self.out_conv_dim = config.tdnn_dim[layer_id]
@@ -1245,7 +1245,7 @@ class TDNNLayer(nn.Module):
     """
 )
 class Data2VecAudioForXVector(Data2VecAudioPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Data2VecAudioConfig):
         super().__init__(config)
 
         self.data2vec_audio = Data2VecAudioModel(config)

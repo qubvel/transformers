@@ -128,7 +128,7 @@ class MaskFormerSwinEmbeddings(nn.Module):
     Construct the patch and position embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: MaskFormerSwinConfig):
         super().__init__()
 
         self.patch_embeddings = MaskFormerSwinPatchEmbeddings(config)
@@ -209,7 +209,7 @@ class MaskFormerSwinPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: MaskFormerSwinConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.embed_dim
@@ -317,7 +317,7 @@ class MaskFormerSwinDropPath(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfAttention with Swin->MaskFormerSwin
 class MaskFormerSwinSelfAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: MaskFormerSwinConfig, dim, num_heads, window_size):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -413,7 +413,7 @@ class MaskFormerSwinSelfAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinSelfOutput with Swin->MaskFormerSwin
 class MaskFormerSwinSelfOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: MaskFormerSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -427,7 +427,7 @@ class MaskFormerSwinSelfOutput(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinAttention with Swin->MaskFormerSwin
 class MaskFormerSwinAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: MaskFormerSwinConfig, dim, num_heads, window_size):
         super().__init__()
         self.self = MaskFormerSwinSelfAttention(config, dim, num_heads, window_size)
         self.output = MaskFormerSwinSelfOutput(config, dim)
@@ -466,7 +466,7 @@ class MaskFormerSwinAttention(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinIntermediate with Swin->MaskFormerSwin
 class MaskFormerSwinIntermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: MaskFormerSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -482,7 +482,7 @@ class MaskFormerSwinIntermediate(nn.Module):
 
 # Copied from transformers.models.swin.modeling_swin.SwinOutput with Swin->MaskFormerSwin
 class MaskFormerSwinOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: MaskFormerSwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -494,7 +494,7 @@ class MaskFormerSwinOutput(nn.Module):
 
 
 class MaskFormerSwinLayer(nn.Module):
-    def __init__(self, config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
+    def __init__(self, config: MaskFormerSwinConfig, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
         super().__init__()
         self.shift_size = shift_size
         self.window_size = config.window_size
@@ -605,7 +605,7 @@ class MaskFormerSwinLayer(nn.Module):
 
 class MaskFormerSwinStage(GradientCheckpointingLayer):
     # Copied from transformers.models.swin.modeling_swin.SwinStage.__init__ with Swin->MaskFormerSwin
-    def __init__(self, config, dim, input_resolution, depth, num_heads, drop_path, downsample):
+    def __init__(self, config: MaskFormerSwinConfig, dim, input_resolution, depth, num_heads, drop_path, downsample):
         super().__init__()
         self.config = config
         self.dim = dim
@@ -662,7 +662,7 @@ class MaskFormerSwinStage(GradientCheckpointingLayer):
 
 class MaskFormerSwinEncoder(nn.Module):
     # Copied from transformers.models.swin.modeling_swin.SwinEncoder.__init__ with Swin->MaskFormerSwin
-    def __init__(self, config, grid_size):
+    def __init__(self, config: MaskFormerSwinConfig, grid_size):
         super().__init__()
         self.num_layers = len(config.depths)
         self.config = config
@@ -760,7 +760,7 @@ class MaskFormerSwinPreTrainedModel(PreTrainedModel):
 
 
 class MaskFormerSwinModel(MaskFormerSwinPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: MaskFormerSwinConfig, add_pooling_layer=True):
         super().__init__(config)
         self.config = config
         self.num_layers = len(config.depths)

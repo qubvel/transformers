@@ -586,7 +586,7 @@ class SwitchTransformersAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerSelfAttention with T5->SwitchTransformers
 class SwitchTransformersLayerSelfAttention(nn.Module):
-    def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: SwitchTransformersConfig, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.SelfAttention = SwitchTransformersAttention(
             config, has_relative_attention_bias=has_relative_attention_bias, layer_idx=layer_idx
@@ -623,7 +623,7 @@ class SwitchTransformersLayerSelfAttention(nn.Module):
 
 # Copied from transformers.models.t5.modeling_t5.T5LayerCrossAttention with T5->SwitchTransformers
 class SwitchTransformersLayerCrossAttention(nn.Module):
-    def __init__(self, config, layer_idx: Optional[int] = None):
+    def __init__(self, config: SwitchTransformersConfig, layer_idx: Optional[int] = None):
         super().__init__()
         self.EncDecAttention = SwitchTransformersAttention(
             config, has_relative_attention_bias=False, layer_idx=layer_idx
@@ -663,7 +663,7 @@ class SwitchTransformersLayerCrossAttention(nn.Module):
 
 
 class SwitchTransformersBlock(GradientCheckpointingLayer):
-    def __init__(self, config, has_relative_attention_bias=False, is_sparse=False, layer_idx: Optional[int] = None):
+    def __init__(self, config: SwitchTransformersConfig, has_relative_attention_bias=False, is_sparse=False, layer_idx: Optional[int] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.is_sparse = is_sparse
@@ -857,7 +857,7 @@ class SwitchTransformersPreTrainedModel(PreTrainedModel):
 
 
 class SwitchTransformersStack(SwitchTransformersPreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+    def __init__(self, config: SwitchTransformersConfig, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.d_model)

@@ -167,7 +167,7 @@ class ImageGPTLayerNorm(nn.Module):
 
 
 class ImageGPTAttention(nn.Module):
-    def __init__(self, config, is_cross_attention: Optional[bool] = False, layer_idx: Optional[int] = None):
+    def __init__(self, config: ImageGPTConfig, is_cross_attention: Optional[bool] = False, layer_idx: Optional[int] = None):
         super().__init__()
 
         max_positions = config.max_position_embeddings
@@ -386,7 +386,7 @@ class ImageGPTAttention(nn.Module):
 
 
 class ImageGPTMLP(nn.Module):
-    def __init__(self, intermediate_size, config):
+    def __init__(self, intermediate_size, config: ImageGPTConfig):
         super().__init__()
         embed_dim = config.hidden_size
         self.c_fc = Conv1D(intermediate_size, embed_dim)
@@ -403,7 +403,7 @@ class ImageGPTMLP(nn.Module):
 
 
 class ImageGPTBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: ImageGPTConfig, layer_idx=None):
         super().__init__()
         hidden_size = config.hidden_size
         inner_dim = config.n_inner if config.n_inner is not None else 4 * hidden_size

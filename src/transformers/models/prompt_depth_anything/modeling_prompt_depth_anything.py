@@ -80,7 +80,7 @@ class PromptDepthAnythingPreActResidualLayer(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__()
 
         self.activation1 = nn.ReLU()
@@ -161,7 +161,7 @@ class PromptDepthAnythingFeatureFusionLayer(nn.Module):
 
 
 class PromptDepthAnythingFeatureFusionStage(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__()
         self.layers = nn.ModuleList()
         for _ in range(len(config.neck_hidden_sizes)):
@@ -196,7 +196,7 @@ class PromptDepthAnythingDepthEstimationHead(nn.Module):
     type (relative or metric). For metric depth estimation, the output is scaled by the maximum depth used during pretraining.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__()
 
         self.head_in_index = config.head_in_index
@@ -291,7 +291,7 @@ class PromptDepthAnythingReassembleStage(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__()
 
         self.config = config
@@ -331,7 +331,7 @@ class PromptDepthAnythingNeck(nn.Module):
         config (dict): config dict.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__()
         self.config = config
 
@@ -381,7 +381,7 @@ class PromptDepthAnythingNeck(nn.Module):
 class PromptDepthAnythingForDepthEstimation(PromptDepthAnythingPreTrainedModel):
     _no_split_modules = ["DPTViTEmbeddings"]
 
-    def __init__(self, config):
+    def __init__(self, config: PromptDepthAnythingConfig):
         super().__init__(config)
 
         self.backbone = load_backbone(config)

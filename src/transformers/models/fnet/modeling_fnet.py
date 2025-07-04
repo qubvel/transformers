@@ -86,7 +86,7 @@ def fftn(x):
 class FNetEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -145,7 +145,7 @@ class FNetEmbeddings(nn.Module):
 
 
 class FNetBasicFourierTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self._init_fourier_transform(config)
 
@@ -183,7 +183,7 @@ class FNetBasicFourierTransform(nn.Module):
 
 
 class FNetBasicOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
 
@@ -193,7 +193,7 @@ class FNetBasicOutput(nn.Module):
 
 
 class FNetFourierTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.self = FNetBasicFourierTransform(config)
         self.output = FNetBasicOutput(config)
@@ -207,7 +207,7 @@ class FNetFourierTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->FNet
 class FNetIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -223,7 +223,7 @@ class FNetIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->FNet
 class FNetOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -237,7 +237,7 @@ class FNetOutput(nn.Module):
 
 
 class FNetLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1  # The dimension which has the sequence length
@@ -264,7 +264,7 @@ class FNetLayer(GradientCheckpointingLayer):
 
 
 class FNetEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([FNetLayer(config) for _ in range(config.num_hidden_layers)])
@@ -292,7 +292,7 @@ class FNetEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->FNet
 class FNetPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -308,7 +308,7 @@ class FNetPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->FNet
 class FNetPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -325,7 +325,7 @@ class FNetPredictionHeadTransform(nn.Module):
 
 
 class FNetLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.transform = FNetPredictionHeadTransform(config)
 
@@ -351,7 +351,7 @@ class FNetLMPredictionHead(nn.Module):
 
 
 class FNetOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.predictions = FNetLMPredictionHead(config)
 
@@ -362,7 +362,7 @@ class FNetOnlyMLMHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyNSPHead with Bert->FNet
 class FNetOnlyNSPHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
@@ -373,7 +373,7 @@ class FNetOnlyNSPHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPreTrainingHeads with Bert->FNet
 class FNetPreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__()
         self.predictions = FNetLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -442,7 +442,7 @@ class FNetModel(FNetPreTrainedModel):
 
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: FNetConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -544,7 +544,7 @@ class FNetModel(FNetPreTrainedModel):
 class FNetForPreTraining(FNetPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
 
         self.fnet = FNetModel(config)
@@ -634,7 +634,7 @@ class FNetForPreTraining(FNetPreTrainedModel):
 class FNetForMaskedLM(FNetPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
 
         self.fnet = FNetModel(config)
@@ -699,7 +699,7 @@ class FNetForMaskedLM(FNetPreTrainedModel):
     """
 )
 class FNetForNextSentencePrediction(FNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
 
         self.fnet = FNetModel(config)
@@ -790,7 +790,7 @@ class FNetForNextSentencePrediction(FNetPreTrainedModel):
     """
 )
 class FNetForSequenceClassification(FNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.fnet = FNetModel(config)
@@ -864,7 +864,7 @@ class FNetForSequenceClassification(FNetPreTrainedModel):
 
 @auto_docstring
 class FNetForMultipleChoice(FNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
 
         self.fnet = FNetModel(config)
@@ -956,7 +956,7 @@ class FNetForMultipleChoice(FNetPreTrainedModel):
 
 @auto_docstring
 class FNetForTokenClassification(FNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1014,7 +1014,7 @@ class FNetForTokenClassification(FNetPreTrainedModel):
 
 @auto_docstring
 class FNetForQuestionAnswering(FNetPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: FNetConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

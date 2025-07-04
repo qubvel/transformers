@@ -293,7 +293,7 @@ class LukeEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -405,7 +405,7 @@ class LukeEntityEmbeddings(nn.Module):
 
 
 class LukeSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -519,7 +519,7 @@ class LukeSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class LukeSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -533,7 +533,7 @@ class LukeSelfOutput(nn.Module):
 
 
 class LukeAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.self = LukeSelfAttention(config)
         self.output = LukeSelfOutput(config)
@@ -581,7 +581,7 @@ class LukeAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class LukeIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -597,7 +597,7 @@ class LukeIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class LukeOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -611,7 +611,7 @@ class LukeOutput(nn.Module):
 
 
 class LukeLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -663,7 +663,7 @@ class LukeLayer(GradientCheckpointingLayer):
 
 
 class LukeEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([LukeLayer(config) for _ in range(config.num_hidden_layers)])
@@ -732,7 +732,7 @@ class LukeEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class LukePooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -747,7 +747,7 @@ class LukePooler(nn.Module):
 
 
 class EntityPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.entity_emb_size)
         if isinstance(config.hidden_act, str):
@@ -764,7 +764,7 @@ class EntityPredictionHeadTransform(nn.Module):
 
 
 class EntityPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.config = config
         self.transform = EntityPredictionHeadTransform(config)
@@ -1049,7 +1049,7 @@ def create_position_ids_from_input_ids(input_ids, padding_idx):
 class LukeLMHead(nn.Module):
     """Roberta Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1086,7 +1086,7 @@ class LukeLMHead(nn.Module):
 class LukeForMaskedLM(LukePreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias", "entity_predictions.decoder.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.luke = LukeModel(config)
@@ -1233,7 +1233,7 @@ class LukeForMaskedLM(LukePreTrainedModel):
     """
 )
 class LukeForEntityClassification(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.luke = LukeModel(config)
@@ -1363,7 +1363,7 @@ class LukeForEntityClassification(LukePreTrainedModel):
     """
 )
 class LukeForEntityPairClassification(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.luke = LukeModel(config)
@@ -1498,7 +1498,7 @@ class LukeForEntityPairClassification(LukePreTrainedModel):
     """
 )
 class LukeForEntitySpanClassification(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.luke = LukeModel(config)
@@ -1657,7 +1657,7 @@ class LukeForEntitySpanClassification(LukePreTrainedModel):
     """
 )
 class LukeForSequenceClassification(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.luke = LukeModel(config)
@@ -1784,7 +1784,7 @@ class LukeForSequenceClassification(LukePreTrainedModel):
     """
 )
 class LukeForTokenClassification(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1888,7 +1888,7 @@ class LukeForTokenClassification(LukePreTrainedModel):
 
 @auto_docstring
 class LukeForQuestionAnswering(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -2007,7 +2007,7 @@ class LukeForQuestionAnswering(LukePreTrainedModel):
 
 @auto_docstring
 class LukeForMultipleChoice(LukePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LukeConfig):
         super().__init__(config)
 
         self.luke = LukeModel(config)

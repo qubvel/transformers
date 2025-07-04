@@ -177,7 +177,7 @@ class SwinEmbeddings(nn.Module):
     Construct the patch and position embeddings. Optionally, also the mask token.
     """
 
-    def __init__(self, config, use_mask_token=False):
+    def __init__(self, config: SwinConfig, use_mask_token=False):
         super().__init__()
 
         self.patch_embeddings = SwinPatchEmbeddings(config)
@@ -271,7 +271,7 @@ class SwinPatchEmbeddings(nn.Module):
     Transformer.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: SwinConfig):
         super().__init__()
         image_size, patch_size = config.image_size, config.patch_size
         num_channels, hidden_size = config.num_channels, config.embed_dim
@@ -398,7 +398,7 @@ class SwinDropPath(nn.Module):
 
 
 class SwinSelfAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: SwinConfig, dim, num_heads, window_size):
         super().__init__()
         if dim % num_heads != 0:
             raise ValueError(
@@ -493,7 +493,7 @@ class SwinSelfAttention(nn.Module):
 
 
 class SwinSelfOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: SwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, dim)
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
@@ -506,7 +506,7 @@ class SwinSelfOutput(nn.Module):
 
 
 class SwinAttention(nn.Module):
-    def __init__(self, config, dim, num_heads, window_size):
+    def __init__(self, config: SwinConfig, dim, num_heads, window_size):
         super().__init__()
         self.self = SwinSelfAttention(config, dim, num_heads, window_size)
         self.output = SwinSelfOutput(config, dim)
@@ -544,7 +544,7 @@ class SwinAttention(nn.Module):
 
 
 class SwinIntermediate(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: SwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(dim, int(config.mlp_ratio * dim))
         if isinstance(config.hidden_act, str):
@@ -559,7 +559,7 @@ class SwinIntermediate(nn.Module):
 
 
 class SwinOutput(nn.Module):
-    def __init__(self, config, dim):
+    def __init__(self, config: SwinConfig, dim):
         super().__init__()
         self.dense = nn.Linear(int(config.mlp_ratio * dim), dim)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -571,7 +571,7 @@ class SwinOutput(nn.Module):
 
 
 class SwinLayer(nn.Module):
-    def __init__(self, config, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
+    def __init__(self, config: SwinConfig, dim, input_resolution, num_heads, drop_path_rate=0.0, shift_size=0):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.shift_size = shift_size
@@ -696,7 +696,7 @@ class SwinLayer(nn.Module):
 
 
 class SwinStage(GradientCheckpointingLayer):
-    def __init__(self, config, dim, input_resolution, depth, num_heads, drop_path, downsample):
+    def __init__(self, config: SwinConfig, dim, input_resolution, depth, num_heads, drop_path, downsample):
         super().__init__()
         self.config = config
         self.dim = dim
@@ -756,7 +756,7 @@ class SwinStage(GradientCheckpointingLayer):
 
 
 class SwinEncoder(nn.Module):
-    def __init__(self, config, grid_size):
+    def __init__(self, config: SwinConfig, grid_size):
         super().__init__()
         self.num_layers = len(config.depths)
         self.config = config
@@ -877,7 +877,7 @@ class SwinPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class SwinModel(SwinPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True, use_mask_token=False):
+    def __init__(self, config: SwinConfig, add_pooling_layer=True, use_mask_token=False):
         r"""
         add_pooling_layer (`bool`, *optional*, defaults to `True`):
             Whether or not to apply pooling layer.
@@ -988,7 +988,7 @@ class SwinModel(SwinPreTrainedModel):
     """
 )
 class SwinForMaskedImageModeling(SwinPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SwinConfig):
         super().__init__(config)
 
         self.swin = SwinModel(config, add_pooling_layer=False, use_mask_token=True)
@@ -1105,7 +1105,7 @@ class SwinForMaskedImageModeling(SwinPreTrainedModel):
     """
 )
 class SwinForImageClassification(SwinPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SwinConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

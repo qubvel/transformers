@@ -736,7 +736,7 @@ class PhimoeSparseMoeBlock(nn.Module):
     and memory on padding.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: PhimoeConfig):
         super().__init__()
         self.hidden_dim = config.hidden_size
         self.ffn_dim = config.intermediate_size
@@ -1220,7 +1220,7 @@ class PhimoeModel(PhimoePreTrainedModel):
 class PhimoeForCausalLM(PhimoePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: PhimoeConfig):
         super().__init__(config)
         self.model = PhimoeModel(config)
         self.vocab_size = config.vocab_size
@@ -1408,7 +1408,7 @@ class PhimoeForCausalLM(PhimoePreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.llama.modeling_llama.LlamaForSequenceClassification with Llama->Phimoe, LLAMA->PHIMOE, BaseModelOutputWithPast->MoeModelOutputWithPast
 class PhimoeForSequenceClassification(PhimoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PhimoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = PhimoeModel(config)

@@ -173,7 +173,7 @@ def load_tf_weights_in_convbert(model, config, tf_checkpoint_path):
 class ConvBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.embedding_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.embedding_size)
@@ -263,7 +263,7 @@ class ConvBertPreTrainedModel(PreTrainedModel):
 class SeparableConv1D(nn.Module):
     """This class implements separable convolution, i.e. a depthwise and a pointwise layer"""
 
-    def __init__(self, config, input_filters, output_filters, kernel_size, **kwargs):
+    def __init__(self, config: ConvBertConfig, input_filters, output_filters, kernel_size, **kwargs):
         super().__init__()
         self.depthwise = nn.Conv1d(
             input_filters,
@@ -287,7 +287,7 @@ class SeparableConv1D(nn.Module):
 
 
 class ConvBertSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -415,7 +415,7 @@ class ConvBertSelfAttention(nn.Module):
 
 
 class ConvBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -429,7 +429,7 @@ class ConvBertSelfOutput(nn.Module):
 
 
 class ConvBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.self = ConvBertSelfAttention(config)
         self.output = ConvBertSelfOutput(config)
@@ -496,7 +496,7 @@ class GroupedLinearLayer(nn.Module):
 
 
 class ConvBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         if config.num_groups == 1:
             self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
@@ -516,7 +516,7 @@ class ConvBertIntermediate(nn.Module):
 
 
 class ConvBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         if config.num_groups == 1:
             self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
@@ -535,7 +535,7 @@ class ConvBertOutput(nn.Module):
 
 
 class ConvBertLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -596,7 +596,7 @@ class ConvBertLayer(GradientCheckpointingLayer):
 
 
 class ConvBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([ConvBertLayer(config) for _ in range(config.num_hidden_layers)])
@@ -654,7 +654,7 @@ class ConvBertEncoder(nn.Module):
 
 
 class ConvBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -772,7 +772,7 @@ class ConvBertSequenceSummary(nn.Module):
 
 @auto_docstring
 class ConvBertModel(ConvBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
         self.embeddings = ConvBertEmbeddings(config)
 
@@ -865,7 +865,7 @@ class ConvBertModel(ConvBertPreTrainedModel):
 class ConvBertGeneratorPredictions(nn.Module):
     """Prediction module for the generator, made up of two dense layers."""
 
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
 
         self.activation = get_activation("gelu")
@@ -884,7 +884,7 @@ class ConvBertGeneratorPredictions(nn.Module):
 class ConvBertForMaskedLM(ConvBertPreTrainedModel):
     _tied_weights_keys = ["generator.lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
 
         self.convbert = ConvBertModel(config)
@@ -959,7 +959,7 @@ class ConvBertForMaskedLM(ConvBertPreTrainedModel):
 class ConvBertClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -987,7 +987,7 @@ class ConvBertClassificationHead(nn.Module):
     """
 )
 class ConvBertForSequenceClassification(ConvBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1071,7 +1071,7 @@ class ConvBertForSequenceClassification(ConvBertPreTrainedModel):
 
 @auto_docstring
 class ConvBertForMultipleChoice(ConvBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
 
         self.convbert = ConvBertModel(config)
@@ -1176,7 +1176,7 @@ class ConvBertForMultipleChoice(ConvBertPreTrainedModel):
 
 @auto_docstring
 class ConvBertForTokenClassification(ConvBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1246,7 +1246,7 @@ class ConvBertForTokenClassification(ConvBertPreTrainedModel):
 
 @auto_docstring
 class ConvBertForQuestionAnswering(ConvBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: ConvBertConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels

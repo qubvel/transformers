@@ -50,7 +50,7 @@ logger = logging.get_logger(__name__)
 class ErnieEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -125,7 +125,7 @@ class ErnieEmbeddings(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->Ernie
 class ErnieSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: ErnieConfig, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -260,7 +260,7 @@ class ErnieSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->Ernie
 class ErnieSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -280,7 +280,7 @@ ERNIE_SELF_ATTENTION_CLASSES = {
 
 # Copied from transformers.models.bert.modeling_bert.BertAttention with Bert->Ernie,BERT->ERNIE
 class ErnieAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: ErnieConfig, position_embedding_type=None):
         super().__init__()
         self.self = ERNIE_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -332,7 +332,7 @@ class ErnieAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Ernie
 class ErnieIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -348,7 +348,7 @@ class ErnieIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->Ernie
 class ErnieOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -363,7 +363,7 @@ class ErnieOutput(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLayer with Bert->Ernie
 class ErnieLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -450,7 +450,7 @@ class ErnieLayer(GradientCheckpointingLayer):
 
 # Copied from transformers.models.bert.modeling_bert.BertEncoder with Bert->Ernie
 class ErnieEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([ErnieLayer(config) for _ in range(config.num_hidden_layers)])
@@ -532,7 +532,7 @@ class ErnieEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->Ernie
 class ErniePooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -548,7 +548,7 @@ class ErniePooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->Ernie
 class ErniePredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -566,7 +566,7 @@ class ErniePredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->Ernie
 class ErnieLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.transform = ErniePredictionHeadTransform(config)
 
@@ -590,7 +590,7 @@ class ErnieLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->Ernie
 class ErnieOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.predictions = ErnieLMPredictionHead(config)
 
@@ -601,7 +601,7 @@ class ErnieOnlyMLMHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyNSPHead with Bert->Ernie
 class ErnieOnlyNSPHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
@@ -612,7 +612,7 @@ class ErnieOnlyNSPHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPreTrainingHeads with Bert->Ernie
 class ErniePreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__()
         self.predictions = ErnieLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -686,7 +686,7 @@ class ErnieForPreTrainingOutput(ModelOutput):
 )
 class ErnieModel(ErniePreTrainedModel):
     # Copied from transformers.models.clap.modeling_clap.ClapTextModel.__init__ with ClapText->Ernie
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: ErnieConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -850,7 +850,7 @@ class ErnieForPreTraining(ErniePreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
     # Copied from transformers.models.bert.modeling_bert.BertForPreTraining.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
 
         self.ernie = ErnieModel(config)
@@ -964,7 +964,7 @@ class ErnieForCausalLM(ErniePreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
     # Copied from transformers.models.bert.modeling_bert.BertLMHeadModel.__init__ with BertLMHeadModel->ErnieForCausalLM,Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -1077,7 +1077,7 @@ class ErnieForMaskedLM(ErniePreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias", "cls.predictions.decoder.weight"]
 
     # Copied from transformers.models.bert.modeling_bert.BertForMaskedLM.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -1199,7 +1199,7 @@ class ErnieForMaskedLM(ErniePreTrainedModel):
 )
 class ErnieForNextSentencePrediction(ErniePreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForNextSentencePrediction.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
 
         self.ernie = ErnieModel(config)
@@ -1308,7 +1308,7 @@ class ErnieForNextSentencePrediction(ErniePreTrainedModel):
 )
 class ErnieForSequenceClassification(ErniePreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForSequenceClassification.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1406,7 +1406,7 @@ class ErnieForSequenceClassification(ErniePreTrainedModel):
 @auto_docstring
 class ErnieForMultipleChoice(ErniePreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForMultipleChoice.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
 
         self.ernie = ErnieModel(config)
@@ -1521,7 +1521,7 @@ class ErnieForMultipleChoice(ErniePreTrainedModel):
 @auto_docstring
 class ErnieForTokenClassification(ErniePreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForTokenClassification.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1599,7 +1599,7 @@ class ErnieForTokenClassification(ErniePreTrainedModel):
 @auto_docstring
 class ErnieForQuestionAnswering(ErniePreTrainedModel):
     # Copied from transformers.models.bert.modeling_bert.BertForQuestionAnswering.__init__ with Bert->Ernie,bert->ernie
-    def __init__(self, config):
+    def __init__(self, config: ErnieConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 

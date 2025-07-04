@@ -125,7 +125,7 @@ class SegformerEfficientSelfAttention(nn.Module):
     """SegFormer's efficient self-attention mechanism. Employs the sequence reduction process introduced in the [PvT
     paper](https://huggingface.co/papers/2102.12122)."""
 
-    def __init__(self, config, hidden_size, num_attention_heads, sequence_reduction_ratio):
+    def __init__(self, config: SegformerConfig, hidden_size, num_attention_heads, sequence_reduction_ratio):
         super().__init__()
         self.hidden_size = hidden_size
         self.num_attention_heads = num_attention_heads
@@ -203,7 +203,7 @@ class SegformerEfficientSelfAttention(nn.Module):
 
 
 class SegformerSelfOutput(nn.Module):
-    def __init__(self, config, hidden_size):
+    def __init__(self, config: SegformerConfig, hidden_size):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -215,7 +215,7 @@ class SegformerSelfOutput(nn.Module):
 
 
 class SegformerAttention(nn.Module):
-    def __init__(self, config, hidden_size, num_attention_heads, sequence_reduction_ratio):
+    def __init__(self, config: SegformerConfig, hidden_size, num_attention_heads, sequence_reduction_ratio):
         super().__init__()
         self.self = SegformerEfficientSelfAttention(
             config=config,
@@ -267,7 +267,7 @@ class SegformerDWConv(nn.Module):
 
 
 class SegformerMixFFN(nn.Module):
-    def __init__(self, config, in_features, hidden_features=None, out_features=None):
+    def __init__(self, config: SegformerConfig, in_features, hidden_features=None, out_features=None):
         super().__init__()
         out_features = out_features or in_features
         self.dense1 = nn.Linear(in_features, hidden_features)
@@ -292,7 +292,7 @@ class SegformerMixFFN(nn.Module):
 class SegformerLayer(nn.Module):
     """This corresponds to the Block class in the original implementation."""
 
-    def __init__(self, config, hidden_size, num_attention_heads, drop_path, sequence_reduction_ratio, mlp_ratio):
+    def __init__(self, config: SegformerConfig, hidden_size, num_attention_heads, drop_path, sequence_reduction_ratio, mlp_ratio):
         super().__init__()
         self.layer_norm_1 = nn.LayerNorm(hidden_size)
         self.attention = SegformerAttention(
@@ -333,7 +333,7 @@ class SegformerLayer(nn.Module):
 
 
 class SegformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SegformerConfig):
         super().__init__()
         self.config = config
 
@@ -451,7 +451,7 @@ class SegformerPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class SegformerModel(SegformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SegformerConfig):
         super().__init__(config)
         self.config = config
 
@@ -508,7 +508,7 @@ class SegformerModel(SegformerPreTrainedModel):
     """
 )
 class SegformerForImageClassification(SegformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SegformerConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
@@ -608,7 +608,7 @@ class SegformerMLP(nn.Module):
 
 
 class SegformerDecodeHead(SegformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SegformerConfig):
         super().__init__(config)
         # linear layers which will unify the channel dimension of each of the encoder blocks to the same config.decoder_hidden_size
         mlps = []
@@ -671,7 +671,7 @@ class SegformerDecodeHead(SegformerPreTrainedModel):
     """
 )
 class SegformerForSemanticSegmentation(SegformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SegformerConfig):
         super().__init__(config)
         self.segformer = SegformerModel(config)
         self.decode_head = SegformerDecodeHead(config)

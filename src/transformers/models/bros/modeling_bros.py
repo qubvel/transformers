@@ -66,7 +66,7 @@ class BrosSpadeOutput(ModelOutput):
 class BrosPositionalEmbedding1D(nn.Module):
     # Reference: https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/mem_transformer.py#L15
 
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
 
         self.dim_bbox_sinusoid_emb_1d = config.dim_bbox_sinusoid_emb_1d
@@ -85,7 +85,7 @@ class BrosPositionalEmbedding1D(nn.Module):
 
 
 class BrosPositionalEmbedding2D(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
 
         self.dim_bbox = config.dim_bbox
@@ -104,7 +104,7 @@ class BrosPositionalEmbedding2D(nn.Module):
 
 
 class BrosBboxEmbeddings(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.bbox_sinusoid_emb = BrosPositionalEmbedding2D(config)
         self.bbox_projection = nn.Linear(config.dim_bbox_sinusoid_emb_2d, config.dim_bbox_projection, bias=False)
@@ -121,7 +121,7 @@ class BrosBboxEmbeddings(nn.Module):
 class BrosTextEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
 
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
@@ -184,7 +184,7 @@ class BrosTextEmbeddings(nn.Module):
 
 
 class BrosSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -295,7 +295,7 @@ class BrosSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->Bros
 class BrosSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -309,7 +309,7 @@ class BrosSelfOutput(nn.Module):
 
 
 class BrosAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.self = BrosSelfAttention(config)
         self.output = BrosSelfOutput(config)
@@ -364,7 +364,7 @@ class BrosAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->Bros
 class BrosIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -379,7 +379,7 @@ class BrosIntermediate(nn.Module):
 
 
 class BrosOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -393,7 +393,7 @@ class BrosOutput(nn.Module):
 
 
 class BrosLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -472,7 +472,7 @@ class BrosLayer(GradientCheckpointingLayer):
 
 
 class BrosEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([BrosLayer(config) for _ in range(config.num_hidden_layers)])
@@ -533,7 +533,7 @@ class BrosEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->Bros
 class BrosPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -548,7 +548,7 @@ class BrosPooler(nn.Module):
 
 
 class BrosRelationExtractor(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__()
         self.n_relations = config.n_relations
         self.backbone_hidden_size = config.hidden_size
@@ -606,7 +606,7 @@ class BrosPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class BrosModel(BrosPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: BrosConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -774,7 +774,7 @@ class BrosModel(BrosPreTrainedModel):
 class BrosForTokenClassification(BrosPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -883,7 +883,7 @@ class BrosForTokenClassification(BrosPreTrainedModel):
 class BrosSpadeEEForTokenClassification(BrosPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels
@@ -1033,7 +1033,7 @@ class BrosSpadeEEForTokenClassification(BrosPreTrainedModel):
 class BrosSpadeELForTokenClassification(BrosPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
-    def __init__(self, config):
+    def __init__(self, config: BrosConfig):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels

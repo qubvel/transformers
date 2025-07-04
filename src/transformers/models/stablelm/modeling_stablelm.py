@@ -130,7 +130,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
 
 # Copied from transformers.models.mistral.modeling_mistral.MistralMLP with Mistral->StableLm
 class StableLmMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: StableLmConfig):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -913,7 +913,7 @@ class StableLmForCausalLM(StableLmPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
     # Copied from transformers.models.llama.modeling_llama.LlamaForCausalLM.__init__ with LLAMA->STABLELM,Llama->StableLm
-    def __init__(self, config):
+    def __init__(self, config: StableLmConfig):
         super().__init__(config)
         self.model = StableLmModel(config)
         self.vocab_size = config.vocab_size
@@ -1044,7 +1044,7 @@ class StableLmForCausalLM(StableLmPreTrainedModel, GenerationMixin):
 )
 # Copied from transformers.models.llama.modeling_llama.LlamaForSequenceClassification with LLAMA->STABLELM,Llama->StableLm
 class StableLmForSequenceClassification(StableLmPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: StableLmConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = StableLmModel(config)
@@ -1132,7 +1132,7 @@ class StableLmForSequenceClassification(StableLmPreTrainedModel):
 @auto_docstring
 # Copied from transformers.models.llama.modeling_llama.LlamaForTokenClassification with Llama->StableLm, LLAMA->STABLELM
 class StableLmForTokenClassification(StableLmPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: StableLmConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = StableLmModel(config)

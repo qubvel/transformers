@@ -67,7 +67,7 @@ def apply_rotary_pos_emb(tensor: torch.Tensor, sin: torch.Tensor, cos: torch.Ten
 
 
 class CodeGenAttention(nn.Module):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: CodeGenConfig, layer_idx=None):
         super().__init__()
 
         max_positions = config.max_position_embeddings
@@ -227,7 +227,7 @@ class CodeGenAttention(nn.Module):
 
 # Copied from transformers.models.gptj.modeling_gptj.GPTJMLP with GPTJ->CodeGen
 class CodeGenMLP(nn.Module):
-    def __init__(self, intermediate_size, config):  # in MLP: intermediate_size= 4 * embed_dim
+    def __init__(self, intermediate_size, config: CodeGenConfig):  # in MLP: intermediate_size= 4 * embed_dim
         super().__init__()
         embed_dim = config.n_embd
 
@@ -248,7 +248,7 @@ class CodeGenMLP(nn.Module):
 # Copied from transformers.models.gptj.modeling_gptj.GPTJBlock with GPTJ->CodeGen
 class CodeGenBlock(GradientCheckpointingLayer):
     # Ignore copy
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: CodeGenConfig, layer_idx=None):
         super().__init__()
         inner_dim = config.n_inner if config.n_inner is not None else 4 * config.n_embd
         self.ln_1 = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
@@ -326,7 +326,7 @@ class CodeGenPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class CodeGenModel(CodeGenPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: CodeGenConfig):
         super().__init__(config)
 
         self.embed_dim = config.n_embd
@@ -614,7 +614,7 @@ class CodeGenModel(CodeGenPreTrainedModel):
 class CodeGenForCausalLM(CodeGenPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: CodeGenConfig):
         super().__init__(config)
         self.transformer = CodeGenModel(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size)

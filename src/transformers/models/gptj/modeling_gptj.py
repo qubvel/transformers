@@ -85,7 +85,7 @@ def apply_rotary_pos_emb(tensor: torch.Tensor, sin: torch.Tensor, cos: torch.Ten
 
 
 class GPTJAttention(nn.Module):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: GPTJConfig, layer_idx=None):
         super().__init__()
         self.config = config
         max_positions = config.max_position_embeddings
@@ -417,7 +417,7 @@ GPTJ_ATTENTION_CLASSES = {
 
 
 class GPTJMLP(nn.Module):
-    def __init__(self, intermediate_size, config):  # in MLP: intermediate_size= 4 * embed_dim
+    def __init__(self, intermediate_size, config: GPTJConfig):  # in MLP: intermediate_size= 4 * embed_dim
         super().__init__()
         embed_dim = config.n_embd
 
@@ -436,7 +436,7 @@ class GPTJMLP(nn.Module):
 
 
 class GPTJBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: GPTJConfig, layer_idx=None):
         super().__init__()
         inner_dim = config.n_inner if config.n_inner is not None else 4 * config.n_embd
         self.ln_1 = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
@@ -566,7 +566,7 @@ DEPARALLELIZE_DOCSTRING = r"""
 
 @auto_docstring
 class GPTJModel(GPTJPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTJConfig):
         super().__init__(config)
 
         self.embed_dim = config.n_embd
@@ -919,7 +919,7 @@ class GPTJModel(GPTJPreTrainedModel):
 class GPTJForCausalLM(GPTJPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: GPTJConfig):
         super().__init__(config)
         self.transformer = GPTJModel(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size)
@@ -1080,7 +1080,7 @@ class GPTJForCausalLM(GPTJPreTrainedModel, GenerationMixin):
     """
 )
 class GPTJForSequenceClassification(GPTJPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTJConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = GPTJModel(config)
@@ -1198,7 +1198,7 @@ class GPTJForSequenceClassification(GPTJPreTrainedModel):
 
 @auto_docstring
 class GPTJForQuestionAnswering(GPTJPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: GPTJConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.transformer = GPTJModel(config)

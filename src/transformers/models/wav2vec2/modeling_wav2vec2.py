@@ -267,7 +267,7 @@ def _sample_negative_indices(
 
 
 class Wav2Vec2NoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2Config, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -288,7 +288,7 @@ class Wav2Vec2NoLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2LayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2Config, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -315,7 +315,7 @@ class Wav2Vec2LayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2GroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2Config, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -339,7 +339,7 @@ class Wav2Vec2GroupNormConvLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2PositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -397,7 +397,7 @@ class Wav2Vec2SamePadLayer(nn.Module):
 class Wav2Vec2FeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -435,7 +435,7 @@ class Wav2Vec2FeatureEncoder(nn.Module):
 
 
 class Wav2Vec2FeatureExtractor(Wav2Vec2FeatureEncoder):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__(config)
         warnings.warn(
             f"The class `{self.__class__.__name__}` has been depreciated "
@@ -446,7 +446,7 @@ class Wav2Vec2FeatureExtractor(Wav2Vec2FeatureEncoder):
 
 
 class Wav2Vec2FeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.layer_norm = nn.LayerNorm(config.conv_dim[-1], eps=config.layer_norm_eps)
         self.projection = nn.Linear(config.conv_dim[-1], config.hidden_size)
@@ -582,7 +582,7 @@ class Wav2Vec2Attention(nn.Module):
 
 
 class Wav2Vec2FeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -606,7 +606,7 @@ class Wav2Vec2FeedForward(nn.Module):
 
 
 class Wav2Vec2EncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.attention = Wav2Vec2Attention(
             embed_dim=config.hidden_size,
@@ -642,7 +642,7 @@ class Wav2Vec2EncoderLayer(GradientCheckpointingLayer):
 
 
 class Wav2Vec2EncoderLayerStableLayerNorm(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.attention = Wav2Vec2Attention(
             embed_dim=config.hidden_size,
@@ -688,7 +688,7 @@ class Wav2Vec2EncoderLayerStableLayerNorm(GradientCheckpointingLayer):
 
 
 class Wav2Vec2Encoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.config = config
         self.pos_conv_embed = Wav2Vec2PositionalConvEmbedding(config)
@@ -782,7 +782,7 @@ class Wav2Vec2Encoder(nn.Module):
 
 
 class Wav2Vec2EncoderStableLayerNorm(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.config = config
         self.pos_conv_embed = Wav2Vec2PositionalConvEmbedding(config)
@@ -885,7 +885,7 @@ class Wav2Vec2GumbelVectorQuantizer(nn.Module):
     GUMBEL-SOFTMAX](https://huggingface.co/papers/1611.01144) for more information.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.num_groups = config.num_codevector_groups
         self.num_vars = config.num_codevectors_per_group
@@ -956,7 +956,7 @@ class Wav2Vec2GumbelVectorQuantizer(nn.Module):
 
 
 class Wav2Vec2Adapter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
 
         # feature dim might need to be down-projected
@@ -987,7 +987,7 @@ class Wav2Vec2Adapter(nn.Module):
 
 
 class Wav2Vec2AdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__()
         self.conv = nn.Conv1d(
             config.output_hidden_size,
@@ -1005,7 +1005,7 @@ class Wav2Vec2AdapterLayer(nn.Module):
 
 
 class Wav2Vec2AttnAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         """
         Implements adapter modules directly with 3D tensor weight as parameters and without using ModuleList to speed
         up training throughput.
@@ -1719,7 +1719,7 @@ class Wav2Vec2ForPreTraining(Wav2Vec2PreTrainedModel):
 
 @auto_docstring
 class Wav2Vec2ForMaskedLM(Wav2Vec2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__(config)
 
         warnings.warn(
@@ -1769,7 +1769,7 @@ class Wav2Vec2ForMaskedLM(Wav2Vec2PreTrainedModel):
     """
 )
 class Wav2Vec2ForCTC(Wav2Vec2PreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: Wav2Vec2Config, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1925,7 +1925,7 @@ class Wav2Vec2ForCTC(Wav2Vec2PreTrainedModel):
     """
 )
 class Wav2Vec2ForSequenceClassification(Wav2Vec2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -2040,7 +2040,7 @@ class Wav2Vec2ForSequenceClassification(Wav2Vec2PreTrainedModel):
 
 @auto_docstring
 class Wav2Vec2ForAudioFrameClassification(Wav2Vec2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:
@@ -2167,7 +2167,7 @@ class AMSoftmaxLoss(nn.Module):
 
 
 class TDNNLayer(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: Wav2Vec2Config, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.tdnn_dim[layer_id - 1] if layer_id > 0 else config.tdnn_dim[layer_id]
         self.out_conv_dim = config.tdnn_dim[layer_id]
@@ -2204,7 +2204,7 @@ class TDNNLayer(nn.Module):
     """
 )
 class Wav2Vec2ForXVector(Wav2Vec2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Wav2Vec2Config):
         super().__init__(config)
 
         self.wav2vec2 = Wav2Vec2Model(config)

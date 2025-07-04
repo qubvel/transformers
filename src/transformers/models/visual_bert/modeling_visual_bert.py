@@ -43,7 +43,7 @@ logger = logging.get_logger(__name__)
 class VisualBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings and visual embeddings."""
 
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -175,7 +175,7 @@ class VisualBertEmbeddings(nn.Module):
 
 
 class VisualBertSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -244,7 +244,7 @@ class VisualBertSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->VisualBert
 class VisualBertSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -258,7 +258,7 @@ class VisualBertSelfOutput(nn.Module):
 
 
 class VisualBertAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.self = VisualBertSelfAttention(config)
         self.output = VisualBertSelfOutput(config)
@@ -302,7 +302,7 @@ class VisualBertAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->VisualBert
 class VisualBertIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -318,7 +318,7 @@ class VisualBertIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->VisualBert
 class VisualBertOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -332,7 +332,7 @@ class VisualBertOutput(nn.Module):
 
 
 class VisualBertLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -371,7 +371,7 @@ class VisualBertLayer(GradientCheckpointingLayer):
 
 
 class VisualBertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([VisualBertLayer(config) for _ in range(config.num_hidden_layers)])
@@ -421,7 +421,7 @@ class VisualBertEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler with Bert->VisualBert
 class VisualBertPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -437,7 +437,7 @@ class VisualBertPooler(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->VisualBert
 class VisualBertPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -455,7 +455,7 @@ class VisualBertPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->VisualBert
 class VisualBertLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.transform = VisualBertPredictionHeadTransform(config)
 
@@ -479,7 +479,7 @@ class VisualBertLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPreTrainingHeads with Bert->VisualBert
 class VisualBertPreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         self.predictions = VisualBertLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -545,7 +545,7 @@ class VisualBertForPreTrainingOutput(ModelOutput):
     """
 )
 class VisualBertModel(VisualBertPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: VisualBertConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -753,7 +753,7 @@ class VisualBertModel(VisualBertPreTrainedModel):
 class VisualBertForPreTraining(VisualBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__(config)
 
         self.visual_bert = VisualBertModel(config)
@@ -904,7 +904,7 @@ class VisualBertForPreTraining(VisualBertPreTrainedModel):
 
 @auto_docstring
 class VisualBertForMultipleChoice(VisualBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__(config)
 
         self.visual_bert = VisualBertModel(config)
@@ -1091,7 +1091,7 @@ class VisualBertForMultipleChoice(VisualBertPreTrainedModel):
     """
 )
 class VisualBertForQuestionAnswering(VisualBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1229,7 +1229,7 @@ class VisualBertForQuestionAnswering(VisualBertPreTrainedModel):
     """
 )
 class VisualBertForVisualReasoning(VisualBertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1351,7 +1351,7 @@ class VisualBertForVisualReasoning(VisualBertPreTrainedModel):
 
 
 class VisualBertRegionToPhraseAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -1403,7 +1403,7 @@ class VisualBertRegionToPhraseAttention(nn.Module):
 class VisualBertForRegionToPhraseAlignment(VisualBertPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: VisualBertConfig):
         super().__init__(config)
 
         self.visual_bert = VisualBertModel(config)

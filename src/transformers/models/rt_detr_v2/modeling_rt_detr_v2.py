@@ -690,7 +690,7 @@ class RTDetrV2ConvEncoder(nn.Module):
     https://github.com/lyuwenyu/RT-DETR/blob/main/RTDetrV2_pytorch/src/nn/backbone/presnet.py#L142
     """
 
-    def __init__(self, config):
+    def __init__(self, config: RTDetrV2Config):
         super().__init__()
 
         backbone = load_backbone(config)
@@ -715,7 +715,7 @@ class RTDetrV2ConvEncoder(nn.Module):
 
 
 class RTDetrV2ConvNormLayer(nn.Module):
-    def __init__(self, config, in_channels, out_channels, kernel_size, stride, padding=None, activation=None):
+    def __init__(self, config: RTDetrV2Config, in_channels, out_channels, kernel_size, stride, padding=None, activation=None):
         super().__init__()
         self.conv = nn.Conv2d(
             in_channels,
@@ -1793,7 +1793,7 @@ class RTDetrV2MLPPredictionHead(nn.Module):
 
     """
 
-    def __init__(self, config, input_dim, d_model, output_dim, num_layers):
+    def __init__(self, config: RTDetrV2Config, input_dim, d_model, output_dim, num_layers):
         super().__init__()
         self.num_layers = num_layers
         h = [d_model] * (num_layers - 1)

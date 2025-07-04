@@ -477,7 +477,7 @@ class BitNetForCausalLM(BitNetPreTrainedModel, GenerationMixin):
     _tp_plan = None
     _pp_plan = None
 
-    def __init__(self, config):
+    def __init__(self, config: BitNetConfig):
         super().__init__(config)
         self.model = BitNetModel(config)
         self.vocab_size = config.vocab_size

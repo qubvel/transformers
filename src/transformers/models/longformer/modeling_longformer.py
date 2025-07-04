@@ -388,7 +388,7 @@ class LongformerEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.hidden_size)
@@ -448,7 +448,7 @@ class LongformerEmbeddings(nn.Module):
 
 
 class LongformerSelfAttention(nn.Module):
-    def __init__(self, config, layer_id):
+    def __init__(self, config: LongformerConfig, layer_id):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
             raise ValueError(
@@ -1084,7 +1084,7 @@ class LongformerSelfAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput
 class LongformerSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1098,7 +1098,7 @@ class LongformerSelfOutput(nn.Module):
 
 
 class LongformerAttention(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: LongformerConfig, layer_id=0):
         super().__init__()
         self.self = LongformerSelfAttention(config, layer_id)
         self.output = LongformerSelfOutput(config)
@@ -1148,7 +1148,7 @@ class LongformerAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
 class LongformerIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -1164,7 +1164,7 @@ class LongformerIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
 class LongformerOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1178,7 +1178,7 @@ class LongformerOutput(nn.Module):
 
 
 class LongformerLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: LongformerConfig, layer_id=0):
         super().__init__()
         self.attention = LongformerAttention(config, layer_id)
         self.intermediate = LongformerIntermediate(config)
@@ -1221,7 +1221,7 @@ class LongformerLayer(GradientCheckpointingLayer):
 
 
 class LongformerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([LongformerLayer(config, layer_id=i) for i in range(config.num_hidden_layers)])
@@ -1302,7 +1302,7 @@ class LongformerEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
 class LongformerPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -1320,7 +1320,7 @@ class LongformerPooler(nn.Module):
 class LongformerLMHead(nn.Module):
     """Longformer Head for masked language modeling."""
 
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1390,7 +1390,7 @@ class LongformerModel(LongformerPreTrainedModel):
 
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: LongformerConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -1626,7 +1626,7 @@ class LongformerModel(LongformerPreTrainedModel):
 class LongformerForMaskedLM(LongformerPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder"]
 
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__(config)
 
         self.longformer = LongformerModel(config, add_pooling_layer=False)
@@ -1743,7 +1743,7 @@ class LongformerForMaskedLM(LongformerPreTrainedModel):
     """
 )
 class LongformerForSequenceClassification(LongformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -1849,7 +1849,7 @@ class LongformerForSequenceClassification(LongformerPreTrainedModel):
 class LongformerClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -1867,7 +1867,7 @@ class LongformerClassificationHead(nn.Module):
 
 @auto_docstring
 class LongformerForQuestionAnswering(LongformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -1997,7 +1997,7 @@ class LongformerForQuestionAnswering(LongformerPreTrainedModel):
 
 @auto_docstring
 class LongformerForTokenClassification(LongformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -2079,7 +2079,7 @@ class LongformerForTokenClassification(LongformerPreTrainedModel):
 
 @auto_docstring
 class LongformerForMultipleChoice(LongformerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: LongformerConfig):
         super().__init__(config)
 
         self.longformer = LongformerModel(config)

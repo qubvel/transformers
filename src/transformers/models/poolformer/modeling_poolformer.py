@@ -107,7 +107,7 @@ class PoolFormerPooling(nn.Module):
 
 
 class PoolFormerOutput(nn.Module):
-    def __init__(self, config, dropout_prob, hidden_size, intermediate_size):
+    def __init__(self, config: PoolFormerConfig, dropout_prob, hidden_size, intermediate_size):
         super().__init__()
         self.conv1 = nn.Conv2d(hidden_size, intermediate_size, 1)
         self.conv2 = nn.Conv2d(intermediate_size, hidden_size, 1)
@@ -130,7 +130,7 @@ class PoolFormerOutput(nn.Module):
 class PoolFormerLayer(nn.Module):
     """This corresponds to the 'PoolFormerBlock' class in the original implementation."""
 
-    def __init__(self, config, num_channels, pool_size, hidden_size, intermediate_size, drop_path):
+    def __init__(self, config: PoolFormerConfig, num_channels, pool_size, hidden_size, intermediate_size, drop_path):
         super().__init__()
         self.pooling = PoolFormerPooling(pool_size)
         self.output = PoolFormerOutput(config, drop_path, hidden_size, intermediate_size)
@@ -179,7 +179,7 @@ class PoolFormerLayer(nn.Module):
 
 
 class PoolFormerEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PoolFormerConfig):
         super().__init__()
         self.config = config
         # stochastic depth decay rule
@@ -269,7 +269,7 @@ class PoolFormerPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class PoolFormerModel(PoolFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PoolFormerConfig):
         super().__init__(config)
         self.config = config
 
@@ -313,7 +313,7 @@ class PoolFormerModel(PoolFormerPreTrainedModel):
 
 
 class PoolFormerFinalPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: PoolFormerConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
 
@@ -328,7 +328,7 @@ class PoolFormerFinalPooler(nn.Module):
     """
 )
 class PoolFormerForImageClassification(PoolFormerPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: PoolFormerConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.poolformer = PoolFormerModel(config)

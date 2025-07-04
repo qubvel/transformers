@@ -85,7 +85,7 @@ class DeepseekV3RotaryEmbedding(nn.Module):
 
 
 class DeepseekV3MLP(nn.Module):
-    def __init__(self, config, hidden_size=None, intermediate_size=None):
+    def __init__(self, config: DeepseekV3Config, hidden_size=None, intermediate_size=None):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size if hidden_size is None else hidden_size
@@ -102,7 +102,7 @@ class DeepseekV3MLP(nn.Module):
 
 
 class DeepseekV3TopkRouter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DeepseekV3Config):
         super().__init__()
         self.config = config
         self.top_k = config.num_experts_per_tok
@@ -153,7 +153,7 @@ class DeepseekV3MoE(nn.Module):
     A mixed expert module containing shared experts.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DeepseekV3Config):
         super().__init__()
         self.config = config
         self.experts = nn.ModuleList(
@@ -667,7 +667,7 @@ class DeepseekV3ForCausalLM(DeepseekV3PreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: DeepseekV3Config):
         super().__init__(config)
         self.model = DeepseekV3Model(config)
         self.vocab_size = config.vocab_size

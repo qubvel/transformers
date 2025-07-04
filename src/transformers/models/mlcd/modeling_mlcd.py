@@ -34,7 +34,7 @@ from .configuration_mlcd import MLCDVisionConfig
 
 
 class MLCDMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MLCDVisionConfig):
         super().__init__()
         self.config = config
         self.activation_fn = ACT2FN[config.hidden_act]

@@ -230,7 +230,7 @@ class BigBirdEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -296,7 +296,7 @@ class BigBirdEmbeddings(nn.Module):
 
 
 class BigBirdSelfAttention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -400,7 +400,7 @@ class BigBirdSelfAttention(nn.Module):
 
 
 class BigBirdBlockSparseAttention(nn.Module):
-    def __init__(self, config, seed=None):
+    def __init__(self, config: BigBirdConfig, seed=None):
         super().__init__()
 
         self.max_seqlen = config.max_position_embeddings
@@ -1289,7 +1289,7 @@ class BigBirdBlockSparseAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->BigBird
 class BigBirdSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1303,7 +1303,7 @@ class BigBirdSelfOutput(nn.Module):
 
 
 class BigBirdAttention(nn.Module):
-    def __init__(self, config, seed=None):
+    def __init__(self, config: BigBirdConfig, seed=None):
         super().__init__()
         self.attention_type = config.attention_type
         self.config = config
@@ -1391,7 +1391,7 @@ class BigBirdAttention(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate with Bert->BigBird
 class BigBirdIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -1407,7 +1407,7 @@ class BigBirdIntermediate(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->BigBird
 class BigBirdOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -1421,7 +1421,7 @@ class BigBirdOutput(nn.Module):
 
 
 class BigBirdLayer(GradientCheckpointingLayer):
-    def __init__(self, config, seed=None):
+    def __init__(self, config: BigBirdConfig, seed=None):
         super().__init__()
         self.config = config
         self.attention_type = config.attention_type
@@ -1535,7 +1535,7 @@ class BigBirdLayer(GradientCheckpointingLayer):
 
 
 class BigBirdEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.config = config
         self.attention_type = config.attention_type
@@ -1642,7 +1642,7 @@ class BigBirdEncoder(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->BigBird
 class BigBirdPredictionHeadTransform(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
@@ -1660,7 +1660,7 @@ class BigBirdPredictionHeadTransform(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->BigBird
 class BigBirdLMPredictionHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.transform = BigBirdPredictionHeadTransform(config)
 
@@ -1684,7 +1684,7 @@ class BigBirdLMPredictionHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->BigBird
 class BigBirdOnlyMLMHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.predictions = BigBirdLMPredictionHead(config)
 
@@ -1695,7 +1695,7 @@ class BigBirdOnlyMLMHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyNSPHead with Bert->BigBird
 class BigBirdOnlyNSPHead(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
@@ -1706,7 +1706,7 @@ class BigBirdOnlyNSPHead(nn.Module):
 
 # Copied from transformers.models.bert.modeling_bert.BertPreTrainingHeads with Bert->BigBird
 class BigBirdPreTrainingHeads(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.predictions = BigBirdLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -1805,7 +1805,7 @@ class BigBirdModel(BigBirdPreTrainedModel):
     `add_cross_attention` set to `True`; an `encoder_hidden_states` is then expected as an input to the forward pass.
     """
 
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: BigBirdConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -2115,7 +2115,7 @@ class BigBirdModel(BigBirdPreTrainedModel):
 class BigBirdForPreTraining(BigBirdPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
 
         self.bert = BigBirdModel(config, add_pooling_layer=True)
@@ -2217,7 +2217,7 @@ class BigBirdForPreTraining(BigBirdPreTrainedModel):
 class BigBirdForMaskedLM(BigBirdPreTrainedModel):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
 
         if config.is_decoder:
@@ -2361,7 +2361,7 @@ class BigBirdForMaskedLM(BigBirdPreTrainedModel):
 class BigBirdForCausalLM(BigBirdPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["cls.predictions.decoder.weight", "cls.predictions.decoder.bias"]
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
 
         if not config.is_decoder:
@@ -2462,7 +2462,7 @@ class BigBirdForCausalLM(BigBirdPreTrainedModel, GenerationMixin):
 class BigBirdClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         classifier_dropout = (
@@ -2490,7 +2490,7 @@ class BigBirdClassificationHead(nn.Module):
     """
 )
 class BigBirdForSequenceClassification(BigBirdPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
@@ -2609,7 +2609,7 @@ class BigBirdForSequenceClassification(BigBirdPreTrainedModel):
 
 @auto_docstring
 class BigBirdForMultipleChoice(BigBirdPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
 
         self.bert = BigBirdModel(config)
@@ -2713,7 +2713,7 @@ class BigBirdForMultipleChoice(BigBirdPreTrainedModel):
 
 @auto_docstring
 class BigBirdForTokenClassification(BigBirdPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
 
@@ -2784,7 +2784,7 @@ class BigBirdForTokenClassification(BigBirdPreTrainedModel):
 class BigBirdForQuestionAnsweringHead(nn.Module):
     """Head for question answering tasks."""
 
-    def __init__(self, config):
+    def __init__(self, config: BigBirdConfig):
         super().__init__()
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.intermediate = BigBirdIntermediate(config)
@@ -2801,7 +2801,7 @@ class BigBirdForQuestionAnsweringHead(nn.Module):
 
 @auto_docstring
 class BigBirdForQuestionAnswering(BigBirdPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=False):
+    def __init__(self, config: BigBirdConfig, add_pooling_layer=False):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer

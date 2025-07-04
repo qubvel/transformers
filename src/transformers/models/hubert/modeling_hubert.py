@@ -49,7 +49,7 @@ logger = logging.get_logger(__name__)
 
 
 class HubertPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -110,7 +110,7 @@ class HubertSamePadLayer(nn.Module):
 
 
 class HubertNoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: HubertConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -131,7 +131,7 @@ class HubertNoLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class HubertLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: HubertConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -158,7 +158,7 @@ class HubertLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class HubertGroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: HubertConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -184,7 +184,7 @@ class HubertGroupNormConvLayer(GradientCheckpointingLayer):
 class HubertFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -220,7 +220,7 @@ class HubertFeatureEncoder(nn.Module):
 
 
 class HubertFeatureProjection(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.feat_proj_layer_norm = config.feat_proj_layer_norm
         if self.feat_proj_layer_norm:
@@ -358,7 +358,7 @@ class HubertAttention(nn.Module):
 
 
 class HubertFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -382,7 +382,7 @@ class HubertFeedForward(nn.Module):
 
 
 class HubertEncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.attention = HubertAttention(
             embed_dim=config.hidden_size,
@@ -418,7 +418,7 @@ class HubertEncoderLayer(GradientCheckpointingLayer):
 
 
 class HubertEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = HubertPositionalConvEmbedding(config)
@@ -511,7 +511,7 @@ class HubertEncoder(nn.Module):
 
 
 class HubertAttnAdapterLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         """
         Implements adapter modules directly with 3D tensor weight as parameters and without using ModuleList to speed
         up training throughput.
@@ -536,7 +536,7 @@ class HubertAttnAdapterLayer(nn.Module):
 
 
 class HubertEncoderLayerStableLayerNorm(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.attention = HubertAttention(
             embed_dim=config.hidden_size,
@@ -582,7 +582,7 @@ class HubertEncoderLayerStableLayerNorm(GradientCheckpointingLayer):
 
 
 class HubertEncoderStableLayerNorm(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = HubertPositionalConvEmbedding(config)
@@ -1018,7 +1018,7 @@ _HIDDEN_STATES_START_POSITION = 1
     """
 )
 class HubertForCTC(HubertPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: HubertConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -1174,7 +1174,7 @@ class HubertForCTC(HubertPreTrainedModel):
     """
 )
 class HubertForSequenceClassification(HubertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: HubertConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:

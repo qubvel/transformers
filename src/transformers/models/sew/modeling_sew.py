@@ -45,7 +45,7 @@ logger = logging.get_logger(__name__)
 
 
 class SEWNoLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -66,7 +66,7 @@ class SEWNoLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class SEWLayerNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -93,7 +93,7 @@ class SEWLayerNormConvLayer(GradientCheckpointingLayer):
 
 
 class SEWGroupNormConvLayer(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: SEWConfig, layer_id=0):
         super().__init__()
         self.in_conv_dim = config.conv_dim[layer_id - 1] if layer_id > 0 else 1
         self.out_conv_dim = config.conv_dim[layer_id]
@@ -117,7 +117,7 @@ class SEWGroupNormConvLayer(GradientCheckpointingLayer):
 
 
 class SEWPositionalConvEmbedding(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
         self.conv = nn.Conv1d(
             config.hidden_size,
@@ -171,7 +171,7 @@ class SEWSamePadLayer(nn.Module):
 
 
 class SEWUpsampling(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
         self.projection = nn.Linear(config.hidden_size, config.hidden_size * config.squeeze_factor)
         self.activation = ACT2FN[config.feat_extract_activation]
@@ -195,7 +195,7 @@ class SEWUpsampling(nn.Module):
 class SEWFeatureEncoder(nn.Module):
     """Construct the features from raw audio waveform"""
 
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
 
         if config.feat_extract_norm == "group":
@@ -351,7 +351,7 @@ class SEWAttention(nn.Module):
 
 
 class SEWFeedForward(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
         self.intermediate_dropout = nn.Dropout(config.activation_dropout)
 
@@ -375,7 +375,7 @@ class SEWFeedForward(nn.Module):
 
 
 class SEWEncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
         self.attention = SEWAttention(
             embed_dim=config.hidden_size,
@@ -411,7 +411,7 @@ class SEWEncoderLayer(GradientCheckpointingLayer):
 
 
 class SEWEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__()
         self.config = config
         self.pos_conv_embed = SEWPositionalConvEmbedding(config)
@@ -834,7 +834,7 @@ _HIDDEN_STATES_START_POSITION = 1
     """
 )
 class SEWForCTC(SEWPreTrainedModel):
-    def __init__(self, config, target_lang: Optional[str] = None):
+    def __init__(self, config: SEWConfig, target_lang: Optional[str] = None):
         r"""
         target_lang (`str`, *optional*):
             Language id of adapter weights. Adapter weights are stored in the format adapter.<lang>.safetensors or
@@ -990,7 +990,7 @@ class SEWForCTC(SEWPreTrainedModel):
     """
 )
 class SEWForSequenceClassification(SEWPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: SEWConfig):
         super().__init__(config)
 
         if hasattr(config, "add_adapter") and config.add_adapter:

@@ -206,7 +206,7 @@ class MimiConv1d(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: MimiConfig,
         in_channels: int,
         out_channels: int,
         kernel_size: int,
@@ -346,7 +346,7 @@ class MimiConvTranspose1d(nn.Module):
 
     def __init__(
         self,
-        config,
+        config: MimiConfig,
         in_channels: int,
         out_channels: int,
         kernel_size: int,
@@ -491,7 +491,7 @@ class MimiLayerScale(nn.Module):
     This rescales diagonally the residual outputs close to 0, with a learnt scale.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: MimiConfig):
         super().__init__()
         channels = config.hidden_size
         initial_scale = config.layer_scale_initial_scale
@@ -573,7 +573,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
 
 
 class MimiMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: MimiConfig):
         super().__init__()
         self.config = config
         self.activation_fn = ACT2FN[config.hidden_act]

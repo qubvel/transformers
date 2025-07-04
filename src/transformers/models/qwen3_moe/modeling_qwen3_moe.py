@@ -197,7 +197,7 @@ class Qwen3MoeAttention(nn.Module):
 
 
 class Qwen3MoeMLP(nn.Module):
-    def __init__(self, config, intermediate_size=None):
+    def __init__(self, config: Qwen3MoeConfig, intermediate_size=None):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
@@ -213,7 +213,7 @@ class Qwen3MoeMLP(nn.Module):
 
 
 class Qwen3MoeSparseMoeBlock(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Qwen3MoeConfig):
         super().__init__()
         self.num_experts = config.num_experts
         self.top_k = config.num_experts_per_tok
@@ -672,7 +672,7 @@ class Qwen3MoeForCausalLM(Qwen3MoePreTrainedModel, GenerationMixin):
     _tp_plan = {"lm_head": "colwise_rep"}
     _pp_plan = {"lm_head": (["hidden_states"], ["logits"])}
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen3MoeConfig):
         super().__init__(config)
         self.model = Qwen3MoeModel(config)
         self.vocab_size = config.vocab_size
@@ -813,7 +813,7 @@ class Qwen3MoeForCausalLM(Qwen3MoePreTrainedModel, GenerationMixin):
     """
 )
 class Qwen3MoeForSequenceClassification(Qwen3MoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen3MoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen3MoeModel(config)
@@ -900,7 +900,7 @@ class Qwen3MoeForSequenceClassification(Qwen3MoePreTrainedModel):
 
 @auto_docstring
 class Qwen3MoeForTokenClassification(Qwen3MoePreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: Qwen3MoeConfig):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.model = Qwen3MoeModel(config)
@@ -973,7 +973,7 @@ class Qwen3MoeForTokenClassification(Qwen3MoePreTrainedModel):
 class Qwen3MoeForQuestionAnswering(Qwen3MoePreTrainedModel):
     base_model_prefix = "transformer"
 
-    def __init__(self, config):
+    def __init__(self, config: Qwen3MoeConfig):
         super().__init__(config)
         self.transformer = Qwen3MoeModel(config)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)

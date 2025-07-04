@@ -635,7 +635,7 @@ class DepthProPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class DepthProModel(DepthProPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DepthProConfig):
         super().__init__(config)
         self.config = config
         self.encoder = DepthProEncoder(config)
@@ -717,7 +717,7 @@ class DepthProPreActResidualLayer(nn.Module):
             Model configuration class defining the model architecture.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthProConfig):
         super().__init__()
 
         self.use_batch_norm = config.use_batch_norm_in_fusion_residual
@@ -808,7 +808,7 @@ class DepthProFeatureFusionLayer(nn.Module):
 # Modified from transformers.models.dpt.modeling_dpt.DPTFeatureFusionStage with DPT->DepthPro
 # with deconv and reversed layers
 class DepthProFeatureFusionStage(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: DepthProConfig):
         super().__init__()
         self.config = config
 
@@ -971,7 +971,7 @@ class DepthProDepthEstimationHead(nn.Module):
     Key operations include dimensionality reduction and upsampling to match the input resolution.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DepthProConfig):
         super().__init__()
         self.config = config
 
@@ -1008,7 +1008,7 @@ class DepthProDepthEstimationHead(nn.Module):
     """
 )
 class DepthProForDepthEstimation(DepthProPreTrainedModel):
-    def __init__(self, config, use_fov_model=None):
+    def __init__(self, config: DepthProConfig, use_fov_model=None):
         r"""
         use_fov_model (bool, *optional*):
             Whether to use the field of view model.

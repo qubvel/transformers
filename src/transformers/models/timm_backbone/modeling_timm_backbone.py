@@ -43,7 +43,7 @@ class TimmBackbone(PreTrainedModel, BackboneMixin):
     config: TimmBackboneConfig
     config_class = TimmBackboneConfig
 
-    def __init__(self, config, **kwargs):
+    def __init__(self, config: TimmBackboneConfig, **kwargs):
         requires_backends(self, "timm")
         super().__init__(config)
         self.config = config

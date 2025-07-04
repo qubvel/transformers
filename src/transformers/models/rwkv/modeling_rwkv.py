@@ -238,7 +238,7 @@ def rwkv_linear_attention(time_decay, time_first, key, value, state=None, return
 
 
 class RwkvSelfAttention(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: RwkvConfig, layer_id=0):
         super().__init__()
         self.config = config
         kernel_loaded = rwkv_cuda_kernel is not None and rwkv_cuda_kernel.max_seq_length == config.context_length
@@ -308,7 +308,7 @@ class RwkvSelfAttention(nn.Module):
 
 
 class RwkvFeedForward(nn.Module):
-    def __init__(self, config, layer_id=0):
+    def __init__(self, config: RwkvConfig, layer_id=0):
         super().__init__()
         self.config = config
         self.layer_id = layer_id
@@ -346,7 +346,7 @@ class RwkvFeedForward(nn.Module):
 
 
 class RwkvBlock(GradientCheckpointingLayer):
-    def __init__(self, config, layer_id):
+    def __init__(self, config: RwkvConfig, layer_id):
         super().__init__()
         self.config = config
         self.layer_id = layer_id
@@ -492,7 +492,7 @@ class RwkvCausalLMOutput(ModelOutput):
 
 @auto_docstring
 class RwkvModel(RwkvPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: RwkvConfig):
         super().__init__(config)
 
         self.embeddings = nn.Embedding(config.vocab_size, config.hidden_size)
@@ -673,7 +673,7 @@ class RwkvModel(RwkvPreTrainedModel):
 class RwkvForCausalLM(RwkvPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["head.weight"]
 
-    def __init__(self, config):
+    def __init__(self, config: RwkvConfig):
         super().__init__(config)
         self.rwkv = RwkvModel(config)
         self.head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)

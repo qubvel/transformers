@@ -144,7 +144,7 @@ def eager_attention_forward(module, query, key, value, attention_mask, head_mask
 
 # Copied from transformers.models.gpt2.modeling_gpt2.GPT2Attention with GPT2->DecisionTransformerGPT2
 class DecisionTransformerGPT2Attention(nn.Module):
-    def __init__(self, config, is_cross_attention=False, layer_idx=None):
+    def __init__(self, config: DecisionTransformerConfig, is_cross_attention=False, layer_idx=None):
         super().__init__()
         self.config = config
         max_positions = config.max_position_embeddings
@@ -344,7 +344,7 @@ class DecisionTransformerGPT2Attention(nn.Module):
 
 # Copied from transformers.models.gpt2.modeling_gpt2.GPT2MLP with GPT2->DecisionTransformerGPT2
 class DecisionTransformerGPT2MLP(nn.Module):
-    def __init__(self, intermediate_size, config):
+    def __init__(self, intermediate_size, config: DecisionTransformerConfig):
         super().__init__()
         embed_dim = config.hidden_size
         self.c_fc = Conv1D(intermediate_size, embed_dim)
@@ -363,7 +363,7 @@ class DecisionTransformerGPT2MLP(nn.Module):
 # Copied from transformers.models.gpt2.modeling_gpt2.GPT2Block with GPT2->DecisionTransformerGPT2
 class DecisionTransformerGPT2Block(GradientCheckpointingLayer):
     # Ignore copy
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config: DecisionTransformerConfig, layer_idx=None):
         super().__init__()
         hidden_size = config.hidden_size
         inner_dim = config.n_inner if config.n_inner is not None else 4 * hidden_size
@@ -488,7 +488,7 @@ class DecisionTransformerGPT2PreTrainedModel(PreTrainedModel):
 
 
 class DecisionTransformerGPT2Model(DecisionTransformerGPT2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: DecisionTransformerConfig):
         super().__init__(config)
 
         self.embed_dim = config.hidden_size
@@ -777,7 +777,7 @@ class DecisionTransformerModel(DecisionTransformerPreTrainedModel):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config: DecisionTransformerConfig):
         super().__init__(config)
         self.config = config
         self.hidden_size = config.hidden_size

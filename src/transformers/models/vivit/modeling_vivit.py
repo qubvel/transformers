@@ -44,7 +44,7 @@ class VivitTubeletEmbeddings(nn.Module):
     (width // tubelet_size[2]).
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.num_frames = config.num_frames
         self.image_size = config.image_size
@@ -84,7 +84,7 @@ class VivitEmbeddings(nn.Module):
     Creates embeddings from a video using VivitTubeletEmbeddings, adds CLS token and positional embeddings.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
@@ -310,7 +310,7 @@ class VivitAttention(nn.Module):
 
 
 class VivitIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -328,7 +328,7 @@ class VivitIntermediate(nn.Module):
 
 
 class VivitOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -346,7 +346,7 @@ class VivitOutput(nn.Module):
 class VivitLayer(GradientCheckpointingLayer):
     """This corresponds to the EncoderBlock class in the scenic/vivit implementation."""
 
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -383,7 +383,7 @@ class VivitLayer(GradientCheckpointingLayer):
 
 
 class VivitEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([VivitLayer(config) for _ in range(config.num_hidden_layers)])
@@ -426,7 +426,7 @@ class VivitEncoder(nn.Module):
 
 
 class VivitPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -475,7 +475,7 @@ class VivitPreTrainedModel(PreTrainedModel):
 
 @auto_docstring
 class VivitModel(VivitPreTrainedModel):
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: VivitConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -640,7 +640,7 @@ class VivitModel(VivitPreTrainedModel):
     """
 )
 class VivitForVideoClassification(VivitPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config: VivitConfig):
         super().__init__(config)
 
         self.num_labels = config.num_labels
