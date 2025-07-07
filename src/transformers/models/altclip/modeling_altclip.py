@@ -96,8 +96,8 @@ class AltRobertaEmbeddings(nn.Module):
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
 
-    # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config):
+    # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__ with Bert->AltRoberta, RobertaConfig->AltCLIPTextConfig
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
@@ -272,9 +272,9 @@ class AltRobertaSelfAttention(nn.Module):
         return outputs
 
 
-# Copied from transformers.models.roberta.modeling_roberta.RobertaSelfOutput
+# Copied from transformers.models.roberta.modeling_roberta.RobertaSelfOutput with Roberta->AltRoberta, RobertaConfig->AltCLIPTextConfig
 class AltRobertaSelfOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -293,7 +293,7 @@ ALT_ROBERTA_SELF_ATTENTION_CLASSES = {
 
 
 class AltRobertaAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None):
+    def __init__(self, config: AltCLIPTextConfig, position_embedding_type=None):
         super().__init__()
         self.self = ALT_ROBERTA_SELF_ATTENTION_CLASSES[config._attn_implementation](
             config, position_embedding_type=position_embedding_type
@@ -343,9 +343,9 @@ class AltRobertaAttention(nn.Module):
         return outputs
 
 
-# Copied from transformers.models.roberta.modeling_roberta.RobertaIntermediate with Roberta->AltRoberta
+# Copied from transformers.models.roberta.modeling_roberta.RobertaIntermediate with Roberta->AltRoberta, RobertaConfig->AltCLIPTextConfig
 class AltRobertaIntermediate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
@@ -359,9 +359,9 @@ class AltRobertaIntermediate(nn.Module):
         return hidden_states
 
 
-# Copied from transformers.models.roberta.modeling_roberta.RobertaOutput
+# Copied from transformers.models.roberta.modeling_roberta.RobertaOutput with Roberta->AltRoberta, RobertaConfig->AltCLIPTextConfig
 class AltRobertaOutput(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
@@ -374,9 +374,9 @@ class AltRobertaOutput(nn.Module):
         return hidden_states
 
 
-# Copied from transformers.models.align.modeling_align.AlignTextLayer with AlignText->AltRoberta
+# Copied from transformers.models.align.modeling_align.AlignTextLayer with AlignText->AltRoberta, AlignTextConfig->AltCLIPTextConfig
 class AltRobertaLayer(GradientCheckpointingLayer):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
@@ -421,9 +421,9 @@ class AltRobertaLayer(GradientCheckpointingLayer):
         return layer_output
 
 
-# Copied from transformers.models.align.modeling_align.AlignTextEncoder with AlignText->AltRoberta
+# Copied from transformers.models.align.modeling_align.AlignTextEncoder with AlignText->AltRoberta, AlignTextConfig->AltCLIPTextConfig
 class AltRobertaEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([AltRobertaLayer(config) for i in range(config.num_hidden_layers)])
@@ -479,9 +479,9 @@ class AltRobertaEncoder(nn.Module):
         )
 
 
-# Copied from transformers.models.roberta.modeling_roberta.RobertaPooler
+# Copied from transformers.models.roberta.modeling_roberta.RobertaPooler with Roberta->AltRoberta, RobertaConfig->AltCLIPTextConfig
 class AltRobertaPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
@@ -522,7 +522,7 @@ def eager_attention_forward(
 class AltCLIPAttention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
 
-    def __init__(self, config):
+    def __init__(self, config: Union[AltCLIPTextConfig, AltCLIPVisionConfig]):
         super().__init__()
         self.config = config
         self.embed_dim = config.hidden_size
@@ -600,7 +600,7 @@ class AltCLIPAttention(nn.Module):
 
 # Copied from transformers.models.clip.modeling_clip.CLIPMLP with CLIP->AltCLIP
 class AltCLIPMLP(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config: Union[AltCLIPTextConfig, AltCLIPVisionConfig]):
         super().__init__()
         self.config = config
         self.activation_fn = ACT2FN[config.hidden_act]
@@ -615,7 +615,7 @@ class AltCLIPMLP(nn.Module):
 
 
 class AltCLIPEncoderLayer(GradientCheckpointingLayer):
-    def __init__(self, config: AltCLIPConfig):
+    def __init__(self, config: Union[AltCLIPTextConfig, AltCLIPVisionConfig]):
         super().__init__()
         self.embed_dim = config.hidden_size
         self.self_attn = AltCLIPAttention(config)
@@ -673,7 +673,7 @@ class AltCLIPEncoder(nn.Module):
         config: AltCLIPConfig
     """
 
-    def __init__(self, config: AltCLIPConfig):
+    def __init__(self, config: Union[AltCLIPTextConfig, AltCLIPVisionConfig]):
         super().__init__()
         self.config = config
         self.layers = nn.ModuleList([AltCLIPEncoderLayer(config) for _ in range(config.num_hidden_layers)])
@@ -1009,7 +1009,7 @@ class AltRobertaModel(AltCLIPPreTrainedModel):
     config_class = AltCLIPTextConfig
 
     # Copied from transformers.models.clap.modeling_clap.ClapTextModel.__init__ with ClapText->AltRoberta
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config: AltCLIPTextConfig, add_pooling_layer=True):
         r"""
         add_pooling_layer (bool, *optional*, defaults to `True`):
             Whether to add a pooling layer
@@ -1127,7 +1127,7 @@ class AltCLIPTextModel(AltCLIPPreTrainedModel):
     config: AltCLIPTextConfig
     config_class = AltCLIPTextConfig
 
-    def __init__(self, config):
+    def __init__(self, config: AltCLIPTextConfig):
         super().__init__(config)
         self.roberta = AltRobertaModel(config, add_pooling_layer=False)
         self.transformation = nn.Linear(config.hidden_size, config.project_dim)
